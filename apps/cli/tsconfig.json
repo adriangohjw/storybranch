@@ -1,21 +1,10 @@
 {
   "extends": "@storybranch/tsconfig/base.json",
   "compilerOptions": {
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "noEmit": false,
-    "outDir": "dist/types",
     "paths": {
-      "@/*": ["./src/*"]
-    },
-    "rootDir": "src"
+      "@/*": ["./src/*", "../../packages/core/src/*"]
+    }
   },
-  "references": [
-    { "path": "../../packages/core" },
-    { "path": "../../packages/report" }
-  ],
   "exclude": ["src/**/*.test.ts"],
   "include": ["./src/**/*.ts"]
 }

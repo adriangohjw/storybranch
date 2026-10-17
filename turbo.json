@@ -29,7 +29,7 @@
     },
     "typecheck": {
       "dependsOn": ["^typecheck"],
-      "outputs": ["dist/types/**", "tsconfig.tsbuildinfo"]
+      "outputs": []
     }
   }
 }

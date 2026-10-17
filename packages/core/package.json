@@ -14,7 +14,7 @@
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "test": "bun test",
-    "typecheck": "tsc --build"
+    "typecheck": "bun ../../scripts/bun-check.ts"
   },
   "dependencies": {
     "@storybranch/report": "workspace:*",
@@ -30,8 +30,6 @@
     "@storybranch/oxlint-config": "workspace:*",
     "@storybranch/tsconfig": "workspace:*",
     "@types/bun": "catalog:",
-    "@types/pngjs": "catalog:",
-    "typescript": "catalog:",
-    "ultracite": "catalog:"
+    "@types/pngjs": "catalog:"
   }
 }

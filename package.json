@@ -39,8 +39,7 @@
     "ultracite": "8.0.1",
     "@storybook/react-vite": "10.6.1",
     "storybook": "10.6.1",
-    "turbo": "^2.5.8",
-    "typescript": "^5.9.3"
+    "turbo": "^2.5.8"
   },
   "devDependencies": {
     "@storybook/react-vite": "catalog:",
@@ -54,9 +53,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "storybook": "catalog:",
-    "turbo": "catalog:",
-    "typescript": "catalog:",
-    "ultracite": "catalog:"
+    "turbo": "catalog:"
   },
   "packageManager": "bun@1.4.3",
   "patchedDependencies": {
