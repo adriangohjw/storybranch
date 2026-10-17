@@ -181,8 +181,8 @@ const initialId = "hero--default__1200x900.png";
         </div>
       </aside>
 
-      <div class="min-w-0 overflow-auto p-4" data-viewer>
-        <div class="grid gap-4 lg:grid-cols-2">
+      <div class="relative min-w-0 overflow-auto p-4" data-viewer>
+        <div class="grid gap-4 lg:grid-cols-2" data-comparison>
           <figure class="m-0">
             <div class="mb-1 flex h-5 items-center">
               <figcaption class="text-xs text-zinc-500">Baseline</figcaption>
@@ -241,7 +241,20 @@ const initialId = "hero--default__1200x900.png";
             </div>
           </figure>
         </div>
-        <p class="mt-4 hidden text-sm text-emerald-400" data-accepted-msg></p>
+        <div
+          class="hidden min-h-[min(22rem,55vh)] flex-col items-center justify-center gap-3 px-6 py-12 text-center"
+          data-empty-state
+        >
+          <span
+            aria-hidden="true"
+            class="text-5xl leading-none review-demo-empty-pop"
+            data-empty-emoji
+          >
+            🎉
+          </span>
+          <p class="text-lg font-semibold text-emerald-300" data-empty-title></p>
+          <p class="max-w-xs text-sm text-zinc-400" data-empty-subtitle></p>
+        </div>
       </div>
     </div>
   </div>

@@ -1,3 +1,5 @@
+import { fireReviewDemoConfetti } from "./review-demo-confetti.ts";
+
 function pendingApproval(status: string): boolean {
   return status === "new" || status === "changed";
 }
@@ -55,7 +57,12 @@ function initReviewDemo(root: HTMLElement): void {
     root.querySelector<HTMLButtonElement>("[data-diff-toggle]");
 
   const diffKnob = root.querySelector<HTMLElement>("[data-diff-knob]");
-  const acceptedMsg = root.querySelector<HTMLElement>("[data-accepted-msg]");
+  const viewer = root.querySelector<HTMLElement>("[data-viewer]");
+  const comparison = root.querySelector<HTMLElement>("[data-comparison]");
+  const emptyState = root.querySelector<HTMLElement>("[data-empty-state]");
+  const emptyEmoji = root.querySelector<HTMLElement>("[data-empty-emoji]");
+  const emptyTitle = root.querySelector<HTMLElement>("[data-empty-title]");
+  const emptySubtitle = root.querySelector<HTMLElement>("[data-empty-subtitle]");
   const aside = root.querySelector<HTMLElement>("[data-aside]");
   const asideLabel = root.querySelector<HTMLElement>("[data-aside-label]");
   const shotList = root.querySelector<HTMLElement>("[data-shot-list]");
@@ -70,6 +77,7 @@ function initReviewDemo(root: HTMLElement): void {
 
   let overlayOn = true;
   let collapsed = false;
+  let celebrationShown = false;
 
   let selectedId =
     selectButtons.find((button) => button.classList.contains("border-zinc-500"))
@@ -182,29 +190,99 @@ function initReviewDemo(root: HTMLElement): void {
       diffImg.classList.toggle("hidden", !hasDiff || !overlayOn);
     }
 
-    if (acceptedMsg !== null) {
-      acceptedMsg.classList.add("hidden");
-      acceptedMsg.textContent = "";
+  }
+
+  function clearSelectionHighlight(): void {
+    selectedId = null;
+
+    for (const selectButton of selectButtons) {
+      selectButton.classList.remove("border-zinc-500", "bg-zinc-800");
+      selectButton.classList.add("border-transparent");
     }
   }
 
-  function showEmptyFilterMessage(): void {
-    if (acceptedMsg === null) {
+  function pendingAttentionRows(): HTMLElement[] {
+    return rows.filter(
+      (row) => !rowApproved(row) && pendingApproval(row.dataset.status ?? "")
+    );
+  }
+
+  function isAttentionClearState(): boolean {
+    const value = filter?.value ?? "all";
+
+    return value === "attention" && pendingAttentionRows().length === 0;
+  }
+
+  function replayEmptyEmojiPop(): void {
+    if (emptyEmoji === null) {
       return;
     }
 
-    const value = filter?.value ?? "all";
-    const pending = rows.filter(
-      (row) => !rowApproved(row) && pendingApproval(row.dataset.status ?? "")
-    );
+    emptyEmoji.classList.remove("review-demo-empty-pop");
+    // Force reflow so the pop animation can run again.
+    void emptyEmoji.offsetWidth;
+    emptyEmoji.classList.add("review-demo-empty-pop");
+  }
 
-    if (value === "attention" && pending.length === 0) {
-      acceptedMsg.textContent = "No snapshots need attention.";
-    } else {
-      acceptedMsg.textContent = "No snapshots match this filter.";
+  function showEmptyViewer(): void {
+    comparison?.classList.add("hidden");
+    emptyState?.classList.remove("hidden");
+    emptyState?.classList.add("flex");
+    clearSelectionHighlight();
+
+    if (isAttentionClearState()) {
+      if (emptyEmoji !== null) {
+        emptyEmoji.textContent = "🎉";
+      }
+
+      if (emptyTitle !== null) {
+        emptyTitle.textContent = "No snapshots need attention.";
+      }
+
+      if (emptySubtitle !== null) {
+        emptySubtitle.textContent = "Everything in this demo is approved. Nice work.";
+        emptySubtitle.hidden = false;
+      }
+
+      replayEmptyEmojiPop();
+
+      if (!celebrationShown && viewer !== null) {
+        celebrationShown = true;
+
+        if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          fireReviewDemoConfetti(viewer);
+        }
+      }
+
+      return;
     }
 
-    acceptedMsg.classList.remove("hidden");
+    celebrationShown = false;
+
+    if (emptyEmoji !== null) {
+      emptyEmoji.textContent = "🔍";
+    }
+
+    if (emptyTitle !== null) {
+      emptyTitle.textContent = "No snapshots match this filter.";
+    }
+
+    if (emptySubtitle !== null) {
+      emptySubtitle.textContent = "Try another filter to see more shots.";
+      emptySubtitle.hidden = false;
+    }
+
+    replayEmptyEmojiPop();
+  }
+
+  function hideEmptyViewer(): void {
+    comparison?.classList.remove("hidden");
+    emptyState?.classList.add("hidden");
+    emptyState?.classList.remove("flex");
+
+    if (!isAttentionClearState()) {
+      celebrationShown = false;
+    }
   }
 
   function applyFilter(): void {
@@ -220,18 +298,23 @@ function initReviewDemo(root: HTMLElement): void {
 
     syncGroups();
 
-    const stillSelected = visibleRows().some(
-      (row) => row.dataset.id === selectedId
-    );
+    const visible = visibleRows();
+
+    if (visible.length === 0) {
+      showEmptyViewer();
+      return;
+    }
+
+    hideEmptyViewer();
+
+    const stillSelected = visible.some((row) => row.dataset.id === selectedId);
 
     if (!stillSelected) {
       const first =
-        visibleRows()[0]?.querySelector<HTMLButtonElement>("[data-select]");
+        visible[0]?.querySelector<HTMLButtonElement>("[data-select]");
 
       if (first !== undefined && first !== null) {
         selectShot(first);
-      } else {
-        showEmptyFilterMessage();
       }
     }
   }
