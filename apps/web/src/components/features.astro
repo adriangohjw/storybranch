@@ -1,0 +1,44 @@
+---
+const features = [
+  {
+    body: "Point storybranch at your Storybook URL. It walks the story index and writes PNGs under .storybranch/.",
+    command: "storybranch test --url …",
+    title: "Capture",
+  },
+  {
+    body: "Baselines live in git. Actuals and pixel diffs stay on disk — no Chromatic upload, no account.",
+    command: ".storybranch/baseline · actual · diff",
+    title: "Diff locally",
+  },
+  {
+    body: "Open the review UI to compare baseline / actual / diff, then Accept per shot or approve everything from the CLI.",
+    command: "storybranch review · approve",
+    title: "Review & accept",
+  },
+] as const;
+---
+
+<section class="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20" id="features">
+  <div class="max-w-2xl">
+    <h2 class="font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+      Capture, diff, accept — on your machine
+    </h2>
+    <p class="mt-3 text-base text-ink-muted sm:text-lg">
+      The same loop as cloud visual testing, kept local.
+    </p>
+  </div>
+  <ol class="mt-12 grid gap-8 md:grid-cols-3 md:gap-6">
+    {
+      features.map((feature, index) => (
+        <li class="relative">
+          <p class="font-mono text-xs font-medium tracking-widest text-accent uppercase">
+            {String(index + 1).padStart(2, "0")}
+          </p>
+          <h3 class="mt-3 font-display text-xl font-bold text-ink">{feature.title}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-ink-muted sm:text-[15px]">{feature.body}</p>
+          <p class="mt-4 font-mono text-xs text-moss">{feature.command}</p>
+        </li>
+      ))
+    }
+  </ol>
+</section>

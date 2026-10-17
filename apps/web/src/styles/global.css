@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Syne", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-ink: #14181f;
+  --color-ink-muted: #4a5568;
+  --color-paper: #ffffff;
+  --color-paper-2: #f4f4f5;
+  --color-surface: #ffffff;
+  --color-accent: #d63b5a;
+  --color-accent-deep: #a8243f;
+  --color-moss: #2f6b5a;
+  --color-terminal: #0f1419;
+  --color-terminal-line: #1c2430;
+  --color-good: #3d9a6a;
+  --color-warn: #c9842a;
+  --color-bad: #d45b5b;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+    background-color: var(--color-paper);
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-accent) 35%, white);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-rise {
+  animation: rise 0.7s ease-out both;
+}
+
+.animate-rise-delay-1 {
+  animation: rise 0.7s ease-out 0.1s both;
+}
+
+.animate-rise-delay-2 {
+  animation: rise 0.7s ease-out 0.2s both;
+}
+
+.animate-rise-delay-3 {
+  animation: rise 0.7s ease-out 0.35s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .animate-rise-delay-1,
+  .animate-rise-delay-2,
+  .animate-rise-delay-3 {
+    animation: none;
+  }
+}

@@ -12,7 +12,7 @@
     "lint:fix": "oxlint --fix .",
     "test": "bun test",
     "typecheck": "bun ../../scripts/bun-check.ts",
-    "prepack": "bun run --cwd ../../ build:review"
+    "prepack": "bun run --cwd ../../ build"
   },
   "dependencies": {
     "@storybranch/core": "workspace:*",

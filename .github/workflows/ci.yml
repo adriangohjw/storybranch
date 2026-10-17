@@ -52,7 +52,7 @@ jobs:
       - name: Format
         run: bun run format
 
-  review-ui:
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -63,8 +63,8 @@ jobs:
           persist-credentials: false
       - name: Setup
         uses: ./tooling/github/setup
-      - name: Build review UI
-        run: bun run build:review
+      - name: Build
+        run: bun run build
 
   test:
     runs-on: ubuntu-latest
