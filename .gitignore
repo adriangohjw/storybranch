@@ -1,8 +1,11 @@
 # dependencies
 node_modules/
 
-# turborepo
-.turbo/
+# Astro / Cloudflare Pages (apps/web)
+apps/web/dist/
+apps/web/.astro/
+.wrangler/
+
 # storybook
 debug-storybook.log
 storybook-static/
@@ -13,5 +16,5 @@ storybook-static/
 .storybranch/report.json
 
 # review UI (vite build output)
-apps/cli/review/public/*
-!apps/cli/review/public/.gitkeep
+src/review/public/*
+!src/review/public/.gitkeep

@@ -1,0 +1,6 @@
+# Cloudflare Pages — connect this project with root directory `apps/web`.
+# Skip deploys when unrelated paths change: dashboard → Settings → Build →
+# Build watch paths → Include: `apps/web/*`
+name = "storybranch"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-10-01"

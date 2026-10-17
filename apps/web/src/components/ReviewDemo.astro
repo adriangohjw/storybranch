@@ -1,0 +1,410 @@
+---
+const shots = [
+  {
+    id: "button--default__1200x900.png",
+    storyId: "button--default",
+    status: "changed" as const,
+    label: "button--default__1200x900.png",
+    baseline: "/images/demo/baseline.svg",
+    actual: "/images/demo/actual.svg",
+    diff: "/images/demo/diff.svg",
+  },
+  {
+    id: "button--modes__narrow.png",
+    storyId: "button--modes",
+    status: "changed" as const,
+    label: "button--modes__narrow.png",
+    baseline: "/images/demo/baseline.svg",
+    actual: "/images/demo/actual.svg",
+    diff: "/images/demo/diff.svg",
+  },
+  {
+    id: "button--modes__tall.png",
+    storyId: "button--modes",
+    status: "changed" as const,
+    label: "button--modes__tall.png",
+    baseline: "/images/demo/baseline.svg",
+    actual: "/images/demo/actual.svg",
+    diff: "/images/demo/diff.svg",
+  },
+  {
+    id: "button--modes__wide.png",
+    storyId: "button--modes",
+    status: "changed" as const,
+    label: "button--modes__wide.png",
+    baseline: "/images/demo/baseline.svg",
+    actual: "/images/demo/actual.svg",
+    diff: "/images/demo/diff.svg",
+  },
+  {
+    id: "button--pinned__mobile1.png",
+    storyId: "button--pinned",
+    status: "new" as const,
+    label: "button--pinned__mobile1.png",
+    baseline: null,
+    actual: "/images/demo/actual-new.svg",
+    diff: null,
+  },
+];
+
+const groups = Map.groupBy(shots, (shot) => shot.storyId);
+const badgeClass = {
+  changed: "bg-amber-500/20 text-amber-300",
+  new: "bg-sky-500/20 text-sky-300",
+  unchanged: "bg-emerald-500/20 text-emerald-300",
+} as const;
+---
+
+<section class="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20" id="review">
+  <div class="max-w-2xl">
+    <h2 class="font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+      Review changes in the browser
+    </h2>
+    <p class="mt-3 text-base text-ink-muted sm:text-lg">
+      When something drifts, storybranch serves a local UI to compare baseline vs this scan (with an optional diff overlay) and accept updates.
+    </p>
+  </div>
+
+  <div
+    class="review-demo mt-10 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 text-zinc-100 shadow-[0_24px_60px_-28px_rgb(0_0_0_/_0.55)]"
+    data-review-demo
+  >
+    <header class="border-b border-zinc-800 px-5 py-4">
+      <h3 class="text-lg font-semibold tracking-tight">storybranch review</h3>
+      <p class="mt-1 text-sm text-zinc-400">
+        commit a589471 · <span data-shot-count>{shots.length}</span> snapshots
+      </p>
+      <div class="mt-3 flex flex-wrap items-center gap-3">
+        <label class="flex items-center gap-2 text-sm text-zinc-300">
+          Filter
+          <select
+            class="rounded-md border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm text-zinc-100"
+            data-filter
+          >
+            <option value="attention">Needs attention</option>
+            <option value="changed">Changed</option>
+            <option value="new">New</option>
+            <option value="unchanged">Unchanged</option>
+            <option value="all">All</option>
+          </select>
+        </label>
+        <button
+          class="rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-900 hover:bg-white"
+          data-accept-all
+          type="button"
+        >
+          Accept all
+        </button>
+      </div>
+    </header>
+
+    <div class="grid min-h-[22rem] grid-cols-1 lg:grid-cols-[minmax(11rem,14rem)_1fr]" data-main>
+      <aside class="flex flex-col border-b border-zinc-800 lg:border-r lg:border-b-0" data-aside>
+        <div class="flex shrink-0 items-center justify-between gap-2 border-b border-zinc-800 px-2 py-1.5">
+          <span class="truncate text-xs font-medium text-zinc-400" data-aside-label>
+            Needs approval
+          </span>
+          <button
+            aria-label="Collapse snapshot list"
+            class="rounded p-1 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+            data-collapse
+            type="button"
+          >
+            <span aria-hidden class="block text-sm leading-none">⟨</span>
+          </button>
+        </div>
+        <div class="min-h-0 flex-1 overflow-auto p-2" data-shot-list>
+          {
+            [...groups.entries()].map(([storyId, storyShots]) => (
+              <section class="mb-4" data-story-group data-story={storyId}>
+                <h4 class="mb-1 text-xs font-semibold tracking-wide text-zinc-500 uppercase">
+                  {storyId}
+                </h4>
+                <ul class="space-y-1">
+                  {storyShots.map((shot, index) => (
+                    <li class="flex items-center gap-1" data-shot-row data-status={shot.status} data-id={shot.id}>
+                      <button
+                        class:list={[
+                          "flex min-w-0 flex-1 items-center gap-2 rounded-md border px-2 py-1.5 text-left text-sm transition-colors",
+                          "hover:border-zinc-600 hover:bg-zinc-800/80",
+                          index === 0 && storyId === "button--default"
+                            ? "border-zinc-500 bg-zinc-800"
+                            : "border-transparent",
+                        ]}
+                        data-select
+                        data-id={shot.id}
+                        data-baseline={shot.baseline ?? ""}
+                        data-actual={shot.actual}
+                        data-diff={shot.diff ?? ""}
+                        data-status={shot.status}
+                        type="button"
+                      >
+                        <span
+                          class:list={[
+                            "shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase",
+                            badgeClass[shot.status],
+                          ]}
+                        >
+                          {shot.status}
+                        </span>
+                        <span class="min-w-0 flex-1 truncate text-zinc-200">{shot.label}</span>
+                      </button>
+                      <button
+                        class="shrink-0 rounded border border-zinc-600 px-2 py-0.5 text-xs text-zinc-200 hover:bg-zinc-700"
+                        data-accept
+                        data-id={shot.id}
+                        type="button"
+                      >
+                        Accept
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))
+          }
+        </div>
+      </aside>
+
+      <div class="min-w-0 overflow-auto p-4" data-viewer>
+        <div class="grid gap-4 lg:grid-cols-2">
+          <figure class="m-0">
+            <figcaption class="mb-1 text-xs text-zinc-500">Baseline</figcaption>
+            <p class="hidden text-xs text-zinc-600" data-no-baseline>No baseline</p>
+            <img
+              alt="baseline"
+              class="block w-full rounded border border-zinc-800 bg-zinc-900/50"
+              data-baseline-img
+              src="/images/demo/baseline.svg"
+            />
+          </figure>
+          <figure class="m-0">
+            <div class="mb-1 flex flex-wrap items-center justify-between gap-2">
+              <figcaption class="text-xs text-zinc-500">This scan</figcaption>
+              <div class="flex items-center gap-2 text-xs text-zinc-400" data-diff-controls>
+                <span>Diff overlay</span>
+                <button
+                  aria-label="Toggle diff overlay"
+                  aria-pressed="true"
+                  class="relative h-5 w-9 rounded-full bg-sky-600 transition-colors"
+                  data-diff-toggle
+                  type="button"
+                >
+                  <span
+                    class="absolute top-0.5 left-0.5 size-4 translate-x-4 rounded-full bg-white transition-transform"
+                    data-diff-knob
+                  ></span>
+                </button>
+              </div>
+            </div>
+            <div class="relative overflow-hidden rounded border border-zinc-800 bg-zinc-900/50">
+              <img
+                alt="this scan"
+                class="block w-full"
+                data-actual-img
+                src="/images/demo/actual.svg"
+              />
+              <img
+                alt=""
+                aria-hidden
+                class="pointer-events-none absolute inset-0 size-full object-contain opacity-85 mix-blend-screen"
+                data-diff-img
+                src="/images/demo/diff.svg"
+              />
+            </div>
+          </figure>
+        </div>
+        <p class="mt-4 hidden text-sm text-emerald-400" data-accepted-msg></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  function initReviewDemo(root: HTMLElement) {
+    if (root.dataset.ready === "1") return;
+    root.dataset.ready = "1";
+
+    const rows = [...root.querySelectorAll<HTMLElement>("[data-shot-row]")];
+    const selectButtons = [...root.querySelectorAll<HTMLButtonElement>("[data-select]")];
+    const filter = root.querySelector<HTMLSelectElement>("[data-filter]");
+    const baselineImg = root.querySelector<HTMLImageElement>("[data-baseline-img]");
+    const actualImg = root.querySelector<HTMLImageElement>("[data-actual-img]");
+    const diffImg = root.querySelector<HTMLImageElement>("[data-diff-img]");
+    const noBaseline = root.querySelector<HTMLElement>("[data-no-baseline]");
+    const diffControls = root.querySelector<HTMLElement>("[data-diff-controls]");
+    const diffToggle = root.querySelector<HTMLButtonElement>("[data-diff-toggle]");
+    const diffKnob = root.querySelector<HTMLElement>("[data-diff-knob]");
+    const acceptedMsg = root.querySelector<HTMLElement>("[data-accepted-msg]");
+    const shotCount = root.querySelector<HTMLElement>("[data-shot-count]");
+    const aside = root.querySelector<HTMLElement>("[data-aside]");
+    const asideLabel = root.querySelector<HTMLElement>("[data-aside-label]");
+    const shotList = root.querySelector<HTMLElement>("[data-shot-list]");
+    const collapseBtn = root.querySelector<HTMLButtonElement>("[data-collapse]");
+    const main = root.querySelector<HTMLElement>("[data-main]");
+    let overlayOn = true;
+    let collapsed = false;
+    let selectedId =
+      selectButtons.find((b) => b.classList.contains("border-zinc-500"))?.dataset.id ??
+      selectButtons[0]?.dataset.id ??
+      null;
+
+    function matchesFilter(status: string, value: string) {
+      if (value === "all") return true;
+      if (value === "attention") return status !== "unchanged";
+      return status === value;
+    }
+
+    function visibleRows() {
+      const value = filter?.value ?? "attention";
+      return rows.filter((row) => {
+        if (row.hidden) return false;
+        return matchesFilter(row.dataset.status ?? "", value);
+      });
+    }
+
+    function applyFilter() {
+      const value = filter?.value ?? "attention";
+      for (const row of rows) {
+        const status = row.dataset.status ?? "";
+        row.hidden = !matchesFilter(status, value);
+      }
+      for (const group of root.querySelectorAll<HTMLElement>("[data-story-group]")) {
+        const anyVisible = [...group.querySelectorAll<HTMLElement>("[data-shot-row]")].some(
+          (row) => !row.hidden
+        );
+        group.hidden = !anyVisible;
+      }
+      const stillSelected = visibleRows().some((row) => row.dataset.id === selectedId);
+      if (!stillSelected) {
+        const first = visibleRows()[0]?.querySelector<HTMLButtonElement>("[data-select]");
+        if (first) selectShot(first);
+        else if (acceptedMsg) {
+          acceptedMsg.textContent =
+            value === "attention"
+              ? "Nothing needs attention — switch filter to All or Unchanged."
+              : "No snapshots match this filter.";
+          acceptedMsg.classList.remove("hidden");
+        }
+      }
+    }
+
+    function selectShot(button: HTMLButtonElement) {
+      selectedId = button.dataset.id ?? null;
+      for (const btn of selectButtons) {
+        const on = btn.dataset.id === selectedId;
+        btn.classList.toggle("border-zinc-500", on);
+        btn.classList.toggle("bg-zinc-800", on);
+        btn.classList.toggle("border-transparent", !on);
+      }
+      const baseline = button.dataset.baseline ?? "";
+      const actual = button.dataset.actual ?? "";
+      const diff = button.dataset.diff ?? "";
+      if (actualImg) actualImg.src = actual;
+      if (baseline) {
+        if (baselineImg) {
+          baselineImg.hidden = false;
+          baselineImg.src = baseline;
+        }
+        noBaseline?.classList.add("hidden");
+      } else {
+        if (baselineImg) baselineImg.hidden = true;
+        noBaseline?.classList.remove("hidden");
+      }
+      const hasDiff = diff.length > 0;
+      if (diffControls) diffControls.classList.toggle("hidden", !hasDiff);
+      if (diffImg) {
+        diffImg.src = diff;
+        diffImg.classList.toggle("hidden", !hasDiff || !overlayOn);
+      }
+      if (acceptedMsg) {
+        acceptedMsg.classList.add("hidden");
+        acceptedMsg.textContent = "";
+      }
+    }
+
+    function acceptId(id: string) {
+      const row = rows.find((r) => r.dataset.id === id);
+      if (!row || row.dataset.status === "unchanged") return;
+
+      row.dataset.status = "unchanged";
+      const selectBtn = row.querySelector<HTMLButtonElement>("[data-select]");
+      const badge = selectBtn?.querySelector("span");
+      if (badge) {
+        badge.textContent = "unchanged";
+        badge.className =
+          "shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase bg-emerald-500/20 text-emerald-300";
+      }
+      // After accept, baseline matches this scan (no diff).
+      if (selectBtn) {
+        const actual = selectBtn.dataset.actual ?? "";
+        selectBtn.dataset.baseline = actual;
+        selectBtn.dataset.diff = "";
+        selectBtn.dataset.status = "unchanged";
+      }
+      row.querySelector<HTMLButtonElement>("[data-accept]")?.remove();
+
+      applyFilter();
+
+      if (selectedId === id) {
+        const nextAttention = visibleRows()[0]?.querySelector<HTMLButtonElement>("[data-select]");
+        if (nextAttention) selectShot(nextAttention);
+        else if (selectBtn && !row.hidden) selectShot(selectBtn);
+      }
+    }
+
+    filter?.addEventListener("change", applyFilter);
+
+    for (const button of selectButtons) {
+      button.addEventListener("click", () => selectShot(button));
+    }
+
+    for (const button of root.querySelectorAll<HTMLButtonElement>("[data-accept]")) {
+      button.addEventListener("click", () => {
+        const id = button.dataset.id;
+        if (id) acceptId(id);
+      });
+    }
+
+    root.querySelector("[data-accept-all]")?.addEventListener("click", () => {
+      for (const row of rows) {
+        if (row.dataset.accepted !== "1") acceptId(row.dataset.id ?? "");
+      }
+    });
+
+    diffToggle?.addEventListener("click", () => {
+      overlayOn = !overlayOn;
+      diffToggle.setAttribute("aria-pressed", overlayOn ? "true" : "false");
+      diffToggle.classList.toggle("bg-sky-600", overlayOn);
+      diffToggle.classList.toggle("bg-zinc-700", !overlayOn);
+      diffKnob?.classList.toggle("translate-x-4", overlayOn);
+      const selected = selectButtons.find((b) => b.dataset.id === selectedId);
+      const hasDiff = Boolean(selected?.dataset.diff);
+      diffImg?.classList.toggle("hidden", !hasDiff || !overlayOn);
+    });
+
+    collapseBtn?.addEventListener("click", () => {
+      collapsed = !collapsed;
+      asideLabel?.classList.toggle("hidden", collapsed);
+      shotList?.classList.toggle("hidden", collapsed);
+      collapseBtn.querySelector("span")!.textContent = collapsed ? "⟩" : "⟨";
+      collapseBtn.setAttribute(
+        "aria-label",
+        collapsed ? "Expand snapshot list" : "Collapse snapshot list"
+      );
+      aside?.classList.toggle("lg:w-9", collapsed);
+      aside?.classList.toggle("lg:max-w-56", !collapsed);
+      main?.classList.toggle("lg:grid-cols-[auto_1fr]", collapsed);
+      main?.classList.toggle("lg:grid-cols-[minmax(11rem,14rem)_1fr]", !collapsed);
+    });
+  }
+
+  function boot() {
+    for (const root of document.querySelectorAll<HTMLElement>("[data-review-demo]")) {
+      initReviewDemo(root);
+    }
+  }
+
+  boot();
+  document.addEventListener("astro:page-load", boot);
+</script>
