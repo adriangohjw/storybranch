@@ -81,3 +81,11 @@ jobs:
         run: bunx playwright install --with-deps chromium
       - name: Test
         run: bun run test
+
+  codeql:
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+    uses: ./.github/workflows/codeql-analyze.yml
