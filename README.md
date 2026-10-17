@@ -17,6 +17,7 @@ storybranch drives Playwright against your Storybook, saves one PNG per story (a
 - [Imports](#imports)
 - [Development](#development)
   - [Review UI (HMR)](#review-ui-hmr)
+  - [Landing site](#landing-site)
 
 ## How it works
 
@@ -62,11 +63,12 @@ The fixture in this repo uses a tiny orange “button” story; the screenshot a
 - ⚡ [Bun](https://bun.com) workspaces + [Turborepo](https://turbo.build) monorepo; Bun for runtime, tests, and CLI
 - 🎨 [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) with [Ultracite](https://www.ultracite.dev/) presets; [Lefthook](https://lefthook.dev/) (`pre-commit` fix, `pre-push` CI checks)
 - 💚 CI on GitHub Actions:
-  - ✅ Lint, format, and typecheck (parallel)
+  - ✅ Lint, format, typecheck, and `turbo` **build** (parallel jobs)
   - ✅ Tests with [Playwright](https://playwright.dev/) via `bun test`
   - ✅ Workflow linting with [jactionlint](https://github.com/rhysd/actionlint)
 - 📖 [Storybook](https://storybook.js.org/) fixture for development and e2e coverage
 - 🖼️ Local **review UI** (Vite + React) to compare baseline / actual / diff and accept snapshots in the browser
+- 🌐 **Marketing site** (`apps/web`, Astro + Tailwind) — deploy details in [`apps/web/README.md`](apps/web/README.md)
 - ⚙️ VS Code extension recommendations
 
 ## Project structure
@@ -74,7 +76,7 @@ The fixture in this repo uses a tiny orange “button” story; the screenshot a
 ```
 .github
   └─ workflows
-        ├─ CI (lint, typecheck, format, test)
+        ├─ CI (lint, typecheck, format, build, test)
         └─ jactionlint
   └─ dependabot.yml
 .vscode
@@ -82,7 +84,7 @@ The fixture in this repo uses a tiny orange “button” story; the screenshot a
 apps
   ├─ cli/         # Published `storybranch` CLI (bin) + review static assets
   ├─ review-ui/   # Vite + React review SPA (`@storybranch/review-ui`)
-  └─ web/         # Landing site placeholder (`@storybranch/web`)
+  └─ web/         # Marketing landing page (`@storybranch/web`, Astro)
 packages
   ├─ core/        # Capture engine (`@storybranch/core`)
   ├─ fixture/     # Minimal Storybook app for tests and manual runs
@@ -134,7 +136,7 @@ See [How it works](#how-it-works) for screenshots. On a run with **missing / cha
 
 ## Imports
 
-Workspace packages use `workspace:*` for cross-package imports (e.g. `@storybranch/report`, `@storybranch/core/capture`). Within a package’s `src/`, import sibling modules with the `@/` alias (`paths` in that package’s `tsconfig.json`), not `./` or `../`; each package’s `oxlint.config.ts` composes `@storybranch/oxlint-config` blocks (e.g. `react-doctor` + `src-alias-imports` on CLI packages, `react-stack` on review UI). Shared lint/format/tsconfig live under `tooling/*` (`@storybranch/oxlint-config`, `@storybranch/oxfmt-config`, `@storybranch/tsconfig`).
+Third-party versions live in the root **`catalog`** in `package.json`; workspace packages reference them with `catalog:` (and each other with `workspace:*`). Cross-package imports use workspace names (e.g. `@storybranch/report`, `@storybranch/core/capture`). Within a package’s `src/`, import sibling modules with the `@/` alias (`paths` in that package’s `tsconfig.json`), not `./` or `../`; each package’s `oxlint.config.ts` composes `@storybranch/oxlint-config` blocks (e.g. `react-doctor` + `src-alias-imports` on CLI packages, `react-stack` on review UI). Shared lint/format/tsconfig live under `tooling/*` (`@storybranch/oxlint-config`, `@storybranch/oxfmt-config`, `@storybranch/tsconfig`).
 
 ## Development
 
@@ -145,8 +147,7 @@ bun run lint:fix
 bun run format        # turbo run format (per-package oxfmt)
 bun run format:fix
 bun run typecheck     # turbo run typecheck (per-package `bun check`; requires Bun 1.4.3+)
-bun run build  # review-ui → apps/cli/review/public/, web → apps/web/dist
-bun run build         # turbo build (review-ui + web stub)
+bun run build         # review-ui → apps/cli/review/public/, web → apps/web/dist
 bun run test          # unit tests + Playwright e2e (install Chromium first)
 ```
 
@@ -154,7 +155,7 @@ bun run test          # unit tests + Playwright e2e (install Chromium first)
 
 [`lefthook.yml`](lefthook.yml):
 
-- **`pre-commit`** — `oxlint --fix` and `oxfmt` on staged files (`stage_fixed`)
+- **`pre-commit`** — `bun run lint:fix` and `bun run format:fix` (turbo, all packages)
 - **`pre-push`** — same **lint**, **format**, and **typecheck** tasks as CI (`turbo run …`, in parallel)
 
 Skip hooks with `git commit --no-verify` / `git push --no-verify`, or `LEFTHOOK=0` before the git command.
@@ -165,7 +166,17 @@ Skip hooks with `git commit --no-verify` / `git push --no-verify`, or `LEFTHOOK=
 2. Terminal A: `bunx storybranch review` (API on port 4321).
 3. Terminal B: `bun run dev:review` (Vite dev server; proxies `/api` and `/images` to 4321).
 
-Review UI assets are **not** committed (`apps/cli/review/public/assets/`, `index.html`). After `bun install`, run `bun run build` before `storybranch review`. CI runs the same build before tests; `prepack` on the `storybranch` package (`apps/cli`) runs the monorepo build for publish.
+Review UI assets are **not** committed (`apps/cli/review/public/assets/`, `index.html`). After `bun install`, run `bun run build` before `storybranch review`. CI has a dedicated **build** job (`bun run build`); tests depend on packages building via turbo. `prepack` on the `storybranch` package (`apps/cli`) runs the same monorepo build for npm publish.
+
+### Landing site
+
+From `apps/web` (or `bun run --filter @storybranch/web dev` at the repo root):
+
+```bash
+cd apps/web && bun run dev
+```
+
+Production hosting is **Cloudflare Pages** (Git integration, build watch paths on `apps/web/*`). See [`apps/web/README.md`](apps/web/README.md).
 
 To refresh README screenshots after UI changes: `bun scripts/capture-readme-screenshots.ts` (requires Chromium from Playwright and a free port `6020` / `4322`).
 
