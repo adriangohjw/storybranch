@@ -1,13 +1,13 @@
 # storybranch
 
-**Open-source, self-hosted visual testing for Storybook** — the workflow teams know from [Chromatic](https://www.chromatic.com/), without a Chromatic account or cloud upload step.
+**Open-source, self-hosted visual testing for Storybook** — the capture → diff → review loop teams know from [Chromatic](https://www.chromatic.com/), designed to **run on your machine** and **deploy on infrastructure you control**.
 
-storybranch drives Playwright against your Storybook, saves one PNG per story (and per [Chromatic mode](https://www.chromatic.com/docs/modes/)), compares them to baselines you keep in git, and opens a review UI when something needs your attention. Run it on your laptop, in CI on your own runners, or anywhere you can reach Storybook — baselines and diffs stay on disk under `.storybranch/`.
+storybranch drives Playwright against your Storybook, saves one PNG per story (and per [Chromatic mode](https://www.chromatic.com/docs/modes/)), compares them to baselines you keep in git, and opens a review UI when something needs your attention. Use it locally while you develop, or self-host the same CLI in CI — baselines and diffs live under `.storybranch/` on disk.
 
 ## Contents
 
 - [Why storybranch](#why-storybranch)
-- [Beyond hosted Chromatic](#beyond-hosted-chromatic)
+- [Self-hosted and local](#self-hosted-and-local)
 - [Quick start](#quick-start)
 - [How it works](#how-it-works)
   - [First run — missing baselines](#first-run--missing-baselines)
@@ -24,26 +24,29 @@ storybranch drives Playwright against your Storybook, saves one PNG per story (a
 
 ## Why storybranch
 
-| | Chromatic (hosted) | storybranch |
+| | Chromatic (hosted SaaS) | storybranch |
 | --- | --- | --- |
-| **Hosting** | SaaS | Self-hosted — you run the CLI and store artifacts |
-| **Baselines** | Cloud project | Committed PNGs in `.storybranch/baseline/` |
-| **Review** | chromatic.com | Local review UI (or serve the last run with `storybranch review`) |
-| **Storybook** | Remote build / upload | Any URL — local dev server, preview deploy, CI |
+| **Where it runs** | Chromatic’s cloud | Your laptop, your CI runners, your servers |
+| **Baselines** | Hosted project | Committed PNGs in `.storybranch/baseline/` |
+| **Review** | chromatic.com | Review UI you serve (`storybranch review` on localhost by default) |
+| **Storybook** | Chromatic build pipeline | Any URL you point at — especially `http://127.0.0.1:…` while developing |
 | **License / cost** | Commercial product | Open source ([LICENSE](LICENSE)) |
 
-storybranch is aimed at teams who want the **capture → diff → review → accept** loop Chromatic popularized, but with **full control**: no per-seat billing, no snapshot quota, and no dependency on an external service for day-to-day development.
+storybranch is an **open-source, self-hosted** take on that workflow: you operate the tool, you own the artifacts, and you can keep the whole loop **local** during development.
 
 It is not a drop-in Chromatic replacement for every feature (e.g. hosted Storybook builds, TurboSnap, or Chromatic’s GitHub App integrations). It **does** cover the core visual regression workflow for Storybook 10+ using Playwright capture, pixel diffs, and an accept/reject review experience.
 
-## Beyond hosted Chromatic
+## Self-hosted and local
 
-These are deliberate extras you get from a local-first, git-backed design:
+Two goals drive the design:
 
-- **Run against `localhost`** — Point `--url` at `storybranch dev` while you iterate; no publish step required to see pixel changes.
-- **Baselines in git** — Reference images are normal files in your repo; PRs show baseline updates like any other asset change.
-- **Offline-friendly** — After install, capture and review work without network access (aside from fetching Storybook if it is remote).
-- **CI on your infrastructure** — Same CLI in GitHub Actions, self-hosted runners, or internal pipelines; artifacts are paths on disk, not a vendor API.
+1. **Self-hosted** — Run storybranch wherever you already run tooling (GitHub Actions, self-hosted runners, internal CI). Snapshots and reports stay in your repo and on your disks.
+2. **Local** — Point `--url` at a Storybook dev server on your machine and get pixel diffs in seconds; open the review UI on `127.0.0.1` without waiting on a remote service.
+
+Related behavior:
+
+- **Baselines in git** — Reference images are normal files; PRs show baseline updates like any other asset change.
+- **Offline-friendly local runs** — After install, capture and review against a local Storybook work without reaching a hosted visual-testing service.
 - **Chromatic modes** — Multiple snapshots per story via [modes](https://www.chromatic.com/docs/modes/) naming, aligned with how Chromatic labels variant viewports/themes.
 
 ## Quick start
