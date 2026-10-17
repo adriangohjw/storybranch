@@ -29,9 +29,9 @@ export const ComparisonViewer = ({ entry }: ComparisonViewerProps) => {
     <div>
       <div className="grid gap-4 lg:grid-cols-2">
         <figure className="m-0">
-          <figcaption className="mb-1 text-xs text-zinc-500">
-            Baseline
-          </figcaption>
+          <div className="mb-1 flex h-5 items-center">
+            <figcaption className="text-xs text-zinc-500">Baseline</figcaption>
+          </div>
           {entry.baselinePath === undefined ? (
             <p className="text-xs text-zinc-600">No baseline</p>
           ) : (
@@ -43,32 +43,36 @@ export const ComparisonViewer = ({ entry }: ComparisonViewerProps) => {
           )}
         </figure>
         <figure className="m-0">
-          <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+          <div className="mb-1 flex h-5 items-center justify-between gap-2">
             <figcaption className="text-xs text-zinc-500">This scan</figcaption>
-            {hasDiff ? (
-              <div className="flex items-center gap-2 text-xs text-zinc-400">
-                <span>Diff overlay</span>
-                <button
-                  aria-label="Toggle diff overlay"
-                  aria-pressed={diffOverlay}
+            <div
+              className={cn(
+                "flex shrink-0 items-center gap-2 text-xs text-zinc-400",
+                !hasDiff && "invisible"
+              )}
+            >
+              <span>Diff overlay</span>
+              <button
+                aria-label="Toggle diff overlay"
+                aria-pressed={diffOverlay}
+                className={cn(
+                  "relative h-5 w-9 rounded-full transition-colors",
+                  diffOverlay ? "bg-sky-600" : "bg-zinc-700"
+                )}
+                disabled={!hasDiff}
+                onClick={() => {
+                  setDiffOverlay((on) => !on);
+                }}
+                type="button"
+              >
+                <span
                   className={cn(
-                    "relative h-5 w-9 rounded-full transition-colors",
-                    diffOverlay ? "bg-sky-600" : "bg-zinc-700"
+                    "absolute top-0.5 left-0.5 size-4 rounded-full bg-white transition-transform",
+                    diffOverlay && "translate-x-4"
                   )}
-                  onClick={() => {
-                    setDiffOverlay((on) => !on);
-                  }}
-                  type="button"
-                >
-                  <span
-                    className={cn(
-                      "absolute top-0.5 left-0.5 size-4 rounded-full bg-white transition-transform",
-                      diffOverlay && "translate-x-4"
-                    )}
-                  />
-                </button>
-              </div>
-            ) : null}
+                />
+              </button>
+            </div>
           </div>
           {entry.actualPath === undefined ? (
             <p className="text-xs text-zinc-600">No actual</p>

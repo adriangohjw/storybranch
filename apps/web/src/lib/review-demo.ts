@@ -158,7 +158,8 @@ function initReviewDemo(root: HTMLElement): void {
     const hasDiff = diff.length > 0;
 
     if (diffControls !== null) {
-      diffControls.classList.toggle("hidden", !hasDiff);
+      diffControls.classList.toggle("invisible", !hasDiff);
+      diffControls.classList.toggle("pointer-events-none", !hasDiff);
     }
 
     if (diffImg !== null) {
