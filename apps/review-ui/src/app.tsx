@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { acceptAll, fetchReport } from "@/api.ts";
 import { ComparisonViewer } from "@/comparison-viewer.tsx";
+import { cn } from "@/lib/cn.ts";
 import { matchesFilter } from "@/lib/report-ui.ts";
 import { ShotList } from "@/shot-list.tsx";
 
@@ -10,6 +11,7 @@ export const App = () => {
   const [report, setReport] = useState<Report | null>(null);
   const [filter, setFilter] = useState("attention");
   const [selectedFilename, setSelectedFilename] = useState<string | null>(null);
+  const [shotListCollapsed, setShotListCollapsed] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -116,16 +118,63 @@ export const App = () => {
           </button>
         </div>
       </header>
-      <main className="grid min-h-[calc(100vh-9rem)] grid-cols-1 lg:grid-cols-[minmax(240px,360px)_1fr]">
-        <aside className="overflow-auto border-b border-zinc-800 p-2 lg:border-r lg:border-b-0">
-          <ShotList
-            entries={visible}
-            onAccept={refreshReport}
-            onSelect={setSelectedFilename}
-            selectedFilename={selectedFilename}
-          />
+      <main
+        className={cn(
+          "grid min-h-[calc(100vh-9rem)] grid-cols-1",
+          shotListCollapsed
+            ? "lg:grid-cols-[auto_1fr]"
+            : "lg:grid-cols-[minmax(11rem,14rem)_1fr]"
+        )}
+      >
+        <aside
+          className={cn(
+            "flex flex-col border-b border-zinc-800 lg:border-r lg:border-b-0",
+            shotListCollapsed ? "lg:w-9" : "lg:max-w-56"
+          )}
+        >
+          <div
+            className={cn(
+              "flex shrink-0 items-center border-b border-zinc-800 px-1.5 py-1.5",
+              shotListCollapsed
+                ? "justify-center"
+                : "justify-between gap-2 px-2"
+            )}
+          >
+            {shotListCollapsed ? null : (
+              <span className="truncate text-xs font-medium text-zinc-400">
+                Needs approval
+              </span>
+            )}
+            <button
+              aria-expanded={!shotListCollapsed}
+              aria-label={
+                shotListCollapsed
+                  ? "Expand snapshot list"
+                  : "Collapse snapshot list"
+              }
+              className="rounded p-1 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+              onClick={() => {
+                setShotListCollapsed((collapsed) => !collapsed);
+              }}
+              type="button"
+            >
+              <span aria-hidden className="block text-sm leading-none">
+                {shotListCollapsed ? "⟩" : "⟨"}
+              </span>
+            </button>
+          </div>
+          {shotListCollapsed ? null : (
+            <div className="min-h-0 flex-1 overflow-auto p-2">
+              <ShotList
+                entries={visible}
+                onAccept={refreshReport}
+                onSelect={setSelectedFilename}
+                selectedFilename={selectedFilename}
+              />
+            </div>
+          )}
         </aside>
-        <section className="overflow-auto p-4">
+        <section className="min-w-0 overflow-auto p-4">
           <ComparisonViewer entry={selected} />
         </section>
       </main>
