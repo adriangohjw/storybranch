@@ -10,6 +10,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "devDependencies": {
-    "@storybranch/tooling": "workspace:*"
+    "@storybranch/oxfmt-config": "workspace:*",
+    "@storybranch/oxlint-config": "workspace:*",
+    "@storybranch/tsconfig": "workspace:*"
   }
 }

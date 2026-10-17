@@ -1,0 +1,36 @@
+{
+  "name": "@storybranch/core",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./capture": "./src/capture.ts",
+    "./images": "./src/images.ts",
+    "./plan": "./src/plan.ts",
+    "./progress": "./src/progress.ts"
+  },
+  "scripts": {
+    "format": "oxfmt --check src",
+    "format:fix": "oxfmt src",
+    "lint": "oxlint src/capture.ts src/images.ts src/plan.ts src/progress.ts",
+    "lint:fix": "oxlint --fix src/capture.ts src/images.ts src/plan.ts src/progress.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@storybranch/report": "workspace:*",
+    "log-update": "catalog:",
+    "ora": "catalog:",
+    "picocolors": "catalog:",
+    "pixelmatch": "catalog:",
+    "playwright": "catalog:",
+    "pngjs": "catalog:"
+  },
+  "devDependencies": {
+    "@storybranch/oxfmt-config": "workspace:*",
+    "@storybranch/oxlint-config": "workspace:*",
+    "@storybranch/tsconfig": "workspace:*",
+    "ultracite": "catalog:",
+    "@types/bun": "catalog:",
+    "@types/pngjs": "catalog:"
+  }
+}

@@ -164,7 +164,7 @@ async function run(
   cwd: string
 ): Promise<{ exitCode: number; stderr: string }> {
   const proc = Bun.spawn({
-    cmd: ["bun", path.join(root, "packages/storybranch/src/cli.ts"), ...args],
+    cmd: ["bun", path.join(root, "apps/cli/src/cli.ts"), ...args],
     cwd,
     stderr: "pipe",
     stdout: "pipe",

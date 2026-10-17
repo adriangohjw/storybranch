@@ -1,4 +1,4 @@
-import type { ReportEntry } from "@/report.ts";
+import type { ReportEntry } from "@storybranch/report";
 
 import { acceptShot } from "./api.ts";
 import { cn } from "./lib/cn.ts";

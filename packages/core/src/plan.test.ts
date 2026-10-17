@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 
-import { isCapturable, planShots, shotFilename } from "@/plan.ts";
-import type { Shot } from "@/plan.ts";
+import { isCapturable, planShots, shotFilename } from "./plan.ts";
+import type { Shot } from "./plan.ts";
 
 const mobile1 = {
   styles: { height: "568px", width: "320px" },

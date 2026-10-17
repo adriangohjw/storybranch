@@ -1,0 +1,30 @@
+{
+  "name": "storybranch",
+  "version": "0.0.0",
+  "bin": {
+    "storybranch": "./src/cli.ts"
+  },
+  "type": "module",
+  "scripts": {
+    "format": "oxfmt --check src",
+    "format:fix": "oxfmt src",
+    "lint": "oxlint src/cli.ts src/review-server.ts src/review-spawn.ts",
+    "lint:fix": "oxlint --fix src/cli.ts src/review-server.ts src/review-spawn.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "prepack": "bun run --cwd ../../ build:review"
+  },
+  "dependencies": {
+    "@storybranch/core": "workspace:*",
+    "@storybranch/report": "workspace:*",
+    "picocolors": "catalog:"
+  },
+  "devDependencies": {
+    "@storybranch/oxfmt-config": "workspace:*",
+    "@storybranch/oxlint-config": "workspace:*",
+    "@storybranch/tsconfig": "workspace:*",
+    "ultracite": "catalog:",
+    "@types/bun": "catalog:",
+    "playwright": "catalog:"
+  }
+}

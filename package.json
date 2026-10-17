@@ -2,7 +2,7 @@
   "name": "storybranch-repo",
   "private": true,
   "type": "module",
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": ["apps/*", "packages/*", "tooling/*"],
   "scripts": {
     "build": "turbo run build",
     "build:review": "turbo run build --filter=@storybranch/review-ui",
@@ -37,11 +37,13 @@
     "oxlint-plugin-react-doctor": "^0.9.18",
     "oxlint-tsgolint": "^7.0.2004",
     "typescript": "^5.9.3",
-    "ultracite": "8.0.1"
+    "ultracite": "8.0.1",
+    "@storybook/react-vite": "10.6.1",
+    "storybook": "10.6.1",
+    "turbo": "^2.5.8"
   },
   "devDependencies": {
-    "@storybook/react-vite": "10.6.1",
-    "@storybranch/tooling": "workspace:*",
+    "@storybook/react-vite": "catalog:",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "oxfmt": "catalog:",
@@ -51,8 +53,8 @@
     "playwright": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "storybook": "10.6.1",
-    "turbo": "^2.5.8",
+    "storybook": "catalog:",
+    "turbo": "catalog:",
     "typescript": "catalog:",
     "ultracite": "catalog:"
   },

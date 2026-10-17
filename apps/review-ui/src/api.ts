@@ -1,4 +1,4 @@
-import type { Report } from "@/report.ts";
+import type { Report } from "@storybranch/report";
 
 import { parseReportResponse } from "./lib/parse-report.ts";
 

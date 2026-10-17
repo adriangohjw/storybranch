@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
-import type { Report, ReportEntry } from "@/report.ts";
+import type { Report, ReportEntry } from "@storybranch/report";
 
 import { acceptAll, fetchReport } from "./api.ts";
 import { ComparisonViewer } from "./comparison-viewer.tsx";

@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "vite build && touch ../../packages/storybranch/review/public/.gitkeep",
+    "build": "vite build && touch ../cli/review/public/.gitkeep",
     "dev": "vite",
     "format": "oxfmt --check .",
     "format:fix": "oxfmt .",
@@ -12,12 +12,15 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
+    "@storybranch/report": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
     "tailwind-merge": "catalog:"
   },
   "devDependencies": {
-    "@storybranch/tooling": "workspace:*",
+    "@storybranch/oxfmt-config": "workspace:*",
+    "@storybranch/oxlint-config": "workspace:*",
+    "@storybranch/tsconfig": "workspace:*",
     "@tailwindcss/vite": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

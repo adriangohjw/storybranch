@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 
-import { createCaptureProgress } from "@/progress.ts";
+import { createCaptureProgress } from "./progress.ts";
 
 test("capture progress is silent when disabled", () => {
   const progress = createCaptureProgress(2, false);

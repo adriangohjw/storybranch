@@ -14,5 +14,5 @@ storybook-static/
 .storybranch/report.json
 
 # review UI (vite build output)
-packages/storybranch/review/public/*
-!packages/storybranch/review/public/.gitkeep
+apps/cli/review/public/*
+!apps/cli/review/public/.gitkeep

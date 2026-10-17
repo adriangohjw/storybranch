@@ -1,0 +1,23 @@
+{
+  "name": "@storybranch/report",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/report.ts"
+  },
+  "scripts": {
+    "format": "oxfmt --check src",
+    "format:fix": "oxfmt src",
+    "lint": "oxlint src/report.ts",
+    "lint:fix": "oxlint --fix src/report.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@storybranch/oxfmt-config": "workspace:*",
+    "@storybranch/oxlint-config": "workspace:*",
+    "@storybranch/tsconfig": "workspace:*",
+    "@types/bun": "catalog:",
+    "ultracite": "catalog:"
+  }
+}

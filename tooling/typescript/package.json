@@ -1,0 +1,8 @@
+{
+  "name": "@storybranch/tsconfig",
+  "private": true,
+  "exports": {
+    "./base.json": "./base.json"
+  },
+  "files": ["base.json"]
+}

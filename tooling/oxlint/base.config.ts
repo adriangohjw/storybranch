@@ -8,5 +8,10 @@ export default defineConfig({
   extends: [core, antiSlop],
   ignorePatterns: core.ignorePatterns,
   options: { typeAware: true },
+  rules: {
+    "func-style": "off",
+    "no-await-in-loop": "off",
+    "no-use-before-define": "off",
+  },
   settings: jsPluginSettings,
 });

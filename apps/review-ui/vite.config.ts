@@ -9,14 +9,9 @@ const root = import.meta.dirname;
 export default defineConfig({
   build: {
     emptyOutDir: true,
-    outDir: path.join(root, "../../packages/storybranch/review/public"),
+    outDir: path.join(root, "../cli/review/public"),
   },
   plugins: [react(), tailwindcss()],
-  resolve: {
-    alias: {
-      "@": path.join(root, "../../packages/storybranch/src"),
-    },
-  },
   root,
   server: {
     proxy: {

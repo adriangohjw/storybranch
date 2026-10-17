@@ -1,4 +1,4 @@
-import type { ReportEntry } from "@/report.ts";
+import type { ReportEntry } from "@storybranch/report";
 
 interface ComparisonViewerProps {
   entry: ReportEntry | null;

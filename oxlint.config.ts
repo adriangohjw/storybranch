@@ -1,1 +1,1 @@
-export { default } from "@storybranch/tooling/oxlint/base";
+export { default } from "@storybranch/oxlint-config/base";

@@ -1,4 +1,4 @@
-import type { Report } from "@/report.ts";
+import type { Report } from "@storybranch/report";
 
 function isReport(value: unknown): value is Report {
   if (typeof value !== "object" || value === null) {

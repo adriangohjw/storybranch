@@ -1,4 +1,4 @@
-import type { ReportEntry, ShotStatus } from "@/report.ts";
+import type { ReportEntry, ShotStatus } from "@storybranch/report";
 
 export function needsAttention(status: ShotStatus): boolean {
   return status !== "unchanged";

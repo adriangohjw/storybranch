@@ -1,1 +1,1 @@
-export { default } from "@storybranch/tooling/oxfmt";
+export { default } from "@storybranch/oxfmt-config";

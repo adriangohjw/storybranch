@@ -1,1 +1,1 @@
-export { default } from "@storybranch/tooling/oxlint/react";
+export { default } from "@storybranch/oxlint-config/react";
