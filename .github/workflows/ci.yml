@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
+  lint:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -21,13 +21,33 @@ jobs:
           persist-credentials: false
       - name: Setup
         uses: ./tooling/github/setup
-      - parallel:
-          - name: Lint
-            run: bun run lint
-          - name: Typecheck
-            run: bun run typecheck
-          - name: Format
-            run: bun run format
+      - run: bun run lint
+
+  typecheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup
+        uses: ./tooling/github/setup
+      - run: bun run typecheck
+
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup
+        uses: ./tooling/github/setup
+      - run: bun run format
 
   review-ui:
     runs-on: ubuntu-latest
