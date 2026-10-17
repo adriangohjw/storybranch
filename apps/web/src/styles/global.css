@@ -71,7 +71,9 @@
   }
 }
 
-/* Syne draws outside Tailwind's default text-* line-height boxes; avoid clipping glyphs. */
+/* Syne metrics exceed Tailwind's text-* line boxes (ascenders + descenders). */
 .font-display {
-  line-height: 1.35;
+  line-height: 1.8;
+  padding-block: 0.05em;
+  overflow: visible;
 }
