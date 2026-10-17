@@ -1,8 +1,8 @@
 import { defineConfig } from "oxlint";
 import antiSlop from "ultracite/oxlint/anti-slop";
 import core from "ultracite/oxlint/core";
-import react from "ultracite/oxlint/react";
 import { jsPluginSettings, selectJsPlugins } from "ultracite/oxlint/js-plugins";
+import react from "ultracite/oxlint/react";
 
 const reactDoctor = selectJsPlugins(["react-doctor"]);
 

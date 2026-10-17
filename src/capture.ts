@@ -431,10 +431,7 @@ function isFiniteAnimationDuration(duration: unknown): duration is number {
 
 interface StoryPreview {
   channel: {
-    on: (
-      event: string,
-      cb: (payload: StoryFinishedPayload) => void
-    ) => void;
+    on: (event: string, cb: (payload: StoryFinishedPayload) => void) => void;
     emit: (event: string, payload: UpdateGlobalsPayload) => void;
   };
   ready?: () => Promise<void>;
