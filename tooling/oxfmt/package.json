@@ -6,8 +6,8 @@
     ".": "./oxfmt.config.ts"
   },
   "scripts": {
-    "format": "oxfmt --check oxfmt.config.ts",
-    "format:fix": "oxfmt oxfmt.config.ts"
+    "format": "oxfmt --check .",
+    "format:fix": "oxfmt ."
   },
   "dependencies": {
     "ultracite": "catalog:"

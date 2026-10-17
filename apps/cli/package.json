@@ -6,12 +6,12 @@
   },
   "type": "module",
   "scripts": {
-    "format": "oxfmt --check src",
-    "format:fix": "oxfmt src",
-    "lint": "oxlint src/cli.ts src/review-server.ts src/review-spawn.ts",
-    "lint:fix": "oxlint --fix src/cli.ts src/review-server.ts src/review-spawn.ts",
+    "format": "oxfmt --check .",
+    "format:fix": "oxfmt .",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
     "test": "bun test",
-    "typecheck": "bun check --no-script",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "prepack": "bun run --cwd ../../ build:review"
   },
   "dependencies": {
@@ -23,8 +23,8 @@
     "@storybranch/oxfmt-config": "workspace:*",
     "@storybranch/oxlint-config": "workspace:*",
     "@storybranch/tsconfig": "workspace:*",
-    "ultracite": "catalog:",
     "@types/bun": "catalog:",
-    "playwright": "catalog:"
+    "playwright": "catalog:",
+    "ultracite": "catalog:"
   }
 }

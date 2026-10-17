@@ -6,7 +6,7 @@ import { jsPluginSettings } from "ultracite/oxlint/js-plugins";
 export default defineConfig({
   env: core.env,
   extends: [core, antiSlop],
-  ignorePatterns: core.ignorePatterns,
+  ignorePatterns: [...(core.ignorePatterns ?? []), "**/*.test.ts"],
   options: { typeAware: true },
   rules: {
     "func-style": "off",

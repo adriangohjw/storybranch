@@ -6,12 +6,12 @@
     ".": "./src/report.ts"
   },
   "scripts": {
-    "format": "oxfmt --check src",
-    "format:fix": "oxfmt src",
-    "lint": "oxlint src/report.ts",
-    "lint:fix": "oxlint --fix src/report.ts",
+    "format": "oxfmt --check .",
+    "format:fix": "oxfmt .",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
     "test": "bun test",
-    "typecheck": "bun check --no-script"
+    "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "devDependencies": {
     "@storybranch/oxfmt-config": "workspace:*",

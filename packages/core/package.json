@@ -9,12 +9,12 @@
     "./progress": "./src/progress.ts"
   },
   "scripts": {
-    "format": "oxfmt --check src",
-    "format:fix": "oxfmt src",
-    "lint": "oxlint src/capture.ts src/images.ts src/plan.ts src/progress.ts",
-    "lint:fix": "oxlint --fix src/capture.ts src/images.ts src/plan.ts src/progress.ts",
+    "format": "oxfmt --check .",
+    "format:fix": "oxfmt .",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
     "test": "bun test",
-    "typecheck": "bun check --no-script"
+    "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@storybranch/report": "workspace:*",
@@ -29,8 +29,8 @@
     "@storybranch/oxfmt-config": "workspace:*",
     "@storybranch/oxlint-config": "workspace:*",
     "@storybranch/tsconfig": "workspace:*",
-    "ultracite": "catalog:",
     "@types/bun": "catalog:",
-    "@types/pngjs": "catalog:"
+    "@types/pngjs": "catalog:",
+    "ultracite": "catalog:"
   }
 }
