@@ -145,7 +145,7 @@ bun run lint:fix
 bun run format        # turbo run format (per-package oxfmt)
 bun run format:fix
 bun run typecheck     # turbo run typecheck (per-package `bun check`; requires Bun 1.4.3+)
-bun run build:review  # Vite production build → apps/cli/review/public/
+bun run build  # review-ui → apps/cli/review/public/, web → apps/web/dist
 bun run build         # turbo build (review-ui + web stub)
 bun run test          # unit tests + Playwright e2e (install Chromium first)
 ```
@@ -165,7 +165,7 @@ Skip hooks with `git commit --no-verify` / `git push --no-verify`, or `LEFTHOOK=
 2. Terminal A: `bunx storybranch review` (API on port 4321).
 3. Terminal B: `bun run dev:review` (Vite dev server; proxies `/api` and `/images` to 4321).
 
-Review UI assets are **not** committed (`apps/cli/review/public/assets/`, `index.html`). After `bun install`, run `bun run build:review` before `storybranch review`. CI runs the same build before tests; `prepack` on the `storybranch` package (`apps/cli`) builds the UI for publish.
+Review UI assets are **not** committed (`apps/cli/review/public/assets/`, `index.html`). After `bun install`, run `bun run build` before `storybranch review`. CI runs the same build before tests; `prepack` on the `storybranch` package (`apps/cli`) runs the monorepo build for publish.
 
 To refresh README screenshots after UI changes: `bun scripts/capture-readme-screenshots.ts` (requires Chromium from Playwright and a free port `6020` / `4322`).
 

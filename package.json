@@ -9,8 +9,6 @@
   ],
   "scripts": {
     "build": "turbo run build",
-    "build:review": "turbo run build --filter=@storybranch/review-ui",
-    "build:web": "turbo run build --filter=@storybranch/web",
     "dev:review": "turbo run dev --filter=@storybranch/review-ui",
     "format": "turbo run format",
     "format:fix": "turbo run format:fix",

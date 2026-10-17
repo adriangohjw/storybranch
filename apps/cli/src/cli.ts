@@ -75,7 +75,7 @@ if (command === "test") {
       }
     } else {
       console.error(
-        `${pc.yellow("review UI is not built")}; run ${pc.cyan("bun run build:review")}`
+        `${pc.yellow("review UI is not built")}; run ${pc.cyan("bun run build")}`
       );
     }
   }

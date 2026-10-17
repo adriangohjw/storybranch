@@ -19,7 +19,7 @@ bun run preview
 From the repo root:
 
 ```bash
-bun run build:web
+bun run build
 ```
 
 ## Cloudflare Pages
@@ -32,10 +32,10 @@ Production deploys use **Cloudflare Pages** connected to this GitHub repo (Worke
 | ----------------- | ---------------------------------- |
 | Production branch | `main`                             |
 | Root directory    | `/` (repo root — Bun workspaces)   |
-| Build command     | `bun install && bun run build:web` |
+| Build command     | `bun install && bun run build` |
 | Build output      | `apps/web/dist`                    |
 
-If you set the Pages root directory to `apps/web` instead, the install step still needs the monorepo lockfile at the repo root (e.g. build command `cd ../.. && bun install && bun run build:web`, output `dist`).
+If you set the Pages root directory to `apps/web` instead, the install step still needs the monorepo lockfile at the repo root (e.g. build command `cd ../.. && bun install && bun run build`, output `dist`).
 
 ### Skip builds when `apps/web` did not change
 
