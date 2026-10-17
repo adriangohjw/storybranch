@@ -12,6 +12,11 @@ export default defineConfig({
     outDir: path.join(root, "../public"),
   },
   plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      "@": path.join(root, "../../.."),
+    },
+  },
   root,
   server: {
     proxy: {

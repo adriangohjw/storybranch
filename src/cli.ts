@@ -1,16 +1,16 @@
 #!/usr/bin/env bun
 import pc from "picocolors";
 
-import { capture } from "./capture.ts";
-import { promoteActuals } from "./images.ts";
-import { reportHasAttention } from "./report.ts";
-import { reviewUiBuilt } from "./review-server.ts";
+import { capture } from "@/capture.ts";
+import { promoteActuals } from "@/images.ts";
+import { reportHasAttention } from "@/report.ts";
+import { reviewUiBuilt } from "@/review-server.ts";
 import {
   openBrowser,
   reviewPortFromEnv,
   runForegroundReview,
   spawnDetachedReview,
-} from "./review-spawn.ts";
+} from "@/review-spawn.ts";
 
 const [command, ...args] = Bun.argv.slice(2);
 

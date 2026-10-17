@@ -1,4 +1,5 @@
-import type { Report } from "../../../report.ts";
+import type { Report } from "@/report.ts";
+
 import { parseReportResponse } from "./lib/parse-report.ts";
 
 export async function fetchReport(): Promise<Report> {

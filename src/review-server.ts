@@ -5,8 +5,8 @@ import {
   acceptEntry,
   readReport,
   reportHasAttention,
-} from "./report.ts";
-import type { Report } from "./report.ts";
+} from "@/report.ts";
+import type { Report } from "@/report.ts";
 
 const PUBLIC_DIR = path.join(import.meta.dir, "review", "public");
 

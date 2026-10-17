@@ -76,6 +76,10 @@ On a run with **missing / changed / stale** snapshots, `test` starts a backgroun
 | `review --once` | Exit when nothing needs attention |
 | `--port` / `STORYBRANCH_PORT` | Override default port `4321` |
 
+## Imports
+
+Code under `src/` imports other `src/` modules with the `@/` alias (`tsconfig.json` `paths`), not relative `./` paths. Oxlint enforces that for `src/**` (except `src/review/ui/**`, which keeps co-located relative imports and uses `@/` only for shared types like `@/report.ts`) via `no-restricted-imports` in `oxlint.config.ts`.
+
 ## Development
 
 ```bash

@@ -4,17 +4,17 @@ import path from "node:path";
 import { chromium } from "playwright";
 import type { Page } from "playwright";
 
-import { actualDirectory, comparePng } from "./images.ts";
-import { isCapturable, planShots, shotFilename } from "./plan.ts";
-import type { PlanInput, Shot, ShotGlobals } from "./plan.ts";
-import type { CaptureProgress } from "./progress.ts";
-import { captureProgressEnabled, createCaptureProgress } from "./progress.ts";
+import { actualDirectory, comparePng } from "@/images.ts";
+import { isCapturable, planShots, shotFilename } from "@/plan.ts";
+import type { PlanInput, Shot, ShotGlobals } from "@/plan.ts";
+import type { CaptureProgress } from "@/progress.ts";
+import { captureProgressEnabled, createCaptureProgress } from "@/progress.ts";
 import {
   shotLabelFromFilename,
   storyIdFromFilename,
   writeReport,
-} from "./report.ts";
-import type { Report, ReportEntry } from "./report.ts";
+} from "@/report.ts";
+import type { Report, ReportEntry } from "@/report.ts";
 
 interface IndexEntry {
   id?: string;
