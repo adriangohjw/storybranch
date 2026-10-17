@@ -33,7 +33,7 @@
     "ultracite": "8.0.1",
     "vite": "8"
   },
-  "packageManager": "bun@1.4.3+sha512.EvQQ2dUJlixjKgJjeXZvdsHUWIKnVfYufrQNDHa++0YM4XksQ4GtGofEdRnQSiyNp/yUWiX6SlqS8zugZCo+2A==",
+  "packageManager": "bun@1.4.3",
   "patchedDependencies": {
     "react-docgen-typescript@2.4.0": "patches/react-docgen-typescript@2.4.0.patch"
   }
