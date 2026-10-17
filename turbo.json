@@ -27,7 +27,8 @@
       "dependsOn": ["^build"]
     },
     "typecheck": {
-      "outputs": []
+      "dependsOn": ["^typecheck"],
+      "outputs": ["dist/types/**", "tsconfig.tsbuildinfo"]
     }
   }
 }

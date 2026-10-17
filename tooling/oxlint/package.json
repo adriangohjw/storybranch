@@ -14,7 +14,7 @@
     "format:fix": "oxfmt .",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
-    "typecheck": "bun check"
+    "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "ultracite": "catalog:"
@@ -23,6 +23,7 @@
     "@storybranch/oxfmt-config": "workspace:*",
     "@storybranch/tsconfig": "workspace:*",
     "oxfmt": "catalog:",
-    "oxlint": "catalog:"
+    "oxlint": "catalog:",
+    "typescript": "catalog:"
   }
 }

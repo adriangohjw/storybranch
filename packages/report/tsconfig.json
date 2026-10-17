@@ -1,9 +1,16 @@
 {
   "extends": "@storybranch/tsconfig/base.json",
   "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "noEmit": false,
+    "outDir": "dist/types",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "rootDir": "src"
   },
   "exclude": ["src/**/*.test.ts"],
   "include": ["./src/**/*.ts"]

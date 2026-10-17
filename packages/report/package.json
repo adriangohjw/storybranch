@@ -11,13 +11,14 @@
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "test": "bun test",
-    "typecheck": "bun check"
+    "typecheck": "tsc --build"
   },
   "devDependencies": {
     "@storybranch/oxfmt-config": "workspace:*",
     "@storybranch/oxlint-config": "workspace:*",
     "@storybranch/tsconfig": "workspace:*",
     "@types/bun": "catalog:",
+    "typescript": "catalog:",
     "ultracite": "catalog:"
   }
 }
