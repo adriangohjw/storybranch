@@ -87,7 +87,6 @@ bun run lint          # turbo run lint (per-package oxlint)
 bun run lint:fix
 bun run format        # turbo run format (per-package oxfmt)
 bun run format:fix
-bun run check         # alias for typecheck
 bun run typecheck     # turbo: `bun check` (UI/fixture/tooling) + `tsc --build` (report/core/cli)
 bun run build:review  # Vite production build → apps/cli/review/public/
 bun run build         # turbo build (review-ui + web stub)

@@ -11,7 +11,6 @@
     "format:fix": "turbo run format:fix",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
-    "check": "bun run typecheck",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test"
   },
