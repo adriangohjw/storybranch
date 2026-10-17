@@ -9,8 +9,25 @@
       "cache": false,
       "persistent": true
     },
+    "format": {
+      "outputs": []
+    },
+    "format:fix": {
+      "cache": false,
+      "outputs": []
+    },
+    "lint": {
+      "outputs": []
+    },
+    "lint:fix": {
+      "cache": false,
+      "outputs": []
+    },
     "test": {
       "dependsOn": ["^build"]
+    },
+    "typecheck": {
+      "outputs": []
     }
   }
 }

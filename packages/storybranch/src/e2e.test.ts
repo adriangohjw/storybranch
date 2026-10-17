@@ -20,7 +20,7 @@ test(
         "--ci",
         "--exact-port",
         "--config-dir",
-        "fixture/.storybook",
+        "packages/fixture/.storybook",
         "--no-open",
       ],
       cwd: root,

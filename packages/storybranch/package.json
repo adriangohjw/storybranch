@@ -6,7 +6,12 @@
   },
   "type": "module",
   "scripts": {
+    "format": "oxfmt --check src",
+    "format:fix": "oxfmt src",
+    "lint": "oxlint src",
+    "lint:fix": "oxlint --fix src",
     "test": "bun test",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "prepack": "bun run --cwd ../../ build:review"
   },
   "dependencies": {
@@ -18,6 +23,7 @@
     "pngjs": "catalog:"
   },
   "devDependencies": {
+    "@storybranch/tooling": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pngjs": "catalog:"
   }

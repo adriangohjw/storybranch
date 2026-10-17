@@ -1,0 +1,10 @@
+{
+  "extends": "@storybranch/tooling/tsconfig/base.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "exclude": ["src/**/*.test.ts"],
+  "include": ["./src/**/*.ts", "./src/**/*.tsx"]
+}

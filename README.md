@@ -24,26 +24,22 @@ Local visual diffs for Storybook 10 and newer.
   └─ dependabot.yml
 .vscode
   └─ Recommended extensions and editor settings
-fixture
-  └─ Minimal Storybook app used by tests and manual runs
-patches
-  └─ Bun patches for dependencies
 apps
   ├─ review-ui/   # Vite + React review SPA (`@storybranch/review-ui`)
   └─ web/         # Landing site placeholder (`@storybranch/web`)
 packages
+  ├─ tooling/     # `@storybranch/tooling` — shared oxfmt, oxlint, and tsconfig (workspace exports)
+  ├─ fixture/     # Minimal Storybook app for tests and manual runs
   └─ storybranch/ # Published CLI (`storybranch`); build output in `review/public/`
+patches
+  └─ Bun patches for dependencies
 tooling
   └─ github
-        └─ Shared composite action for CI setup
-oxfmt.config.ts
-  └─ Oxfmt configuration (extends Ultracite)
-oxlint.config.ts
-  └─ Oxlint configuration (extends Ultracite, type-aware)
-tsconfig.json
-  └─ TypeScript project options (checked by `bun run typecheck`)
+        └─ Shared composite action for CI setup (Bun install + Turborepo cache)
+packages/tooling/tsconfig/base.json
+  └─ Shared TypeScript options (`@storybranch/tooling/tsconfig/base.json`)
 turbo.json
-  └─ Turborepo task pipeline (`build`, `test`, `dev`)
+  └─ Turborepo task pipeline (`build`, `lint`, `format`, `typecheck`, `test`, `dev`)
 ```
 
 ## Usage
@@ -51,7 +47,7 @@ turbo.json
 ```bash
 bun install
 bunx playwright install chromium
-bunx storybook dev -p 6006 --config-dir fixture/.storybook
+bunx storybook dev -p 6006 --config-dir packages/fixture/.storybook
 bunx storybranch test --url http://127.0.0.1:6006
 bunx storybranch review   # reopen the last run in the browser UI
 bunx storybranch approve  # promote all actuals from the CLI (no UI)
@@ -80,17 +76,17 @@ On a run with **missing / changed / stale** snapshots, `test` starts a backgroun
 
 ## Imports
 
-Code under `packages/storybranch/src/` imports other CLI modules with the `@/` alias (`tsconfig.json` `paths`), not relative `./` paths. Oxlint enforces that (except `apps/review-ui/**`, which keeps co-located relative imports and uses `@/` only for shared types like `@/report.ts`) via `no-restricted-imports` in `oxlint.config.ts`.
+Code under `packages/storybranch/src/` imports other CLI modules with the `@/` alias (`packages/storybranch/tsconfig.json` `paths`), not relative `./` paths. Oxlint enforces that via `@storybranch/tooling/oxlint/cli` (except `apps/review-ui/**`, which uses `@storybranch/tooling/oxlint/react` and keeps co-located relative imports, with `@/` only for shared types like `@/report.ts`).
 
 ## Development
 
 ```bash
 bun install
-bun run lint          # oxlint
+bun run lint          # turbo run lint (per-package oxlint)
 bun run lint:fix
-bun run format        # oxfmt --check
+bun run format        # turbo run format (per-package oxfmt)
 bun run format:fix
-bun run typecheck     # tsc --noEmit
+bun run typecheck     # turbo run typecheck (per-package tsc)
 bun run build:review  # Vite production build → packages/storybranch/review/public/
 bun run build         # turbo build (review-ui + web stub)
 bun run test          # unit tests + Playwright e2e (install Chromium first)

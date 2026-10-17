@@ -1,0 +1,4 @@
+{
+  "extends": "@storybranch/tooling/tsconfig/base.json",
+  "include": ["./**/*.ts", "./**/*.tsx"]
+}

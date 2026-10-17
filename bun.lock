@@ -6,19 +6,20 @@
       "name": "storybranch-repo",
       "devDependencies": {
         "@storybook/react-vite": "10.6.1",
+        "@storybranch/tooling": "workspace:*",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
-        "oxfmt": "^0.72.0",
-        "oxlint": "^1.86.0",
-        "oxlint-plugin-react-doctor": "^0.9.18",
-        "oxlint-tsgolint": "^7.0.2004",
+        "oxfmt": "catalog:",
+        "oxlint": "catalog:",
+        "oxlint-plugin-react-doctor": "catalog:",
+        "oxlint-tsgolint": "catalog:",
         "playwright": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
         "storybook": "10.6.1",
         "turbo": "^2.5.8",
-        "typescript": "^5.9.3",
-        "ultracite": "8.0.1",
+        "typescript": "catalog:",
+        "ultracite": "catalog:",
       },
     },
     "apps/review-ui": {
@@ -29,6 +30,7 @@
         "tailwind-merge": "catalog:",
       },
       "devDependencies": {
+        "@storybranch/tooling": "workspace:*",
         "@tailwindcss/vite": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
@@ -39,6 +41,12 @@
     },
     "apps/web": {
       "name": "@storybranch/web",
+    },
+    "packages/fixture": {
+      "name": "@storybranch/fixture",
+      "devDependencies": {
+        "@storybranch/tooling": "workspace:*",
+      },
     },
     "packages/storybranch": {
       "name": "storybranch",
@@ -55,8 +63,20 @@
         "pngjs": "catalog:",
       },
       "devDependencies": {
+        "@storybranch/tooling": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pngjs": "catalog:",
+      },
+    },
+    "packages/tooling": {
+      "name": "@storybranch/tooling",
+      "dependencies": {
+        "ultracite": "catalog:",
+      },
+      "devDependencies": {
+        "oxfmt": "catalog:",
+        "oxlint": "catalog:",
+        "typescript": "catalog:",
       },
     },
   },
@@ -72,6 +92,10 @@
     "@vitejs/plugin-react": "^6.1.2",
     "log-update": "^8.0.0",
     "ora": "^9.4.1",
+    "oxfmt": "^0.72.0",
+    "oxlint": "^1.86.0",
+    "oxlint-plugin-react-doctor": "^0.9.18",
+    "oxlint-tsgolint": "^7.0.2004",
     "picocolors": "^1.1.1",
     "pixelmatch": "^8.0.0",
     "playwright": "^1.64.1",
@@ -80,6 +104,8 @@
     "react-dom": "19",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.13",
+    "typescript": "^5.9.3",
+    "ultracite": "8.0.1",
     "vite": "8",
   },
   "packages": {
@@ -421,7 +447,11 @@
 
     "@storybook/react-vite": ["@storybook/react-vite@10.6.1", "", { "dependencies": { "@joshwooding/vite-plugin-react-docgen-typescript": "^0.7.0", "@rollup/pluginutils": "^5.0.2", "@storybook/builder-vite": "10.6.1", "@storybook/react": "10.6.1", "empathic": "^2.0.0", "magic-string": "^1.1.0", "react-docgen": "^8.0.2", "resolve": "^1.22.8", "tsconfig-paths": "^4.2.0" }, "peerDependencies": { "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "storybook": "^10.6.1", "typescript": ">= 4.9.x", "vite": "^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0" }, "optionalPeers": ["typescript"] }, "sha512-oyUZxuW2lIJN8BRbYyMyZbfjeYqtF6HwmNfqa1SAF525zRnMewYp66wm/5d8FAgwqejOf6N2+wR3hX866lSwMA=="],
 
+    "@storybranch/fixture": ["@storybranch/fixture@workspace:packages/fixture"],
+
     "@storybranch/review-ui": ["@storybranch/review-ui@workspace:apps/review-ui"],
+
+    "@storybranch/tooling": ["@storybranch/tooling@workspace:packages/tooling"],
 
     "@storybranch/web": ["@storybranch/web@workspace:apps/web"],
 

@@ -1,8 +1,5 @@
 {
   "compilerOptions": {
-    "paths": {
-      "@/*": ["./packages/storybranch/src/*"]
-    },
     "lib": ["ESNext", "DOM"],
     "target": "ESNext",
     "module": "Preserve",
@@ -18,16 +15,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true
-  },
-  "exclude": ["**/*.test.ts"],
-  "include": [
-    "packages/storybranch/src/**/*.ts",
-    "packages/storybranch/src/**/*.tsx",
-    "apps/review-ui/**/*.ts",
-    "apps/review-ui/**/*.tsx",
-    "fixture/**/*.ts",
-    "fixture/**/*.tsx",
-    "oxlint.config.ts",
-    "oxfmt.config.ts"
-  ]
+  }
 }
