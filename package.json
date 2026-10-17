@@ -50,6 +50,7 @@
     "turbo": "^2.5.8"
   },
   "devDependencies": {
+    "storybranch": "workspace:*",
     "@storybook/react-vite": "catalog:",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",

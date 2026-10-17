@@ -1,5 +1,3 @@
-import path from "node:path";
-
 import { startReviewServer } from "@/review-server.ts";
 
 export const DEFAULT_REVIEW_PORT = 4321;
@@ -38,17 +36,28 @@ export function openBrowser(url: string): void {
   Bun.spawn(browserOpenCommand(url), { stderr: "ignore", stdout: "ignore" });
 }
 
+export function detachedReviewCommand(port: number, once: boolean): string[] {
+  const [, entry] = process.argv;
+
+  if (entry === undefined || entry === "") {
+    throw new Error("storybranch entry path is missing");
+  }
+
+  const args = [process.execPath, entry, "review", "--port", String(port)];
+
+  if (once) {
+    args.push("--once");
+  }
+
+  return args;
+}
+
 export function spawnDetachedReview(
   root: string,
   port: number,
   once: boolean
 ): void {
-  const cli = path.join(import.meta.dir, "cli.ts");
-  const args = ["bun", cli, "review", "--port", String(port)];
-
-  if (once) {
-    args.push("--once");
-  }
+  const args = detachedReviewCommand(port, once);
 
   const proc = Bun.spawn(args, {
     cwd: root,

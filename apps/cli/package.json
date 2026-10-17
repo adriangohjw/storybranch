@@ -1,29 +1,64 @@
 {
   "name": "storybranch",
-  "version": "0.0.0",
-  "bin": {
-    "storybranch": "./src/cli.ts"
+  "version": "0.0.1",
+  "description": "Local visual diffs for Storybook",
+  "keywords": [
+    "cli",
+    "playwright",
+    "storybook",
+    "visual-regression",
+    "visual-testing"
+  ],
+  "homepage": "https://storybranch.pages.dev",
+  "bugs": {
+    "url": "https://github.com/adriangohjw/storybranch/issues"
   },
+  "license": "MIT",
+  "author": "adriangohjw",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adriangohjw/storybranch.git",
+    "directory": "apps/cli"
+  },
+  "bin": {
+    "storybranch": "./bin/storybranch.js"
+  },
+  "files": [
+    "LICENSE",
+    "bin/storybranch.js",
+    "dist/cli.js",
+    "review/public"
+  ],
   "type": "module",
   "scripts": {
+    "build": "bun build ./src/cli.ts --outfile ./dist/cli.js --target bun --external playwright --external picocolors --external pixelmatch --external pngjs --external ora --external log-update",
     "format": "oxfmt --check .",
     "format:fix": "oxfmt .",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
+    "prepack": "bun run --cwd ../review-ui build && bun run build && bun scripts/published-manifest.mjs",
+    "postpack": "bun scripts/published-manifest.mjs restore",
     "test": "bun test",
-    "typecheck": "bun ../../scripts/bun-check.ts",
-    "prepack": "bun run --cwd ../../ build"
+    "typecheck": "bun ../../scripts/bun-check.ts"
   },
   "dependencies": {
-    "@storybranch/core": "workspace:*",
-    "@storybranch/report": "workspace:*",
-    "picocolors": "catalog:"
+    "log-update": "^8.0.0",
+    "ora": "^9.4.1",
+    "picocolors": "^1.1.1",
+    "pixelmatch": "^8.0.0",
+    "playwright": "^1.64.1",
+    "pngjs": "^7.0.0"
   },
   "devDependencies": {
+    "@storybranch/core": "workspace:*",
     "@storybranch/oxfmt-config": "workspace:*",
     "@storybranch/oxlint-config": "workspace:*",
+    "@storybranch/report": "workspace:*",
     "@storybranch/tsconfig": "workspace:*",
     "@types/bun": "catalog:",
     "oxfmt": "catalog:"
+  },
+  "engines": {
+    "bun": ">=1.4.3"
   }
 }

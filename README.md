@@ -10,6 +10,7 @@ storybranch drives Playwright against your Storybook, saves one PNG per story (a
 
 - [Why storybranch](#why-storybranch)
 - [Self-hosted and local](#self-hosted-and-local)
+- [Install](#install)
 - [Quick start](#quick-start)
 - [How it works](#how-it-works)
   - [First run — missing baselines](#first-run--missing-baselines)
@@ -51,12 +52,19 @@ Related behavior:
 - **Offline-friendly local runs** — After install, capture and review against a local Storybook work without reaching a hosted visual-testing service.
 - **Chromatic modes** — Multiple snapshots per story via [modes](https://www.chromatic.com/docs/modes/) naming, aligned with how Chromatic labels variant viewports/themes.
 
+## Install
+
+storybranch publishes as a [Bun](https://bun.com) CLI. From the project you want to test:
+
+```bash
+bun add -d storybranch
+bunx playwright install chromium
+```
+
 ## Quick start
 
 ```bash
-bun install
-bunx playwright install chromium
-bunx storybook dev -p 6006 --config-dir packages/fixture/.storybook
+bunx storybook dev -p 6006
 bunx storybranch test --url http://127.0.0.1:6006
 ```
 
@@ -154,7 +162,7 @@ See [How it works](#how-it-works) for screenshots. On a run with **missing / cha
 .vscode
   └─ Recommended extensions and editor settings
 apps
-  ├─ cli/         # Published `storybranch` CLI (bin) + review static assets
+  ├─ cli/         # Published `storybranch` package (bin, bundled CLI, review assets)
   ├─ review-ui/   # Vite + React review SPA (`@storybranch/review-ui`)
   └─ web/         # Marketing landing page (`@storybranch/web`, Astro)
 packages
@@ -178,13 +186,25 @@ lefthook.yml
 
 ```bash
 bun install           # runs `lefthook install` via prepare (skipped when CI=true)
+bunx playwright install chromium
+bunx storybook dev -p 6006 --config-dir packages/fixture/.storybook
+bunx storybranch test --url http://127.0.0.1:6006
 bun run lint          # turbo run lint (per-package oxlint)
 bun run lint:fix
 bun run format        # turbo run format (per-package oxfmt)
 bun run format:fix
 bun run typecheck     # turbo run typecheck (per-package `bun check`; requires Bun 1.4.3+)
-bun run build         # review-ui → apps/cli/review/public/, web → apps/web/dist
+bun run build         # review UI, CLI bundle, and marketing site
 bun run test          # unit tests + Playwright e2e (install Chromium first)
+```
+
+### Publish
+
+The npm package is `storybranch` (`apps/cli` only). `prepack` builds the review UI, bundles the CLI (so `@storybranch/core` and `@storybranch/report` are not separate installs), and drops workspace `devDependencies` from the tarball. `postpack` restores `apps/cli/package.json`. Runtime dependency ranges match the root catalog.
+
+```bash
+cd apps/cli
+bun publish
 ```
 
 ### Git hooks (Lefthook)
@@ -202,7 +222,7 @@ Skip hooks with `git commit --no-verify` / `git push --no-verify`, or `LEFTHOOK=
 2. Terminal A: `bunx storybranch review` (API on port 4321).
 3. Terminal B: `bun run dev:review` (Vite dev server; proxies `/api` and `/images` to 4321).
 
-Review UI assets are **not** committed (`apps/cli/review/public/assets/`, `index.html`). After `bun install`, run `bun run build` before `storybranch review`. CI has a dedicated **build** job (`bun run build`); tests depend on packages building via turbo. `prepack` on the `storybranch` package (`apps/cli`) runs the same monorepo build for npm publish.
+Review UI assets are **not** committed (`apps/cli/review/public/assets/`, `index.html`). After `bun install`, run `bun run build` before `storybranch review` in this repo. CI has a dedicated **build** job (`bun run build`); tests depend on packages building via turbo. A published install already includes the built review UI and `dist/cli.js`.
 
 ### Landing site
 
