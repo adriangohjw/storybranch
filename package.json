@@ -6,8 +6,12 @@
   },
   "type": "module",
   "scripts": {
-    "check": "tsc --noEmit && ultracite check",
-    "fix": "ultracite fix",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "typecheck": "tsc --noEmit",
+    "format": "oxfmt --check",
+    "format:fix": "oxfmt",
+    "check": "bun run lint && bun run typecheck && bun run format",
     "test": "bun test"
   },
   "dependencies": {
@@ -31,6 +35,7 @@
     "ultracite": "8.0.1",
     "vite": "8"
   },
+  "packageManager": "bun@1.3.14",
   "patchedDependencies": {
     "react-docgen-typescript@2.4.0": "patches/react-docgen-typescript@2.4.0.patch"
   }
