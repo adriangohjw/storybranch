@@ -50,6 +50,8 @@ function initReviewDemo(root: HTMLElement): void {
   const shotList = root.querySelector<HTMLElement>("[data-shot-list]");
   const collapseBtn = root.querySelector<HTMLButtonElement>("[data-collapse]");
   const main = root.querySelector<HTMLElement>("[data-main]");
+  const baselineFrame = root.querySelector<HTMLElement>("[data-baseline-frame]");
+  const previewFrame = root.querySelector<HTMLElement>("[data-preview-frame]");
 
   let overlayOn = true;
   let collapsed = false;
@@ -101,8 +103,18 @@ function initReviewDemo(root: HTMLElement): void {
     const baseline = button.dataset.baseline ?? "";
     const actual = button.dataset.actual ?? "";
     const diff = button.dataset.diff ?? "";
+    const aspect = button.dataset.aspect ?? "800 / 300";
 
-    if (actualImg !== null) {
+    if (baselineFrame !== null) {
+      baselineFrame.style.aspectRatio = aspect;
+    }
+
+    if (previewFrame !== null) {
+      previewFrame.style.aspectRatio = aspect;
+    }
+
+    if (actualImg !== null && actual.length > 0) {
+      actualImg.hidden = false;
       actualImg.src = actual;
     }
 
@@ -111,11 +123,19 @@ function initReviewDemo(root: HTMLElement): void {
         baselineImg.hidden = true;
       }
 
+      if (baselineFrame !== null) {
+        baselineFrame.hidden = true;
+      }
+
       noBaseline?.classList.remove("hidden");
     } else {
       if (baselineImg !== null) {
         baselineImg.hidden = false;
         baselineImg.src = baseline;
+      }
+
+      if (baselineFrame !== null) {
+        baselineFrame.hidden = false;
       }
 
       noBaseline?.classList.add("hidden");
