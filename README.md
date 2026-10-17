@@ -1,23 +1,61 @@
 # storybranch
 
-Local visual diffs for Storybook 10 and newer.
+**Open-source, self-hosted visual testing for Storybook** — the workflow teams know from [Chromatic](https://www.chromatic.com/), without a Chromatic account or cloud upload step.
 
-storybranch drives Playwright against your Storybook, saves one PNG per story (and per [Chromatic mode](https://www.chromatic.com/docs/modes/)), compares them to committed baselines, and opens a small review UI when something needs your attention.
+storybranch drives Playwright against your Storybook, saves one PNG per story (and per [Chromatic mode](https://www.chromatic.com/docs/modes/)), compares them to baselines you keep in git, and opens a review UI when something needs your attention. Run it on your laptop, in CI on your own runners, or anywhere you can reach Storybook — baselines and diffs stay on disk under `.storybranch/`.
 
 ## Contents
 
+- [Why storybranch](#why-storybranch)
+- [Beyond hosted Chromatic](#beyond-hosted-chromatic)
+- [Quick start](#quick-start)
 - [How it works](#how-it-works)
   - [First run — missing baselines](#first-run--missing-baselines)
   - [UI change — pixel diff](#ui-change--pixel-diff)
-- [Features](#features)
-- [Project structure](#project-structure)
 - [Usage](#usage)
   - [Artifacts](#artifacts)
   - [Review UI](#review-ui)
-- [Imports](#imports)
+- [Project structure](#project-structure)
 - [Development](#development)
+  - [Repository tooling](#repository-tooling)
   - [Review UI (HMR)](#review-ui-hmr)
   - [Landing site](#landing-site)
+- [Imports](#imports)
+
+## Why storybranch
+
+| | Chromatic (hosted) | storybranch |
+| --- | --- | --- |
+| **Hosting** | SaaS | Self-hosted — you run the CLI and store artifacts |
+| **Baselines** | Cloud project | Committed PNGs in `.storybranch/baseline/` |
+| **Review** | chromatic.com | Local review UI (or serve the last run with `storybranch review`) |
+| **Storybook** | Remote build / upload | Any URL — local dev server, preview deploy, CI |
+| **License / cost** | Commercial product | Open source ([LICENSE](LICENSE)) |
+
+storybranch is aimed at teams who want the **capture → diff → review → accept** loop Chromatic popularized, but with **full control**: no per-seat billing, no snapshot quota, and no dependency on an external service for day-to-day development.
+
+It is not a drop-in Chromatic replacement for every feature (e.g. hosted Storybook builds, TurboSnap, or Chromatic’s GitHub App integrations). It **does** cover the core visual regression workflow for Storybook 10+ using Playwright capture, pixel diffs, and an accept/reject review experience.
+
+## Beyond hosted Chromatic
+
+These are deliberate extras you get from a local-first, git-backed design:
+
+- **Run against `localhost`** — Point `--url` at `storybranch dev` while you iterate; no publish step required to see pixel changes.
+- **Baselines in git** — Reference images are normal files in your repo; PRs show baseline updates like any other asset change.
+- **Offline-friendly** — After install, capture and review work without network access (aside from fetching Storybook if it is remote).
+- **CI on your infrastructure** — Same CLI in GitHub Actions, self-hosted runners, or internal pipelines; artifacts are paths on disk, not a vendor API.
+- **Chromatic modes** — Multiple snapshots per story via [modes](https://www.chromatic.com/docs/modes/) naming, aligned with how Chromatic labels variant viewports/themes.
+
+## Quick start
+
+```bash
+bun install
+bunx playwright install chromium
+bunx storybook dev -p 6006 --config-dir packages/fixture/.storybook
+bunx storybranch test --url http://127.0.0.1:6006
+```
+
+On failures, the CLI prints a review URL (default `http://127.0.0.1:4321`). Accept snapshots in the UI or run `storybranch approve`, then commit `.storybranch/baseline/`.
 
 ## How it works
 
@@ -58,18 +96,34 @@ pixels button--modes__narrow.png
 
 The fixture in this repo uses a tiny orange “button” story; the screenshot above is from temporarily shifting it to blue to demonstrate the diff view.
 
-## Features
+## Usage
 
-- ⚡ [Bun](https://bun.com) workspaces + [Turborepo](https://turbo.build) monorepo; Bun for runtime, tests, and CLI
-- 🎨 [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) with [Ultracite](https://www.ultracite.dev/) presets; [Lefthook](https://lefthook.dev/) (`pre-commit` fix, `pre-push` CI checks)
-- 💚 CI on GitHub Actions (single **✅ CI passed** required check):
-  - ✅ Lint, format, typecheck, and `turbo` **build** (parallel jobs)
-  - ✅ Tests with [Playwright](https://playwright.dev/) via `bun test`
-  - ✅ Workflow linting with [jactionlint](https://github.com/rhysd/actionlint)
-- 📖 [Storybook](https://storybook.js.org/) fixture for development and e2e coverage
-- 🖼️ Local **review UI** (Vite + React) to compare baseline / actual / diff and accept snapshots in the browser
-- 🌐 **Marketing site** (`apps/web`, Astro + Tailwind) — deploy details in [`apps/web/README.md`](apps/web/README.md)
-- ⚙️ VS Code extension recommendations
+```bash
+bunx storybranch test --url http://127.0.0.1:6006
+bunx storybranch review   # reopen the last run in the browser UI
+bunx storybranch approve  # promote all actuals from the CLI (no UI)
+```
+
+### Artifacts
+
+| Path | Role |
+| --- | --- |
+| `.storybranch/baseline/` | Committed reference PNGs |
+| `.storybranch/actual/<commit>/` | Latest capture per git SHA (gitignored) |
+| `.storybranch/diff/` | Pixel diff images (gitignored) |
+| `.storybranch/report.json` | Last run inventory for the review UI (gitignored) |
+
+### Review UI
+
+See [How it works](#how-it-works) for screenshots. On a run with **missing / changed / stale** snapshots, `test` starts a background server on `http://127.0.0.1:4321` and prints the URL. Use the UI to filter shots, compare images, and **Accept** per snapshot or **Accept all** (baselines update immediately). `storybranch approve` still promotes every actual and removes stale baselines in one step.
+
+| Command / flag | Effect |
+| --- | --- |
+| `test --open` | Open the review URL in your browser when review is offered |
+| `test --review` | Offer review even when the run is fully green |
+| `review [--open]` | Serve the last `report.json` until Ctrl+C |
+| `review --once` | Exit when nothing needs attention |
+| `--port` / `STORYBRANCH_PORT` | Override default port `4321` |
 
 ## Project structure
 
@@ -102,42 +156,6 @@ lefthook.yml
   └─ `pre-commit`: `turbo` lint:fix / format:fix · `pre-push`: lint / format / typecheck
 ```
 
-## Usage
-
-```bash
-bun install
-bunx playwright install chromium
-bunx storybook dev -p 6006 --config-dir packages/fixture/.storybook
-bunx storybranch test --url http://127.0.0.1:6006
-bunx storybranch review   # reopen the last run in the browser UI
-bunx storybranch approve  # promote all actuals from the CLI (no UI)
-```
-
-### Artifacts
-
-| Path | Role |
-| --- | --- |
-| `.storybranch/baseline/` | Committed reference PNGs |
-| `.storybranch/actual/<commit>/` | Latest capture per git SHA (gitignored) |
-| `.storybranch/diff/` | Pixel diff images (gitignored) |
-| `.storybranch/report.json` | Last run inventory for the review UI (gitignored) |
-
-### Review UI
-
-See [How it works](#how-it-works) for screenshots. On a run with **missing / changed / stale** snapshots, `test` starts a background server on `http://127.0.0.1:4321` and prints the URL. Use the UI to filter shots, compare images, and **Accept** per snapshot or **Accept all** (baselines update immediately). `storybranch approve` still promotes every actual and removes stale baselines in one step.
-
-| Command / flag | Effect |
-| --- | --- |
-| `test --open` | Open the review URL in your browser when review is offered |
-| `test --review` | Offer review even when the run is fully green |
-| `review [--open]` | Serve the last `report.json` until Ctrl+C |
-| `review --once` | Exit when nothing needs attention |
-| `--port` / `STORYBRANCH_PORT` | Override default port `4321` |
-
-## Imports
-
-Third-party versions live in the root **`catalog`** in `package.json`; workspace packages reference them with `catalog:` (and each other with `workspace:*`). Cross-package imports use workspace names (e.g. `@storybranch/report`, `@storybranch/core/capture`). Within a package’s `src/`, import sibling modules with the `@/` alias (`paths` in that package’s `tsconfig.json`), not `./` or `../`; each package’s `oxlint.config.ts` composes `@storybranch/oxlint-config` blocks (e.g. `react-doctor` + `src-alias-imports` on CLI packages, `react-stack` on review UI). Shared lint/format/tsconfig live under `tooling/*` (`@storybranch/oxlint-config`, `@storybranch/oxfmt-config`, `@storybranch/tsconfig`).
-
 ## Development
 
 ```bash
@@ -150,6 +168,16 @@ bun run typecheck     # turbo run typecheck (per-package `bun check`; requires B
 bun run build         # review-ui → apps/cli/review/public/, web → apps/web/dist
 bun run test          # unit tests + Playwright e2e (install Chromium first)
 ```
+
+### Repository tooling
+
+Monorepo layout and quality gates for contributors:
+
+- [Bun](https://bun.com) workspaces + [Turborepo](https://turbo.build); Bun for runtime, tests, and CLI
+- [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) with [Ultracite](https://www.ultracite.dev/) presets; [Lefthook](https://lefthook.dev/) (`pre-commit` fix, `pre-push` CI checks)
+- GitHub Actions CI (lint, format, typecheck, build, Playwright tests, actionlint, CodeQL)
+- [Storybook](https://storybook.js.org/) fixture under `packages/fixture` for development and e2e coverage
+- Marketing site in `apps/web` (Astro) — deploy details in [`apps/web/README.md`](apps/web/README.md)
 
 ### Git hooks (Lefthook)
 
@@ -183,3 +211,7 @@ To refresh README screenshots after UI changes: `bun scripts/capture-readme-scre
 The repo pins Bun via `packageManager` in `package.json`. CI reads that field through `oven-sh/setup-bun` and the shared `./tooling/github/setup` action.
 
 Structure and tooling docs follow the same ideas as [Open Government Products Starter Kit](https://github.com/opengovsg/starter-kit) (apps vs packages vs tooling, shared CI setup and Turborepo cache).
+
+## Imports
+
+Third-party versions live in the root **`catalog`** in `package.json`; workspace packages reference them with `catalog:` (and each other with `workspace:*`). Cross-package imports use workspace names (e.g. `@storybranch/report`, `@storybranch/core/capture`). Within a package’s `src/`, import sibling modules with the `@/` alias (`paths` in that package’s `tsconfig.json`), not `./` or `../`; each package’s `oxlint.config.ts` composes `@storybranch/oxlint-config` blocks (e.g. `react-doctor` + `src-alias-imports` on CLI packages, `react-stack` on review UI). Shared lint/format/tsconfig live under `tooling/*` (`@storybranch/oxlint-config`, `@storybranch/oxfmt-config`, `@storybranch/tsconfig`).
