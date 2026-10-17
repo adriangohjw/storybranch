@@ -12,8 +12,9 @@
     "format": "oxfmt --check",
     "format:fix": "oxfmt",
     "test": "bun test",
-    "build:review": "vite build --config src/review/ui/vite.config.ts",
-    "dev:review": "vite --config src/review/ui/vite.config.ts"
+    "build:review": "vite build --config src/review/ui/vite.config.ts && touch src/review/public/.gitkeep",
+    "dev:review": "vite --config src/review/ui/vite.config.ts",
+    "prepack": "bun run build:review"
   },
   "dependencies": {
     "log-update": "^8.0.0",

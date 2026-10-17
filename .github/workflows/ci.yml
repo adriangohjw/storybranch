@@ -42,5 +42,4 @@ jobs:
         uses: ./tooling/github/setup
       - run: bunx playwright install --with-deps chromium
       - run: bun run build:review
-      - run: git diff --exit-code src/review/public
       - run: bun test

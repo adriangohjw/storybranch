@@ -4,3 +4,5 @@ node_modules
 .storybranch/report.json
 storybook-static
 debug-storybook.log
+src/review/public/assets/
+src/review/public/index.html

@@ -4,6 +4,7 @@ import pc from "picocolors";
 import { capture } from "./capture.ts";
 import { promoteActuals } from "./images.ts";
 import { reportHasAttention } from "./report.ts";
+import { reviewUiBuilt } from "./review-server.ts";
 import {
   openBrowser,
   reviewPortFromEnv,
@@ -55,11 +56,17 @@ if (command === "test") {
   const port = portFromArgs();
 
   if (offerReview) {
-    spawnDetachedReview(process.cwd(), port, false);
-    const reviewUrl = `http://127.0.0.1:${port}`;
-    console.log(`storybranch review at ${reviewUrl}`);
-    if (flag("--open")) {
-      await openBrowser(reviewUrl);
+    if (await reviewUiBuilt()) {
+      spawnDetachedReview(process.cwd(), port, false);
+      const reviewUrl = `http://127.0.0.1:${port}`;
+      console.log(`storybranch review at ${reviewUrl}`);
+      if (flag("--open")) {
+        await openBrowser(reviewUrl);
+      }
+    } else {
+      console.error(
+        `${pc.yellow("review UI is not built")}; run ${pc.cyan("bun run build:review")}`
+      );
     }
   }
 

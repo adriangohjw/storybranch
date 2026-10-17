@@ -32,7 +32,7 @@ src
   ├─ CLI, capture logic, report API, and unit/e2e tests
   └─ review
         ├─ ui/          # Vite + React source for the review SPA
-        └─ public/      # Built assets served by `storybranch review` (commit after UI changes)
+        └─ public/      # Vite build output (gitignored; run `build:review`)
 tooling
   └─ github
         └─ Shared composite action for CI setup
@@ -95,7 +95,7 @@ bun test              # unit tests + Playwright e2e (install Chromium first)
 2. Terminal A: `bunx storybranch review` (API on port 4321).
 3. Terminal B: `bun run dev:review` (Vite dev server; proxies `/api` and `/images` to 4321).
 
-After changing `src/review/ui/`, run `bun run build:review` and commit `src/review/public/`. CI rebuilds the review bundle and fails if those files are out of date.
+Review UI assets are **not** committed (`src/review/public/assets/`, `index.html`). After `bun install`, run `bun run build:review` before `storybranch review`. CI runs the same build before tests; `prepack` builds for publish.
 
 The repo pins Bun via `packageManager` in `package.json`. CI reads that field through `oven-sh/setup-bun` and the shared `./tooling/github/setup` action.
 

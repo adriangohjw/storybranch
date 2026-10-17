@@ -16,9 +16,20 @@ export interface ReviewServerOptions {
   root: string;
 }
 
+export async function reviewUiBuilt(): Promise<boolean> {
+  return await Bun.file(path.join(PUBLIC_DIR, "index.html")).exists();
+}
+
+export async function assertReviewUiBuilt(): Promise<void> {
+  if (!(await reviewUiBuilt())) {
+    throw new Error("review UI is not built; run `bun run build:review`");
+  }
+}
+
 export async function startReviewServer(
   options: ReviewServerOptions
 ): Promise<{ done: Promise<void>; stop: () => void; url: string }> {
+  await assertReviewUiBuilt();
   const report = await readReport(options.root);
   let active = report;
   let resolveDone: (() => void) | undefined;
