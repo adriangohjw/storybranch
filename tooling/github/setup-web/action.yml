@@ -1,0 +1,20 @@
+name: Setup and build web
+description: Bun install (frozen lockfile), Turborepo cache, and build @storybranch/web
+
+inputs:
+  job-index:
+    description: "Index of the current job within its matrix, if any. Passed through to tooling/github/setup for turbo cache key disambiguation."
+    required: false
+    default: "0"
+
+runs:
+  using: composite
+  steps:
+    - name: Setup
+      uses: ./tooling/github/setup
+      with:
+        job-index: ${{ inputs.job-index }}
+
+    - name: Build @storybranch/web
+      shell: bash
+      run: bun run build:web

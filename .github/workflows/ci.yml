@@ -75,10 +75,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Setup
-        uses: ./tooling/github/setup
-      - name: Build landing site
-        run: bun run build:web
+      - name: Setup and build
+        uses: ./tooling/github/setup-web
 
   test:
     runs-on: ubuntu-latest
