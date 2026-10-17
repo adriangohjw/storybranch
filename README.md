@@ -4,7 +4,7 @@ Local visual diffs for Storybook 10 and newer.
 
 ## Features
 
-- ⚡ [Bun](https://bun.com) for runtime, package management, tests, and typechecking (`bun check`)
+- ⚡ [Bun](https://bun.com) workspaces + [Turborepo](https://turbo.build) monorepo; Bun for runtime, tests, and CLI
 - 🎨 [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) with [Ultracite](https://www.ultracite.dev/) presets
 - 💚 CI on GitHub Actions:
   - ✅ Lint, format, and typecheck (parallel)
@@ -28,11 +28,11 @@ fixture
   └─ Minimal Storybook app used by tests and manual runs
 patches
   └─ Bun patches for dependencies
-src
-  ├─ CLI, capture logic, report API, and unit/e2e tests
-  └─ review
-        ├─ ui/          # Vite + React source for the review SPA
-        └─ public/      # Vite build output (gitignored; run `build:review`)
+apps
+  ├─ review-ui/   # Vite + React review SPA (`@storybranch/review-ui`)
+  └─ web/         # Landing site placeholder (`@storybranch/web`)
+packages
+  └─ storybranch/ # Published CLI (`storybranch`); build output in `review/public/`
 tooling
   └─ github
         └─ Shared composite action for CI setup
@@ -41,7 +41,9 @@ oxfmt.config.ts
 oxlint.config.ts
   └─ Oxlint configuration (extends Ultracite, type-aware)
 tsconfig.json
-  └─ TypeScript project options (checked by `bun check`)
+  └─ TypeScript project options (checked by `bun run typecheck`)
+turbo.json
+  └─ Turborepo task pipeline (`build`, `test`, `dev`)
 ```
 
 ## Usage
@@ -78,7 +80,7 @@ On a run with **missing / changed / stale** snapshots, `test` starts a backgroun
 
 ## Imports
 
-Code under `src/` imports other `src/` modules with the `@/` alias (`tsconfig.json` `paths`), not relative `./` paths. Oxlint enforces that for `src/**` (except `src/review/ui/**`, which keeps co-located relative imports and uses `@/` only for shared types like `@/report.ts`) via `no-restricted-imports` in `oxlint.config.ts`.
+Code under `packages/storybranch/src/` imports other CLI modules with the `@/` alias (`tsconfig.json` `paths`), not relative `./` paths. Oxlint enforces that (except `apps/review-ui/**`, which keeps co-located relative imports and uses `@/` only for shared types like `@/report.ts`) via `no-restricted-imports` in `oxlint.config.ts`.
 
 ## Development
 
@@ -88,9 +90,10 @@ bun run lint          # oxlint
 bun run lint:fix
 bun run format        # oxfmt --check
 bun run format:fix
-bun run typecheck     # bun check
-bun run build:review  # Vite production build → src/review/public/
-bun test              # unit tests + Playwright e2e (install Chromium first)
+bun run typecheck     # tsc --noEmit
+bun run build:review  # Vite production build → packages/storybranch/review/public/
+bun run build         # turbo build (review-ui + web stub)
+bun run test          # unit tests + Playwright e2e (install Chromium first)
 ```
 
 ### Review UI (HMR)
@@ -99,8 +102,8 @@ bun test              # unit tests + Playwright e2e (install Chromium first)
 2. Terminal A: `bunx storybranch review` (API on port 4321).
 3. Terminal B: `bun run dev:review` (Vite dev server; proxies `/api` and `/images` to 4321).
 
-Review UI assets are **not** committed (`src/review/public/assets/`, `index.html`). After `bun install`, run `bun run build:review` before `storybranch review`. CI runs the same build before tests; `prepack` builds for publish.
+Review UI assets are **not** committed (`packages/storybranch/review/public/assets/`, `index.html`). After `bun install`, run `bun run build:review` before `storybranch review`. CI runs the same build before tests; `prepack` on the `storybranch` package builds the UI for publish.
 
 The repo pins Bun via `packageManager` in `package.json`. CI reads that field through `oven-sh/setup-bun` and the shared `./tooling/github/setup` action.
 
-Structure and tooling docs follow the same ideas as [Open Government Products Starter Kit](https://github.com/opengovsg/starter-kit) (features list, tree layout, shared CI setup), adapted for a single-package Bun CLI instead of a Turborepo.
+Structure and tooling docs follow the same ideas as [Open Government Products Starter Kit](https://github.com/opengovsg/starter-kit) (features list, tree layout, shared CI setup and Turborepo cache in the composite action).

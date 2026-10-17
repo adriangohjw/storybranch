@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./packages/storybranch/src/*"]
     },
     "lib": ["ESNext", "DOM"],
     "target": "ESNext",
@@ -19,10 +19,12 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true
   },
+  "exclude": ["**/*.test.ts"],
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/review/ui/vite-env.d.ts",
+    "packages/storybranch/src/**/*.ts",
+    "packages/storybranch/src/**/*.tsx",
+    "apps/review-ui/**/*.ts",
+    "apps/review-ui/**/*.tsx",
     "fixture/**/*.ts",
     "fixture/**/*.tsx",
     "oxlint.config.ts",

@@ -9,16 +9,19 @@ const reactDoctor = selectJsPlugins(["react-doctor"]);
 export default defineConfig({
   env: core.env,
   extends: [core, react, antiSlop, reactDoctor],
-  ignorePatterns: core.ignorePatterns,
+  ignorePatterns: [
+    ...(core.ignorePatterns ?? []),
+    "packages/storybranch/src/**/*.test.ts",
+  ],
   jsPlugins: [...antiSlop.jsPlugins, ...reactDoctor.jsPlugins],
   options: { typeAware: true },
   overrides: [
     {
-      excludeFiles: ["src/review/ui/**"],
-      files: ["src/**/*.{ts,tsx}"],
+      excludeFiles: ["apps/review-ui/**"],
+      files: ["packages/storybranch/src/**/*.{ts,tsx}"],
       rules: {
         // Ultracite core enables `no-restricted-imports` but leaves patterns to
-        // the project. Prefer `@/` (see tsconfig paths) over `./` in `src/`.
+        // the project. Prefer `@/` (see tsconfig paths) over `./` in the CLI package.
         "no-restricted-imports": [
           "error",
           {

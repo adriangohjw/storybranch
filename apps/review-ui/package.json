@@ -1,0 +1,22 @@
+{
+  "name": "@storybranch/review-ui",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build && touch ../../packages/storybranch/review/public/.gitkeep",
+    "dev": "vite"
+  },
+  "dependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "tailwind-merge": "catalog:"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "tailwindcss": "catalog:",
+    "vite": "catalog:"
+  }
+}

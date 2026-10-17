@@ -1,0 +1,24 @@
+{
+  "name": "storybranch",
+  "version": "0.0.0",
+  "bin": {
+    "storybranch": "./src/cli.ts"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "bun test",
+    "prepack": "bun run --cwd ../../ build:review"
+  },
+  "dependencies": {
+    "log-update": "catalog:",
+    "ora": "catalog:",
+    "picocolors": "catalog:",
+    "pixelmatch": "catalog:",
+    "playwright": "catalog:",
+    "pngjs": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/pngjs": "catalog:"
+  }
+}

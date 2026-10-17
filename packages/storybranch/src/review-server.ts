@@ -8,7 +8,7 @@ import {
 } from "@/report.ts";
 import type { Report } from "@/report.ts";
 
-const PUBLIC_DIR = path.join(import.meta.dir, "review", "public");
+const PUBLIC_DIR = path.join(import.meta.dir, "..", "review", "public");
 
 export interface ReviewServerOptions {
   once: boolean;

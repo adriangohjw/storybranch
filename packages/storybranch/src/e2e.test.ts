@@ -3,7 +3,7 @@ import { mkdtemp, readdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-const root = path.join(import.meta.dir, "..");
+const root = path.join(import.meta.dir, "../../..");
 const port = 6019;
 const url = `http://127.0.0.1:${port}`;
 
@@ -164,7 +164,7 @@ async function run(
   cwd: string
 ): Promise<{ exitCode: number; stderr: string }> {
   const proc = Bun.spawn({
-    cmd: ["bun", path.join(root, "src/cli.ts"), ...args],
+    cmd: ["bun", path.join(root, "packages/storybranch/src/cli.ts"), ...args],
     cwd,
     stderr: "pipe",
     stdout: "pipe",

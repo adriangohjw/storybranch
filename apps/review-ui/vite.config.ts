@@ -9,12 +9,12 @@ const root = import.meta.dirname;
 export default defineConfig({
   build: {
     emptyOutDir: true,
-    outDir: path.join(root, "../public"),
+    outDir: path.join(root, "../../packages/storybranch/review/public"),
   },
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      "@": path.join(root, "../../.."),
+      "@": path.join(root, "../../packages/storybranch/src"),
     },
   },
   root,
