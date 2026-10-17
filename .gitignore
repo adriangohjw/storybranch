@@ -1,8 +1,15 @@
-node_modules
-.storybranch/actual
-.storybranch/diff
-.storybranch/report.json
-storybook-static
+# dependencies
+node_modules/
+
+# storybook
 debug-storybook.log
-src/review/public/assets/
-src/review/public/index.html
+storybook-static/
+
+# storybranch run output (baseline PNGs under .storybranch/baseline/ stay tracked)
+.storybranch/actual/
+.storybranch/diff/
+.storybranch/report.json
+
+# review UI (vite build output)
+src/review/public/*
+!src/review/public/.gitkeep
