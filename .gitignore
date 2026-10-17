@@ -1,0 +1,4 @@
+node_modules
+.storybranch/actual
+.storybranch/diff
+storybook-static

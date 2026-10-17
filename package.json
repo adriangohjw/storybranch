@@ -1,0 +1,37 @@
+{
+  "name": "storybranch",
+  "version": "0.0.0",
+  "bin": {
+    "storybranch": "./src/cli.ts"
+  },
+  "type": "module",
+  "scripts": {
+    "check": "tsc --noEmit && ultracite check",
+    "fix": "ultracite fix",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "pixelmatch": "^8.0.0",
+    "playwright": "^1.64.1",
+    "pngjs": "^7.0.0"
+  },
+  "devDependencies": {
+    "@storybook/react-vite": "10.3.6",
+    "@types/bun": "^1.4.3",
+    "@types/pngjs": "^6.0.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "oxfmt": "^0.71.0",
+    "oxlint": "^1.86.0",
+    "oxlint-tsgolint": "^7.0.2004",
+    "react": "19",
+    "react-dom": "19",
+    "storybook": "10.3.6",
+    "typescript": "^7.0.2",
+    "ultracite": "8.0.1",
+    "vite": "8"
+  },
+  "patchedDependencies": {
+    "react-docgen-typescript@2.4.0": "patches/react-docgen-typescript@2.4.0.patch"
+  }
+}

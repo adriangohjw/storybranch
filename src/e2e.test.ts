@@ -1,0 +1,119 @@
+import { expect, test } from "bun:test";
+import { mkdtemp, readdir } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
+
+const root = path.join(import.meta.dir, "..");
+const port = 6019;
+const url = `http://127.0.0.1:${port}`;
+
+test(
+  "fixture stories capture, approve, and match",
+  async () => {
+    const storybook = Bun.spawn({
+      cmd: [
+        "bunx",
+        "storybook",
+        "dev",
+        "-p",
+        String(port),
+        "--ci",
+        "--exact-port",
+        "--config-dir",
+        "fixture/.storybook",
+        "--no-open",
+      ],
+      cwd: root,
+      stderr: "pipe",
+      stdout: "pipe",
+    });
+    const logs: Uint8Array[] = [];
+    const collect = async (stream: ReadableStream<Uint8Array> | null) => {
+      if (!stream) {
+        return;
+      }
+      for await (const chunk of stream) {
+        logs.push(chunk);
+      }
+    };
+    const logging = Promise.all([
+      collect(storybook.stdout),
+      collect(storybook.stderr),
+    ]);
+
+    try {
+      await waitForIndex(url);
+      const work = await mkdtemp(path.join(tmpdir(), "storybranch-e2e-"));
+      const first = await run(["test", "--url", url], work);
+      expect(first.exitCode).toBe(1);
+      expect(first.stderr).toContain("missing baseline");
+
+      const approved = await run(["approve"], work);
+      expect(approved.exitCode).toBe(0);
+
+      const second = await run(["test", "--url", url], work);
+      expect(second.stderr).toBe("");
+      expect(second.exitCode).toBe(0);
+
+      const baselineDir = path.join(work, ".storybranch", "baseline");
+      const baselineNames = await readdir(baselineDir);
+      const baselines = baselineNames.toSorted();
+      expect(baselines).toEqual([
+        "button--default__1200x900.png",
+        "button--modes__narrow.png",
+        "button--modes__tall.png",
+        "button--modes__wide.png",
+        "button--pinned__mobile1.png",
+      ]);
+    } catch (error) {
+      const text = Buffer.concat(logs).toString();
+      throw new Error(
+        `${error instanceof Error ? error.message : String(error)}\n${text}`,
+        { cause: error }
+      );
+    } finally {
+      storybook.kill();
+      await logging.catch(() => {});
+    }
+  },
+  { timeout: 180_000 }
+);
+
+async function waitForIndex(storybookUrl: string): Promise<void> {
+  const deadline = Date.now() + 90_000;
+  let last = "";
+  while (Date.now() < deadline) {
+    try {
+      const response = await fetch(new URL("index.json", `${storybookUrl}/`));
+      if (response.ok) {
+        return;
+      }
+      last = `${response.status}`;
+    } catch (error) {
+      last = error instanceof Error ? error.message : String(error);
+    }
+    await Bun.sleep(500);
+  }
+  throw new Error(`storybook did not serve index.json: ${last}`);
+}
+
+async function run(
+  args: string[],
+  cwd: string
+): Promise<{ exitCode: number; stderr: string }> {
+  const proc = Bun.spawn({
+    cmd: ["bun", path.join(root, "src/cli.ts"), ...args],
+    cwd,
+    stderr: "pipe",
+    stdout: "pipe",
+  });
+  const [stdout, stderr, exitCode] = await Promise.all([
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text(),
+    proc.exited,
+  ]);
+  if (exitCode !== 0 && exitCode !== 1) {
+    throw new Error(`cli exited ${exitCode}\n${stdout}\n${stderr}`);
+  }
+  return { exitCode, stderr };
+}
