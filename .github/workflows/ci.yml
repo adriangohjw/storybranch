@@ -52,7 +52,7 @@ jobs:
       - name: Format
         run: bun run format
 
-  review-ui:
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -63,20 +63,8 @@ jobs:
           persist-credentials: false
       - name: Setup
         uses: ./tooling/github/setup
-      - name: Build review UI
-        run: bun run build:review
-
-  web:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Setup and build
-        uses: ./tooling/github/setup-web
+      - name: Build
+        run: bun run build
 
   test:
     runs-on: ubuntu-latest
