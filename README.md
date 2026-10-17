@@ -97,7 +97,7 @@ patches
 turbo.json
   └─ Turborepo task pipeline (`build`, `lint`, `format`, `typecheck`, `test`, `dev`)
 lefthook.yml
-  └─ `pre-commit`: oxlint/oxfmt on staged files · `pre-push`: `turbo` lint / format / typecheck
+  └─ `pre-commit`: `turbo` lint:fix / format:fix · `pre-push`: lint / format / typecheck
 ```
 
 ## Usage
