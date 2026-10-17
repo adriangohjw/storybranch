@@ -27,9 +27,9 @@ const steps = [
       No dashboard signup. Baselines are files you already know how to review in a PR.
     </p>
     <p class="mt-3 text-sm leading-relaxed text-ink-muted">
-      Today <code class="font-mono text-ink">storybranch</code> is
-      <code class="font-mono text-ink">bun /path/to/storybranch/apps/cli/src/cli.ts</code>
-      after the clone in the hero. After publish, it is
+      Today <code class="font-mono text-ink">storybranch</code> is{" "}
+      <code class="font-mono break-all text-ink">bun /path/to/storybranch/apps/cli/src/cli.ts</code>{" "}
+      after the clone in the hero. After publish, it is{" "}
       <code class="font-mono text-ink">bunx storybranch</code>.
     </p>
   </div>
@@ -44,7 +44,7 @@ const steps = [
             <p class="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted sm:text-[15px]">
               {step.body}
             </p>
-            <div class="mt-4 overflow-x-auto rounded-lg border border-ink/10 bg-terminal px-4 py-3 font-mono text-[12px] whitespace-pre text-white/90 sm:text-[13px]"><span class="text-moss">$</span> {step.code}</div>
+            <div class="mt-4 rounded-lg border border-ink/10 bg-terminal px-4 py-3 font-mono text-[12px] break-words whitespace-pre-wrap text-white/90 sm:text-[13px]"><span class="text-moss">$</span> {step.code}</div>
           </div>
         </li>
       ))

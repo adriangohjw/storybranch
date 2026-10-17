@@ -26,16 +26,17 @@ Storybook 10+ must already be running. Until storybranch is on npm, invoke \`bun
     </p>
   </div>
   <div class="mt-10 grid gap-8 lg:grid-cols-2">
-    <div>
+    <div class="min-w-0">
       <h3 class="font-display text-lg font-bold text-ink">.gitignore</h3>
       <p class="mt-2 text-sm leading-relaxed text-ink-muted">
-        Keep <code class="font-mono text-ink">.storybranch/baseline/</code> tracked.
+        Keep{" "}
+        <code class="font-mono break-all text-ink">.storybranch/baseline/</code> tracked.
       </p>
       <div class="mt-4">
         <CopyCommand command={gitignore} prompt={false} />
       </div>
     </div>
-    <div>
+    <div class="min-w-0">
       <h3 class="font-display text-lg font-bold text-ink">AGENTS.md</h3>
       <p class="mt-2 text-sm leading-relaxed text-ink-muted">
         Exit 1 on the first run is the baseline set. Approve only when a person asked for it.

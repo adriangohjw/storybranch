@@ -10,16 +10,16 @@ const { command, class: className = "", prompt = true } = Astro.props;
 
 <div
   class:list={[
-    "group flex items-stretch overflow-hidden rounded-lg border border-ink/10 bg-surface shadow-sm",
+    "group flex items-start rounded-lg border border-ink/10 bg-surface shadow-sm",
     className,
   ]}
 >
   <code
-    class="flex-1 overflow-x-auto px-4 py-3 font-mono text-[13px] leading-relaxed whitespace-pre text-ink sm:text-sm"
+    class="min-w-0 flex-1 px-4 py-3 font-mono text-[13px] leading-relaxed break-words whitespace-pre-wrap text-ink sm:text-sm"
   >{prompt ? <span class="text-moss select-none">$ </span> : null}<span data-command>{command}</span></code>
   <button
     type="button"
-    class="shrink-0 border-l border-ink/10 bg-paper-2/60 px-4 text-xs font-semibold tracking-wide text-ink-muted transition-colors hover:bg-paper-2 hover:text-ink"
+    class="shrink-0 self-stretch border-l border-ink/10 bg-paper-2/60 px-4 text-xs font-semibold tracking-wide text-ink-muted transition-colors hover:bg-paper-2 hover:text-ink"
     data-copy
     aria-label="Copy command"
   >
