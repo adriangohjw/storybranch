@@ -1,9 +1,7 @@
 name: CI
 
 on:
-  # jactionlint ignore=duplicate-triggers
   push:
-  pull_request:
 
 permissions: {}
 
