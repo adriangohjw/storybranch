@@ -13,14 +13,14 @@ name: "CodeQL Advanced"
 
 on:
   push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
   schedule:
     - cron: '15 9 * * 6'
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # Same commit can trigger both push and pull_request; keep one run per SHA.
+  group: ${{ github.workflow }}-${{ github.sha }}
   cancel-in-progress: true
 
 jobs:
