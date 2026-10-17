@@ -22,7 +22,7 @@ export async function reviewUiBuilt(): Promise<boolean> {
 
 export async function assertReviewUiBuilt(): Promise<void> {
   if (!(await reviewUiBuilt())) {
-    throw new Error("review UI is not built; run `bun run build:review`");
+    throw new Error("review UI is not built; run `bun run build`");
   }
 }
 
