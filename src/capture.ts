@@ -6,7 +6,9 @@ import type { Page } from "playwright";
 
 import { actualDirectory, comparePng } from "./images.ts";
 import { isCapturable, planShots, shotFilename } from "./plan.ts";
-import type { PlanInput, Shot } from "./plan.ts";
+import type { PlanInput, Shot, ShotGlobals } from "./plan.ts";
+import type { CaptureProgress } from "./progress.ts";
+import { captureProgressEnabled, createCaptureProgress } from "./progress.ts";
 import {
   shotLabelFromFilename,
   storyIdFromFilename,
@@ -30,7 +32,12 @@ function isStoryIndex(
   if (typeof value !== "object" || value === null || !("entries" in value)) {
     return false;
   }
+
   return typeof value.entries === "object" && value.entries !== null;
+}
+
+export interface CaptureOptions {
+  progress?: boolean;
 }
 
 export interface CaptureResult {
@@ -40,24 +47,36 @@ export interface CaptureResult {
 
 export async function capture(
   storybookUrl: string,
-  root: string
+  root: string,
+  options: CaptureOptions = {}
 ): Promise<CaptureResult> {
   const base = storybookBase(storybookUrl);
   const indexUrl = new URL("index.json", base);
   const response = await fetch(indexUrl);
+
   if (!response.ok) {
     const failures = [`index.json returned ${response.status} from ${indexUrl}`];
     return { failures, report: emptyReport(root, "", "") };
   }
+
   const body: unknown = await response.json();
+
   if (!isStoryIndex(body)) {
     const failures = [`index.json from ${indexUrl} was not a story index`];
     return { failures, report: emptyReport(root, "", "") };
   }
-  const stories = Object.entries(body.entries)
-    .map(([key, entry]) => ({ ...entry, id: entry.id ?? key }))
-    .filter((entry) => isCapturable(entry))
-    .toSorted((a, b) => a.id.localeCompare(b.id));
+
+  const stories = [];
+
+  for (const [key, entry] of Object.entries(body.entries)) {
+    const story = { ...entry, id: entry.id ?? key };
+
+    if (isCapturable(story)) {
+      stories.push(story);
+    }
+  }
+
+  stories.sort((a, b) => a.id.localeCompare(b.id));
 
   const actualDir = await actualDirectory(root);
   const commit = path.basename(actualDir);
@@ -69,31 +88,51 @@ export async function capture(
   const failures: string[] = [];
   const entries: ReportEntry[] = [];
   const expected = new Set<string>();
+  const progressEnabled = options.progress ?? captureProgressEnabled();
+
+  const progress: CaptureProgress = createCaptureProgress(
+    stories.length,
+    progressEnabled
+  );
+
+  const started = Date.now();
+  let shotsCaptured = 0;
   const browser = await chromium.launch();
+
   try {
     const context = await browser.newContext({
       deviceScaleFactor: 1,
       viewport: { height: 900, width: 1200 },
     });
+
     const page = await context.newPage();
     await page.addInitScript(installStoryHook);
 
-    for (const story of stories) {
+    progress.header(stories.length);
+
+    for (const [index, story] of stories.entries()) {
+      const current = index + 1;
       const iframe = new URL("iframe.html", base);
       iframe.searchParams.set("id", story.id);
       iframe.searchParams.set("viewMode", "story");
+      let storyStats = { failed: 0, shots: 0, skipped: true };
+      progress.storyStart(current, story.id);
+
       try {
-        await shootStory(
+        storyStats = await shootStory(
           page,
           iframe.toString(),
           story.id,
+          current,
           actualDir,
           diffDir,
           baselineDir,
           expected,
           failures,
-          entries
+          entries,
+          progress
         );
+        shotsCaptured += storyStats.shots;
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         failures.push(`${story.id} ${message}`);
@@ -102,19 +141,31 @@ export async function capture(
           status: "error",
           storyId: story.id,
         });
+        storyStats = { failed: 1, shots: 0, skipped: false };
       }
+
+      progress.storyDone(current, story.id, storyStats);
     }
   } finally {
     await browser.close();
   }
 
+  progress.finish({
+    elapsedMs: Date.now() - started,
+    failed: failures.length,
+    shots: shotsCaptured,
+    stories: stories.length,
+  });
+
   let baselines: string[] = [];
+
   try {
     const baselineNames = await readdir(baselineDir);
     baselines = baselineNames.filter((file) => file.endsWith(".png"));
   } catch {
     baselines = [];
   }
+
   for (const baselineFile of baselines
     .filter((entry) => !expected.has(entry))
     .toSorted()) {
@@ -162,21 +213,26 @@ async function shootStory(
   page: Page,
   iframeUrl: string,
   storyId: string,
+  storyIndex: number,
   actualDir: string,
   diffDir: string,
   baselineDir: string,
   expected: Set<string>,
   failures: string[],
-  entries: ReportEntry[]
-): Promise<void> {
+  entries: ReportEntry[],
+  progress: CaptureProgress
+): Promise<{ shots: number; failed: number; skipped: boolean }> {
   await page.setViewportSize({ height: 900, width: 1200 });
   await page.goto(iframeUrl, { waitUntil: "load" });
+  progress.storyActive(storyIndex, storyId, null);
   await waitForStory(page);
   const input = await page.evaluate(readPlanInput, storyId);
   const plan = planShots(input);
+
   if ("skip" in plan) {
-    return;
+    return { failed: 0, shots: 0, skipped: true };
   }
+
   if ("error" in plan) {
     failures.push(`${storyId} ${plan.error}`);
     entries.push({
@@ -184,20 +240,31 @@ async function shootStory(
       status: "error",
       storyId,
     });
-    return;
+
+    return { failed: 1, shots: 0, skipped: false };
   }
 
-  for (const shot of plan.shots) {
+  let shotFailures = 0;
+
+  for (const [shotIndex, shot] of plan.shots.entries()) {
+    progress.storyActive(storyIndex, storyId, {
+      index: shotIndex + 1,
+      total: plan.shots.length,
+    });
     const filename = shotFilename(storyId, shot.label);
     expected.add(filename);
     await page.setViewportSize({ height: shot.height, width: shot.width });
+
     if (Object.keys(shot.globals).length > 0) {
+      // @ts-expect-error Playwright's Serialize<> cannot express recursive ShotGlobals.
       await page.evaluate(applyGlobals, shot.globals);
       await waitForStory(page);
     }
+
     if (shot.delay > 0) {
       await page.waitForTimeout(shot.delay);
     }
+
     await page.evaluate(async () => {
       await document.fonts.ready;
     });
@@ -209,6 +276,7 @@ async function shootStory(
     const baselinePath = path.join(baselineDir, filename);
     const baseline = Bun.file(baselinePath);
     const shotLabel = shot.label;
+
     if (!(await baseline.exists())) {
       failures.push(`missing baseline ${filename}`);
       entries.push({
@@ -218,12 +286,15 @@ async function shootStory(
         status: "new",
         storyId,
       });
+      shotFailures += 1;
       continue;
     }
+
     const result = comparePng(Buffer.from(await baseline.bytes()), png, {
       includeAA: shot.includeAA,
       threshold: shot.threshold,
     });
+
     if (result.match) {
       entries.push({
         actualPath,
@@ -235,11 +306,13 @@ async function shootStory(
       });
       continue;
     }
+
     let diffPath: string | undefined;
     if (result.reason === "pixels") {
       diffPath = path.join(diffDir, filename);
       await Bun.write(diffPath, result.diff);
     }
+
     failures.push(`${result.reason} ${filename}`);
     entries.push({
       actualPath,
@@ -251,11 +324,19 @@ async function shootStory(
       status: "changed",
       storyId,
     });
+    shotFailures += 1;
   }
+
+  return {
+    failed: shotFailures,
+    shots: plan.shots.length,
+    skipped: false,
+  };
 }
 
 async function waitForStory(page: Page): Promise<void> {
   await page.waitForSelector("#storybook-root");
+
   try {
     await page.waitForFunction(
       () => globalThis.__storyStatus !== undefined,
@@ -266,9 +347,11 @@ async function waitForStory(page: Page): Promise<void> {
     );
   } catch {
     const hooked = await page.evaluate(hookChannel);
+
     if (!hooked) {
       throw new Error("story did not finish");
     }
+
     await page.waitForFunction(
       () => globalThis.__storyStatus !== undefined,
       null,
@@ -277,7 +360,9 @@ async function waitForStory(page: Page): Promise<void> {
       }
     );
   }
+
   const status = await page.evaluate(() => globalThis.__storyStatus);
+
   if (status !== "success") {
     throw new Error(`story finished with ${status ?? "no status"}`);
   }
@@ -286,14 +371,18 @@ async function waitForStory(page: Page): Promise<void> {
 async function stablePng(page: Page, shot: Shot): Promise<Buffer> {
   const root = page.locator("#storybook-root");
   let previous: Buffer | null = null;
+
   for (let attempt = 0; attempt < STABLE_FRAMES; attempt += 1) {
     const png = await takePng(page, root, shot);
+
     if (previous !== null && previous.equals(png)) {
       return png;
     }
+
     previous = png;
     await page.waitForTimeout(50);
   }
+
   throw new Error(`screenshot did not stabilize for ${shot.label}`);
 }
 
@@ -305,10 +394,13 @@ async function takePng(
   if (!shot.cropToViewport) {
     return await root.screenshot();
   }
+
   const box = await root.boundingBox();
+
   if (!box) {
     throw new Error("missing #storybook-root");
   }
+
   return await page.screenshot({
     clip: {
       height: Math.min(box.height, shot.height),
@@ -321,9 +413,11 @@ async function takePng(
 
 function storybookBase(input: string): URL {
   const base = new URL(input);
+
   if (!base.pathname.endsWith("/")) {
     base.pathname += "/";
   }
+
   return base;
 }
 
@@ -333,6 +427,7 @@ function installStoryHook(): void {
       globalThis.__storyStatus = payload.status;
     });
   };
+
   let preview: StoryPreview | undefined;
   Object.defineProperty(globalThis, "__STORYBOOK_PREVIEW__", {
     configurable: true,
@@ -346,25 +441,31 @@ function installStoryHook(): void {
 
 function hookChannel(): boolean {
   const preview = globalThis.__STORYBOOK_PREVIEW__;
+
   if (!preview?.channel) {
     return false;
   }
+
   preview.channel.on("storyFinished", (payload) => {
     globalThis.__storyStatus = payload.status;
   });
+
   return true;
 }
 
 async function readPlanInput(storyId: string): Promise<PlanInput> {
   const preview = globalThis.__STORYBOOK_PREVIEW__;
+
   if (!preview) {
     throw new Error("Storybook preview is missing");
   }
+
   await preview.ready?.();
   const story = await preview.loadStory({ storyId });
   const context = preview.getStoryContext(story);
   const chromatic = context.parameters.chromatic ?? {};
   const viewport = context.parameters.viewport ?? {};
+
   return {
     globals: { viewport: context.globals.viewport },
     parameters: {
@@ -384,7 +485,7 @@ async function readPlanInput(storyId: string): Promise<PlanInput> {
   };
 }
 
-function applyGlobals(globals: Record<string, unknown>): void {
+function applyGlobals(globals: ShotGlobals): void {
   const preview = globalThis.__STORYBOOK_PREVIEW__;
   globalThis.__storyStatus = undefined;
   preview?.channel.emit("updateGlobals", { globals });
@@ -394,19 +495,33 @@ function applyGlobals(globals: Record<string, unknown>): void {
 function pauseAnimations(atEnd: boolean): void {
   for (const animation of document.getAnimations()) {
     const duration = animation.effect?.getComputedTiming().duration;
-    if (atEnd && typeof duration === "number" && Number.isFinite(duration)) {
+
+    if (atEnd && isFiniteAnimationDuration(duration)) {
       animation.currentTime = duration;
     } else if (!atEnd) {
       animation.currentTime = 0;
     }
+
     animation.pause();
   }
 }
 
+interface StoryFinishedPayload {
+  status?: string;
+}
+
+interface UpdateGlobalsPayload {
+  globals: ShotGlobals;
+}
+
+function isFiniteAnimationDuration(duration: unknown): duration is number {
+  return typeof duration === "number" && Number.isFinite(duration);
+}
+
 interface StoryPreview {
   channel: {
-    on: (event: string, cb: (payload: { status?: string }) => void) => void;
-    emit: (event: string, payload: unknown) => void;
+    on: (event: string, cb: (payload: StoryFinishedPayload) => void) => void;
+    emit: (event: string, payload: UpdateGlobalsPayload) => void;
   };
   ready?: () => Promise<void>;
   loadStory: (input: { storyId: string }) => Promise<PreparedStory>;
@@ -425,7 +540,9 @@ interface StoryPreview {
   };
 }
 
-type PreparedStory = object;
+interface PreparedStory {
+  id: string;
+}
 
 declare global {
   var __STORYBOOK_PREVIEW__: StoryPreview | undefined;
