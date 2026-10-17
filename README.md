@@ -1,5 +1,7 @@
 # storybranch
 
+> **Alpha / WIP** — This project is in active development. APIs and behavior may change. **Use at your own risk.**
+
 **Open-source, self-hosted visual testing for Storybook** — the capture → diff → review loop teams know from [Chromatic](https://www.chromatic.com/), designed to **run on your machine** and **deploy on infrastructure you control**.
 
 storybranch drives Playwright against your Storybook, saves one PNG per story (and per [Chromatic mode](https://www.chromatic.com/docs/modes/)), compares them to baselines you keep in git, and opens a review UI when something needs your attention. Use it locally while you develop, or self-host the same CLI in CI — baselines and diffs live under `.storybranch/` on disk.
