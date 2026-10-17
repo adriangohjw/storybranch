@@ -27,15 +27,19 @@ test(
       stderr: "pipe",
       stdout: "pipe",
     });
+
     const logs: Uint8Array[] = [];
+
     const collect = async (stream: ReadableStream<Uint8Array> | null) => {
       if (!stream) {
         return;
       }
+
       for await (const chunk of stream) {
         logs.push(chunk);
       }
     };
+
     const logging = Promise.all([
       collect(storybook.stdout),
       collect(storybook.stderr),
@@ -108,40 +112,50 @@ async function initRepo(cwd: string): Promise<string> {
   ]) {
     const proc = Bun.spawn(cmd, { cwd, stderr: "pipe", stdout: "ignore" });
     const stderr = await new Response(proc.stderr).text();
+
     if ((await proc.exited) !== 0) {
       throw new Error(stderr.trim() || cmd.join(" "));
     }
   }
+
   const proc = Bun.spawn(["git", "-C", cwd, "rev-parse", "HEAD"], {
     stderr: "pipe",
     stdout: "pipe",
   });
+
   const [stdout, stderr, code] = await Promise.all([
     new Response(proc.stdout).text(),
     new Response(proc.stderr).text(),
     proc.exited,
   ]);
+
   if (code !== 0) {
     throw new Error(stderr.trim() || "git rev-parse HEAD failed");
   }
+
   return stdout.trim();
 }
 
 async function waitForIndex(storybookUrl: string): Promise<void> {
   const deadline = Date.now() + 90_000;
   let last = "";
+
   while (Date.now() < deadline) {
     try {
       const response = await fetch(new URL("index.json", `${storybookUrl}/`));
+
       if (response.ok) {
         return;
       }
+
       last = `${response.status}`;
     } catch (error) {
       last = error instanceof Error ? error.message : String(error);
     }
+
     await Bun.sleep(500);
   }
+
   throw new Error(`storybook did not serve index.json: ${last}`);
 }
 
@@ -155,13 +169,16 @@ async function run(
     stderr: "pipe",
     stdout: "pipe",
   });
+
   const [stdout, stderr, exitCode] = await Promise.all([
     new Response(proc.stdout).text(),
     new Response(proc.stderr).text(),
     proc.exited,
   ]);
+
   if (exitCode !== 0 && exitCode !== 1) {
     throw new Error(`cli exited ${exitCode}\n${stdout}\n${stderr}`);
   }
+
   return { exitCode, stderr };
 }

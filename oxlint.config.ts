@@ -1,10 +1,16 @@
 import { defineConfig } from "oxlint";
+import antiSlop from "ultracite/oxlint/anti-slop";
 import core from "ultracite/oxlint/core";
+import react from "ultracite/oxlint/react";
+import { jsPluginSettings, selectJsPlugins } from "ultracite/oxlint/js-plugins";
+
+const reactDoctor = selectJsPlugins(["react-doctor"]);
 
 export default defineConfig({
   env: core.env,
-  extends: [core],
+  extends: [core, react, antiSlop, reactDoctor],
   ignorePatterns: core.ignorePatterns,
+  jsPlugins: [...antiSlop.jsPlugins, ...reactDoctor.jsPlugins],
   options: { typeAware: true },
   rules: {
     // Shots run one at a time in one browser. Function declarations stay;
@@ -13,4 +19,5 @@ export default defineConfig({
     "no-await-in-loop": "off",
     "no-use-before-define": "off",
   },
+  settings: jsPluginSettings,
 });

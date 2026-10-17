@@ -14,6 +14,7 @@ function solid(
 ): Buffer {
   const png = new PNG({ height, width });
   const [redChannel, green, blueChannel, alpha] = pixel;
+
   for (let y = 0; y < height; y += 1) {
     for (let x = 0; x < width; x += 1) {
       const i = (y * width + x) * 4;
@@ -23,6 +24,7 @@ function solid(
       png.data[i + 3] = alpha;
     }
   }
+
   return PNG.sync.write(png);
 }
 
@@ -38,9 +40,11 @@ test("identical pngs match", () => {
 test("different pixels mismatch and return a diff", () => {
   const result = comparePng(red, blue, { includeAA: false, threshold: 0.1 });
   expect(result.match).toBe(false);
+
   if (result.match || result.reason !== "pixels") {
     throw new Error("expected a pixel diff");
   }
+
   expect(result.diff.byteLength).toBeGreaterThan(0);
 });
 
@@ -88,21 +92,26 @@ async function initRepo(cwd: string): Promise<string> {
   ]) {
     const proc = Bun.spawn(cmd, { cwd, stderr: "pipe", stdout: "ignore" });
     const stderr = await new Response(proc.stderr).text();
+
     if ((await proc.exited) !== 0) {
       throw new Error(stderr.trim() || cmd.join(" "));
     }
   }
+
   const proc = Bun.spawn(["git", "-C", cwd, "rev-parse", "HEAD"], {
     stderr: "pipe",
     stdout: "pipe",
   });
+
   const [stdout, stderr, code] = await Promise.all([
     new Response(proc.stdout).text(),
     new Response(proc.stderr).text(),
     proc.exited,
   ]);
+
   if (code !== 0) {
     throw new Error(stderr.trim() || "git rev-parse HEAD failed");
   }
+
   return stdout.trim();
 }
