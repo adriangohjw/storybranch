@@ -52,6 +52,10 @@ bunx storybranch approve
 
 Baselines are committed from `.storybranch/baseline`. Fresh captures land in `.storybranch/actual/<commit>`, and pixel diffs land in `.storybranch/diff`.
 
+## Imports
+
+Code under `src/` imports other `src/` modules with the `@/` alias (`tsconfig.json` `paths`), not relative `./` paths. Oxlint enforces that for `src/**` via `no-restricted-imports` in `oxlint.config.ts`.
+
 ## Development
 
 ```bash

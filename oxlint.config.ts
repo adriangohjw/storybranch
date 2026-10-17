@@ -6,6 +6,26 @@ export default defineConfig({
   extends: [core],
   ignorePatterns: core.ignorePatterns,
   options: { typeAware: true },
+  overrides: [
+    {
+      files: ["src/**/*.{ts,tsx}"],
+      rules: {
+        // Ultracite core enables `no-restricted-imports` but leaves patterns to
+        // the project. Prefer `@/` (see tsconfig paths) over `./` in `src/`.
+        "no-restricted-imports": [
+          "error",
+          {
+            patterns: [
+              {
+                group: ["./*", "../*"],
+                message: "Use the @/ path alias instead of a relative import.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
   rules: {
     // Shots run one at a time in one browser. Function declarations stay;
     // they are hoisted, and the preset's expression style fights that.

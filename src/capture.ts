@@ -4,9 +4,9 @@ import path from "node:path";
 import { chromium } from "playwright";
 import type { Page } from "playwright";
 
-import { actualDirectory, comparePng } from "./images.ts";
-import { isCapturable, planShots, shotFilename } from "./plan.ts";
-import type { PlanInput, Shot } from "./plan.ts";
+import { actualDirectory, comparePng } from "@/images.ts";
+import { isCapturable, planShots, shotFilename } from "@/plan.ts";
+import type { PlanInput, Shot } from "@/plan.ts";
 
 interface IndexEntry {
   id?: string;

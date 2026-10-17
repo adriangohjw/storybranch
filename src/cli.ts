@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
-import { capture } from "./capture.ts";
-import { promoteActuals } from "./images.ts";
+import { capture } from "@/capture.ts";
+import { promoteActuals } from "@/images.ts";
 
 const [command, ...args] = Bun.argv.slice(2);
 
