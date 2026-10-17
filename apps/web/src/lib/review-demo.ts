@@ -1,5 +1,3 @@
-import { fireReviewDemoConfetti } from "./review-demo-confetti.ts";
-
 function pendingApproval(status: string): boolean {
   return status === "new" || status === "changed";
 }
@@ -26,6 +24,26 @@ function matchesFilter(
   }
 
   return false;
+}
+
+function rowApproved(row: HTMLElement): boolean {
+  return row.dataset.approved === "1";
+}
+
+function markRowApproved(row: HTMLElement): void {
+  row.dataset.approved = "1";
+
+  const badge = row.querySelector<HTMLElement>("[data-shot-badge]");
+
+  if (badge !== null) {
+    badge.textContent = "approved";
+    badge.className =
+      "rounded-full px-1.5 py-px text-[9px] leading-none font-semibold tracking-wide uppercase bg-violet-500/20 text-violet-300";
+  }
+
+  const acceptButton = row.querySelector<HTMLButtonElement>("[data-accept]");
+
+  acceptButton?.remove();
 }
 
 function initReviewDemo(root: HTMLElement): void {
@@ -57,12 +75,15 @@ function initReviewDemo(root: HTMLElement): void {
     root.querySelector<HTMLButtonElement>("[data-diff-toggle]");
 
   const diffKnob = root.querySelector<HTMLElement>("[data-diff-knob]");
-  const viewer = root.querySelector<HTMLElement>("[data-viewer]");
   const comparison = root.querySelector<HTMLElement>("[data-comparison]");
   const emptyState = root.querySelector<HTMLElement>("[data-empty-state]");
   const emptyEmoji = root.querySelector<HTMLElement>("[data-empty-emoji]");
   const emptyTitle = root.querySelector<HTMLElement>("[data-empty-title]");
-  const emptySubtitle = root.querySelector<HTMLElement>("[data-empty-subtitle]");
+
+  const emptySubtitle = root.querySelector<HTMLElement>(
+    "[data-empty-subtitle]"
+  );
+
   const aside = root.querySelector<HTMLElement>("[data-aside]");
   const asideLabel = root.querySelector<HTMLElement>("[data-aside-label]");
   const shotList = root.querySelector<HTMLElement>("[data-shot-list]");
@@ -77,17 +98,12 @@ function initReviewDemo(root: HTMLElement): void {
 
   let overlayOn = true;
   let collapsed = false;
-  let celebrationShown = false;
 
   let selectedId =
     selectButtons.find((button) => button.classList.contains("border-zinc-500"))
       ?.dataset.id ??
     selectButtons[0]?.dataset.id ??
     null;
-
-  function rowApproved(row: HTMLElement): boolean {
-    return row.dataset.approved === "1";
-  }
 
   function visibleRows(): HTMLElement[] {
     const value = filter?.value ?? "all";
@@ -97,11 +113,7 @@ function initReviewDemo(root: HTMLElement): void {
         return false;
       }
 
-      return matchesFilter(
-        row.dataset.status ?? "",
-        value,
-        rowApproved(row)
-      );
+      return matchesFilter(row.dataset.status ?? "", value, rowApproved(row));
     });
   }
 
@@ -189,7 +201,6 @@ function initReviewDemo(root: HTMLElement): void {
       diffImg.src = diff;
       diffImg.classList.toggle("hidden", !hasDiff || !overlayOn);
     }
-
   }
 
   function clearSelectionHighlight(): void {
@@ -240,24 +251,15 @@ function initReviewDemo(root: HTMLElement): void {
       }
 
       if (emptySubtitle !== null) {
-        emptySubtitle.textContent = "Everything in this demo is approved. Nice work.";
+        emptySubtitle.textContent =
+          "Everything in this demo is approved. Nice work.";
         emptySubtitle.hidden = false;
       }
 
       replayEmptyEmojiPop();
 
-      if (!celebrationShown && viewer !== null) {
-        celebrationShown = true;
-
-        if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-          fireReviewDemoConfetti(viewer);
-        }
-      }
-
       return;
     }
-
-    celebrationShown = false;
 
     if (emptyEmoji !== null) {
       emptyEmoji.textContent = "🔍";
@@ -279,10 +281,6 @@ function initReviewDemo(root: HTMLElement): void {
     comparison?.classList.remove("hidden");
     emptyState?.classList.add("hidden");
     emptyState?.classList.remove("flex");
-
-    if (!isAttentionClearState()) {
-      celebrationShown = false;
-    }
   }
 
   function applyFilter(): void {
@@ -302,6 +300,7 @@ function initReviewDemo(root: HTMLElement): void {
 
     if (visible.length === 0) {
       showEmptyViewer();
+
       return;
     }
 
@@ -317,22 +316,6 @@ function initReviewDemo(root: HTMLElement): void {
         selectShot(first);
       }
     }
-  }
-
-  function markRowApproved(row: HTMLElement): void {
-    row.dataset.approved = "1";
-
-    const badge = row.querySelector<HTMLElement>("[data-shot-badge]");
-
-    if (badge !== null) {
-      badge.textContent = "approved";
-      badge.className =
-        "rounded-full px-1.5 py-px text-[9px] leading-none font-semibold tracking-wide uppercase bg-violet-500/20 text-violet-300";
-    }
-
-    const acceptButton = row.querySelector<HTMLButtonElement>("[data-accept]");
-
-    acceptButton?.remove();
   }
 
   function acceptId(id: string): void {
@@ -372,10 +355,7 @@ function initReviewDemo(root: HTMLElement): void {
 
   root.querySelector("[data-accept-all]")?.addEventListener("click", () => {
     for (const row of rows) {
-      if (
-        !rowApproved(row) &&
-        pendingApproval(row.dataset.status ?? "")
-      ) {
+      if (!rowApproved(row) && pendingApproval(row.dataset.status ?? "")) {
         markRowApproved(row);
       }
     }
