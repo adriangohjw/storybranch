@@ -18,6 +18,15 @@ updates:
           - react-dom
           - "@types/react"
           - "@types/react-dom"
+      vite:
+        patterns:
+          - vite
+          - "@vitejs/*"
+      tailwind:
+        patterns:
+          - tailwindcss
+          - "@tailwindcss/*"
+          - tailwind-merge
       oxc:
         patterns:
           - oxlint

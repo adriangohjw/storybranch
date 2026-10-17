@@ -9,6 +9,12 @@ import { isCapturable, planShots, shotFilename } from "./plan.ts";
 import type { PlanInput, Shot, ShotGlobals } from "./plan.ts";
 import type { CaptureProgress } from "./progress.ts";
 import { captureProgressEnabled, createCaptureProgress } from "./progress.ts";
+import {
+  shotLabelFromFilename,
+  storyIdFromFilename,
+  writeReport,
+} from "./report.ts";
+import type { Report, ReportEntry } from "./report.ts";
 
 interface IndexEntry {
   id?: string;
@@ -33,23 +39,34 @@ export interface CaptureOptions {
   progress?: boolean;
 }
 
+export interface CaptureResult {
+  failures: string[];
+  report: Report;
+}
+
 export async function capture(
   storybookUrl: string,
   root: string,
   options: CaptureOptions = {}
-): Promise<string[]> {
+): Promise<CaptureResult> {
   const base = storybookBase(storybookUrl);
   const indexUrl = new URL("index.json", base);
   const response = await fetch(indexUrl);
 
   if (!response.ok) {
-    return [`index.json returned ${response.status} from ${indexUrl}`];
+    const failures = [
+      `index.json returned ${response.status} from ${indexUrl}`,
+    ];
+
+    return { failures, report: emptyReport(root, "", "") };
   }
 
   const body: unknown = await response.json();
 
   if (!isStoryIndex(body)) {
-    return [`index.json from ${indexUrl} was not a story index`];
+    const failures = [`index.json from ${indexUrl} was not a story index`];
+
+    return { failures, report: emptyReport(root, "", "") };
   }
 
   const stories = [];
@@ -65,12 +82,14 @@ export async function capture(
   stories.sort((a, b) => a.id.localeCompare(b.id));
 
   const actualDir = await actualDirectory(root);
+  const commit = path.basename(actualDir);
   const diffDir = path.join(root, ".storybranch", "diff");
   const baselineDir = path.join(root, ".storybranch", "baseline");
   await mkdir(actualDir, { recursive: true });
   await mkdir(diffDir, { recursive: true });
 
   const failures: string[] = [];
+  const entries: ReportEntry[] = [];
   const expected = new Set<string>();
   const progressEnabled = options.progress ?? captureProgressEnabled();
 
@@ -113,13 +132,18 @@ export async function capture(
           baselineDir,
           expected,
           failures,
+          entries,
           progress
         );
         shotsCaptured += storyStats.shots;
       } catch (error) {
-        failures.push(
-          `${story.id} ${error instanceof Error ? error.message : String(error)}`
-        );
+        const message = error instanceof Error ? error.message : String(error);
+        failures.push(`${story.id} ${message}`);
+        entries.push({
+          message,
+          status: "error",
+          storyId: story.id,
+        });
         storyStats = { failed: 1, shots: 0, skipped: false };
       }
 
@@ -149,9 +173,44 @@ export async function capture(
     .filter((entry) => !expected.has(entry))
     .toSorted()) {
     failures.push(`stale ${baselineFile}`);
+    entries.push({
+      baselinePath: path.join(baselineDir, baselineFile),
+      filename: baselineFile,
+      shotLabel: shotLabelFromFilename(baselineFile),
+      status: "stale",
+      storyId: storyIdFromFilename(baselineFile),
+    });
   }
 
-  return failures;
+  const report: Report = {
+    actualDir,
+    commit,
+    createdAt: new Date().toISOString(),
+    entries: entries.toSorted((a, b) => entryKey(a).localeCompare(entryKey(b))),
+    root,
+  };
+
+  await writeReport(root, report);
+
+  return { failures, report };
+}
+
+function emptyReport(root: string, commit: string, actualDir: string): Report {
+  return {
+    actualDir,
+    commit,
+    createdAt: new Date().toISOString(),
+    entries: [],
+    root,
+  };
+}
+
+function entryKey(entry: ReportEntry): string {
+  if (entry.filename !== undefined) {
+    return entry.filename;
+  }
+
+  return entry.storyId;
 }
 
 async function shootStory(
@@ -164,6 +223,7 @@ async function shootStory(
   baselineDir: string,
   expected: Set<string>,
   failures: string[],
+  entries: ReportEntry[],
   progress: CaptureProgress
 ): Promise<{ shots: number; failed: number; skipped: boolean }> {
   await page.setViewportSize({ height: 900, width: 1200 });
@@ -179,6 +239,11 @@ async function shootStory(
 
   if ("error" in plan) {
     failures.push(`${storyId} ${plan.error}`);
+    entries.push({
+      message: plan.error,
+      status: "error",
+      storyId,
+    });
 
     return { failed: 1, shots: 0, skipped: false };
   }
@@ -214,9 +279,17 @@ async function shootStory(
 
     const baselinePath = path.join(baselineDir, filename);
     const baseline = Bun.file(baselinePath);
+    const shotLabel = shot.label;
 
     if (!(await baseline.exists())) {
       failures.push(`missing baseline ${filename}`);
+      entries.push({
+        actualPath,
+        filename,
+        shotLabel,
+        status: "new",
+        storyId,
+      });
       shotFailures += 1;
       continue;
     }
@@ -227,14 +300,35 @@ async function shootStory(
     });
 
     if (result.match) {
+      entries.push({
+        actualPath,
+        baselinePath,
+        filename,
+        shotLabel,
+        status: "unchanged",
+        storyId,
+      });
       continue;
     }
 
+    let diffPath: string | undefined;
+
     if (result.reason === "pixels") {
-      await Bun.write(path.join(diffDir, filename), result.diff);
+      diffPath = path.join(diffDir, filename);
+      await Bun.write(diffPath, result.diff);
     }
 
     failures.push(`${result.reason} ${filename}`);
+    entries.push({
+      actualPath,
+      baselinePath,
+      diffPath,
+      filename,
+      message: result.reason === "size" ? "size mismatch" : undefined,
+      shotLabel,
+      status: "changed",
+      storyId,
+    });
     shotFailures += 1;
   }
 
