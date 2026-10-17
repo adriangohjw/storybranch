@@ -22,7 +22,7 @@ storybranch drives Playwright against your Storybook, saves one PNG per story (a
 
 1. **Capture** — `storybranch test --url <storybook>` walks `index.json`, screenshots each story, and writes actuals under `.storybranch/actual/<git-sha>/`.
 2. **Compare** — Each PNG is diffed against `.storybranch/baseline/`. New stories, pixel changes, and stale baselines show up in `report.json`.
-3. **Review** — When anything needs attention, a local server serves the review UI so you can inspect baseline / actual / diff and accept updates.
+3. **Review** — When anything needs attention, a local server serves the review UI so you can compare baseline vs this scan (with an optional diff overlay) and accept updates.
 4. **Commit** — Check updated baselines into git so the next run (and CI) share the same reference images.
 
 ### First run — missing baselines
@@ -43,7 +43,7 @@ Use **Accept** (or `storybranch approve`) to copy actuals into `baseline/` and c
 
 ### UI change — pixel diff
 
-After you change a component, the next run marks mismatches as **changed** and highlights pixels in the diff column:
+After you change a component, the next run marks mismatches as **changed** and highlights pixels with the diff overlay on **This scan**:
 
 ```text
 $ bunx storybranch test --url http://127.0.0.1:6006
@@ -53,7 +53,7 @@ pixels button--modes__narrow.png
 …
 ```
 
-![Review UI comparing baseline, actual, and diff](docs/images/review-pixel-diff.png)
+![Review UI comparing baseline and this scan with diff overlay](docs/images/review-pixel-diff.png)
 
 The fixture in this repo uses a tiny orange “button” story; the screenshot above is from temporarily shifting it to blue to demonstrate the diff view.
 

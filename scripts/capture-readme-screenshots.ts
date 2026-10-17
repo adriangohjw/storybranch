@@ -107,12 +107,24 @@ async function screenshotReview(
     });
 
     await page.goto(reviewUrl, { waitUntil: "networkidle" });
-    await page.getByText(shotFilename, { exact: true }).click();
+
+    const expandList = page.getByRole("button", {
+      name: "Expand snapshot list",
+    });
+
+    if (await expandList.isVisible()) {
+      await expandList.click();
+    }
+
+    await page
+      .getByRole("button", { name: new RegExp(shotFilename) })
+      .first()
+      .click();
+
+    await page.waitForSelector('img[alt="this scan"]', { timeout: 10_000 });
 
     if (waitForDiff) {
-      await page.waitForSelector('img[alt="diff"]', { timeout: 10_000 });
-    } else {
-      await page.waitForSelector('img[alt="actual"]', { timeout: 10_000 });
+      await page.waitForSelector('img[alt="baseline"]', { timeout: 10_000 });
     }
 
     await page.screenshot({
