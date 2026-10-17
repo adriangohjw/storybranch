@@ -60,7 +60,7 @@ The fixture in this repo uses a tiny orange “button” story; the screenshot a
 ## Features
 
 - ⚡ [Bun](https://bun.com) workspaces + [Turborepo](https://turbo.build) monorepo; Bun for runtime, tests, and CLI
-- 🎨 [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) with [Ultracite](https://www.ultracite.dev/) presets
+- 🎨 [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) with [Ultracite](https://www.ultracite.dev/) presets; [Lefthook](https://lefthook.dev/) (`pre-commit` fix, `pre-push` CI checks)
 - 💚 CI on GitHub Actions:
   - ✅ Lint, format, and typecheck (parallel)
   - ✅ Tests with [Playwright](https://playwright.dev/) via `bun test`
@@ -96,6 +96,8 @@ patches
   └─ Bun patches for dependencies
 turbo.json
   └─ Turborepo task pipeline (`build`, `lint`, `format`, `typecheck`, `test`, `dev`)
+lefthook.yml
+  └─ `pre-commit`: `turbo` lint:fix / format:fix · `pre-push`: lint / format / typecheck
 ```
 
 ## Usage
@@ -137,7 +139,7 @@ Workspace packages use `workspace:*` for cross-package imports (e.g. `@storybran
 ## Development
 
 ```bash
-bun install
+bun install           # runs `lefthook install` via prepare (skipped when CI=true)
 bun run lint          # turbo run lint (per-package oxlint)
 bun run lint:fix
 bun run format        # turbo run format (per-package oxfmt)
@@ -147,6 +149,15 @@ bun run build:review  # Vite production build → apps/cli/review/public/
 bun run build         # turbo build (review-ui + web stub)
 bun run test          # unit tests + Playwright e2e (install Chromium first)
 ```
+
+### Git hooks (Lefthook)
+
+[`lefthook.yml`](lefthook.yml):
+
+- **`pre-commit`** — `oxlint --fix` and `oxfmt` on staged files (`stage_fixed`)
+- **`pre-push`** — same **lint**, **format**, and **typecheck** tasks as CI (`turbo run …`, in parallel)
+
+Skip hooks with `git commit --no-verify` / `git push --no-verify`, or `LEFTHOOK=0` before the git command.
 
 ### Review UI (HMR)
 

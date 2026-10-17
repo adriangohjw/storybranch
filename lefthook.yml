@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=https://lefthook.dev/schema.json
+
+pre-commit:
+  jobs:
+    - name: lint fix
+      run: bun run lint:fix
+
+    - name: format fix
+      run: bun run format:fix
+
+pre-push:
+  parallel: true
+  jobs:
+    - name: lint
+      run: bun run lint
+
+    - name: format
+      run: bun run format
+
+    - name: typecheck
+      run: bun run typecheck
