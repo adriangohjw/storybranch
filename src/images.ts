@@ -40,10 +40,26 @@ export function comparePng(
   };
 }
 
+export async function actualDirectory(root: string): Promise<string> {
+  const proc = Bun.spawn(["git", "-C", root, "rev-parse", "HEAD"], {
+    stderr: "pipe",
+    stdout: "pipe",
+  });
+  const [stdout, stderr, code] = await Promise.all([
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text(),
+    proc.exited,
+  ]);
+  if (code !== 0) {
+    throw new Error(stderr.trim() || "git rev-parse HEAD failed");
+  }
+  return path.join(root, ".storybranch", "actual", stdout.trim());
+}
+
 export async function promoteActuals(
   root: string
 ): Promise<{ updated: string[]; removed: string[] }> {
-  const actualDir = path.join(root, ".storybranch", "actual");
+  const actualDir = await actualDirectory(root);
   const baselineDir = path.join(root, ".storybranch", "baseline");
   const actualNames = await readdir(actualDir);
   const actuals = actualNames

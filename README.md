@@ -10,4 +10,4 @@ bunx storybranch test --url http://127.0.0.1:6006
 bunx storybranch approve
 ```
 
-Baselines are committed from `.storybranch/baseline`. Fresh captures land in `.storybranch/actual`, and pixel diffs land in `.storybranch/diff`.
+Baselines are committed from `.storybranch/baseline`. Fresh captures land in `.storybranch/actual/<commit>`, and pixel diffs land in `.storybranch/diff`.

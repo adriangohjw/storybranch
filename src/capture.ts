@@ -4,7 +4,7 @@ import path from "node:path";
 import { chromium } from "playwright";
 import type { Page } from "playwright";
 
-import { comparePng } from "./images.ts";
+import { actualDirectory, comparePng } from "./images.ts";
 import { isCapturable, planShots, shotFilename } from "./plan.ts";
 import type { PlanInput, Shot } from "./plan.ts";
 
@@ -45,7 +45,7 @@ export async function capture(
     .filter((entry) => isCapturable(entry))
     .toSorted((a, b) => a.id.localeCompare(b.id));
 
-  const actualDir = path.join(root, ".storybranch", "actual");
+  const actualDir = await actualDirectory(root);
   const diffDir = path.join(root, ".storybranch", "diff");
   const baselineDir = path.join(root, ".storybranch", "baseline");
   await mkdir(actualDir, { recursive: true });

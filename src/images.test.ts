@@ -5,7 +5,7 @@ import path from "node:path";
 
 import { PNG } from "pngjs";
 
-import { comparePng, promoteActuals } from "./images.ts";
+import { actualDirectory, comparePng, promoteActuals } from "./images.ts";
 
 function solid(
   width: number,
@@ -54,7 +54,9 @@ test("different sizes mismatch without a diff image", () => {
 
 test("approve copies actuals and deletes stale baselines", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "storybranch-"));
-  const actual = path.join(root, ".storybranch", "actual");
+  const hash = await initRepo(root);
+  const actual = path.join(root, ".storybranch", "actual", hash);
+  expect(await actualDirectory(root)).toBe(actual);
   const baseline = path.join(root, ".storybranch", "baseline");
   await Bun.write(path.join(actual, "keep.png"), red);
   await Bun.write(path.join(baseline, "keep.png"), blue);
@@ -68,3 +70,39 @@ test("approve copies actuals and deletes stale baselines", async () => {
   expect(await Bun.file(path.join(baseline, "stale.png")).exists()).toBe(false);
   expect(await readdir(baseline)).toEqual(["keep.png"]);
 });
+
+async function initRepo(cwd: string): Promise<string> {
+  for (const cmd of [
+    ["git", "init"],
+    [
+      "git",
+      "-c",
+      "user.email=storybranch@example.com",
+      "-c",
+      "user.name=storybranch",
+      "commit",
+      "--allow-empty",
+      "-m",
+      "init",
+    ],
+  ]) {
+    const proc = Bun.spawn(cmd, { cwd, stderr: "pipe", stdout: "ignore" });
+    const stderr = await new Response(proc.stderr).text();
+    if ((await proc.exited) !== 0) {
+      throw new Error(stderr.trim() || cmd.join(" "));
+    }
+  }
+  const proc = Bun.spawn(["git", "-C", cwd, "rev-parse", "HEAD"], {
+    stderr: "pipe",
+    stdout: "pipe",
+  });
+  const [stdout, stderr, code] = await Promise.all([
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text(),
+    proc.exited,
+  ]);
+  if (code !== 0) {
+    throw new Error(stderr.trim() || "git rev-parse HEAD failed");
+  }
+  return stdout.trim();
+}

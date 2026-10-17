@@ -44,7 +44,19 @@ test(
     try {
       await waitForIndex(url);
       const work = await mkdtemp(path.join(tmpdir(), "storybranch-e2e-"));
+      const hash = await initRepo(work);
       const first = await run(["test", "--url", url], work);
+      expect(
+        await Bun.file(
+          path.join(
+            work,
+            ".storybranch",
+            "actual",
+            hash,
+            "button--default__1200x900.png"
+          )
+        ).exists()
+      ).toBe(true);
       expect(first.exitCode).toBe(1);
       expect(first.stderr).toContain("missing baseline");
 
@@ -78,6 +90,42 @@ test(
   },
   { timeout: 180_000 }
 );
+
+async function initRepo(cwd: string): Promise<string> {
+  for (const cmd of [
+    ["git", "init"],
+    [
+      "git",
+      "-c",
+      "user.email=storybranch@example.com",
+      "-c",
+      "user.name=storybranch",
+      "commit",
+      "--allow-empty",
+      "-m",
+      "init",
+    ],
+  ]) {
+    const proc = Bun.spawn(cmd, { cwd, stderr: "pipe", stdout: "ignore" });
+    const stderr = await new Response(proc.stderr).text();
+    if ((await proc.exited) !== 0) {
+      throw new Error(stderr.trim() || cmd.join(" "));
+    }
+  }
+  const proc = Bun.spawn(["git", "-C", cwd, "rev-parse", "HEAD"], {
+    stderr: "pipe",
+    stdout: "pipe",
+  });
+  const [stdout, stderr, code] = await Promise.all([
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text(),
+    proc.exited,
+  ]);
+  if (code !== 0) {
+    throw new Error(stderr.trim() || "git rev-parse HEAD failed");
+  }
+  return stdout.trim();
+}
 
 async function waitForIndex(storybookUrl: string): Promise<void> {
   const deadline = Date.now() + 90_000;
