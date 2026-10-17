@@ -4,8 +4,10 @@
   "type": "module",
   "exports": {
     "./base": "./base.config.ts",
-    "./cli": "./cli.config.ts",
-    "./react": "./react.config.ts"
+    "./extends-list": "./extends-list.ts",
+    "./react-doctor": "./react-doctor.ts",
+    "./react-stack": "./react-stack.ts",
+    "./src-alias-imports": "./src-alias-imports.ts"
   },
   "scripts": {
     "format": "oxfmt --check .",

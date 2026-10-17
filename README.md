@@ -34,7 +34,7 @@ packages
   └─ report/      # Report types and JSON I/O (`@storybranch/report`)
 tooling
   ├─ github/      # Shared composite action (Bun install + Turborepo cache)
-  ├─ oxlint/      # `@storybranch/oxlint-config` (base, react, cli presets)
+  ├─ oxlint/      # `@storybranch/oxlint-config` (base + composable presets)
   ├─ oxfmt/       # `@storybranch/oxfmt-config`
   └─ typescript/  # `@storybranch/tsconfig` (`base.json`)
 patches
@@ -77,7 +77,7 @@ On a run with **missing / changed / stale** snapshots, `test` starts a backgroun
 
 ## Imports
 
-Workspace packages use `workspace:*` dependencies (e.g. `@storybranch/report`, `@storybranch/core/capture`). Shared lint/format/tsconfig come from `tooling/*` (`@storybranch/oxlint-config`, `@storybranch/oxfmt-config`, `@storybranch/tsconfig`).
+Workspace packages use `workspace:*` for cross-package imports (e.g. `@storybranch/report`, `@storybranch/core/capture`). Within a package’s `src/`, import sibling modules with the `@/` alias (`paths` in that package’s `tsconfig.json`), not `./` or `../`; each package’s `oxlint.config.ts` composes `@storybranch/oxlint-config` blocks (e.g. `react-doctor` + `src-alias-imports` on CLI packages, `react-stack` on review UI). Shared lint/format/tsconfig live under `tooling/*` (`@storybranch/oxlint-config`, `@storybranch/oxfmt-config`, `@storybranch/tsconfig`).
 
 ## Development
 

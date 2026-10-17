@@ -1,8 +1,8 @@
 import type { ReportEntry } from "@storybranch/report";
 
-import { acceptShot } from "./api.ts";
-import { cn } from "./lib/cn.ts";
-import { badgeTone, groupEntries, needsAttention } from "./lib/report-ui.ts";
+import { acceptShot } from "@/api.ts";
+import { cn } from "@/lib/cn.ts";
+import { badgeTone, groupEntries, needsAttention } from "@/lib/report-ui.ts";
 
 interface ShotListProps {
   entries: ReportEntry[];

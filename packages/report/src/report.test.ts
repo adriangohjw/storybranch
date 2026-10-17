@@ -11,8 +11,8 @@ import {
   shotLabelFromFilename,
   storyIdFromFilename,
   writeReport,
-} from "./report.ts";
-import type { Report } from "./report.ts";
+} from "@/report.ts";
+import type { Report } from "@/report.ts";
 
 test("story id and label parse from filename", () => {
   expect(storyIdFromFilename("button--default__1200x900.png")).toBe(

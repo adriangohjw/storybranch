@@ -1,7 +1,16 @@
 import base from "@storybranch/oxlint-config/base";
+import { extendsList } from "@storybranch/oxlint-config/extends-list";
+import {
+  reactDoctorExtends,
+  reactDoctorJsPlugins,
+} from "@storybranch/oxlint-config/react-doctor";
+import { srcAliasImportsOverride } from "@storybranch/oxlint-config/src-alias-imports";
 import { defineConfig } from "oxlint";
 
 export default defineConfig({
   ...base,
-  ignorePatterns: [...(base.ignorePatterns ?? []), "review/**", "**/*.test.ts"],
+  extends: [...extendsList(base), ...reactDoctorExtends],
+  ignorePatterns: [...(base.ignorePatterns ?? []), "review/**"],
+  jsPlugins: reactDoctorJsPlugins,
+  overrides: [srcAliasImportsOverride],
 });

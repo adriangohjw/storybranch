@@ -1,10 +1,10 @@
 import type { Report, ReportEntry } from "@storybranch/report";
 import { useEffect, useMemo, useState } from "react";
 
-import { acceptAll, fetchReport } from "./api.ts";
-import { ComparisonViewer } from "./comparison-viewer.tsx";
-import { matchesFilter } from "./lib/report-ui.ts";
-import { ShotList } from "./shot-list.tsx";
+import { acceptAll, fetchReport } from "@/api.ts";
+import { ComparisonViewer } from "@/comparison-viewer.tsx";
+import { matchesFilter } from "@/lib/report-ui.ts";
+import { ShotList } from "@/shot-list.tsx";
 
 export const App = () => {
   const [report, setReport] = useState<Report | null>(null);

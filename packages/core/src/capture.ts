@@ -10,11 +10,11 @@ import type { Report, ReportEntry } from "@storybranch/report";
 import { chromium } from "playwright";
 import type { Page } from "playwright";
 
-import { actualDirectory, comparePng } from "./images.ts";
-import { isCapturable, planShots, shotFilename } from "./plan.ts";
-import type { PlanInput, Shot, ShotGlobals } from "./plan.ts";
-import type { CaptureProgress } from "./progress.ts";
-import { captureProgressEnabled, createCaptureProgress } from "./progress.ts";
+import { actualDirectory, comparePng } from "@/images.ts";
+import { isCapturable, planShots, shotFilename } from "@/plan.ts";
+import type { PlanInput, Shot, ShotGlobals } from "@/plan.ts";
+import type { CaptureProgress } from "@/progress.ts";
+import { captureProgressEnabled, createCaptureProgress } from "@/progress.ts";
 
 interface IndexEntry {
   id?: string;

@@ -1,6 +1,6 @@
 import type { Report } from "@storybranch/report";
 
-import { parseReportResponse } from "./lib/parse-report.ts";
+import { parseReportResponse } from "@/lib/parse-report.ts";
 
 export async function fetchReport(): Promise<Report> {
   const response = await fetch("/api/report");

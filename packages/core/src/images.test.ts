@@ -5,7 +5,7 @@ import path from "node:path";
 
 import { PNG } from "pngjs";
 
-import { actualDirectory, comparePng, promoteActuals } from "./images.ts";
+import { actualDirectory, comparePng, promoteActuals } from "@/images.ts";
 
 function solid(
   width: number,

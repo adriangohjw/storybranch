@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import { startReviewServer } from "./review-server.ts";
+import { startReviewServer } from "@/review-server.ts";
 
 export const DEFAULT_REVIEW_PORT = 4321;
 

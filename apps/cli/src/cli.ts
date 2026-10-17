@@ -4,13 +4,13 @@ import { promoteActuals } from "@storybranch/core/images";
 import { reportHasAttention } from "@storybranch/report";
 import pc from "picocolors";
 
-import { reviewUiBuilt } from "./review-server.ts";
+import { reviewUiBuilt } from "@/review-server.ts";
 import {
   openBrowser,
   reviewPortFromEnv,
   runForegroundReview,
   spawnDetachedReview,
-} from "./review-spawn.ts";
+} from "@/review-spawn.ts";
 
 const [command, ...args] = Bun.argv.slice(2);
 
