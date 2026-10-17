@@ -1,4 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="48" viewBox="0 0 800 48">
-  <rect width="800" height="48" fill="#c2410c"/>
-  <text x="12" y="30" fill="#fff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="14">storybranch</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="300" viewBox="0 0 800 300">
+  <rect width="800" height="300" fill="#fafafa"/>
+  <rect x="250" y="16" width="300" height="268" rx="16" fill="#f6f3ee"/>
+  <text x="270" y="48" fill="#c2410c" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" font-weight="700" letter-spacing="1">STORYBOOK VISUALS</text>
+  <text x="270" y="84" fill="#14181f" font-family="ui-sans-serif,system-ui,sans-serif" font-size="22" font-weight="700">Catch UI drift</text>
+  <text x="270" y="112" fill="#14181f" font-family="ui-sans-serif,system-ui,sans-serif" font-size="22" font-weight="700">before it ships</text>
+  <text x="270" y="142" fill="#4a5568" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12">Pinned mobile viewport.</text>
+  <rect x="270" y="162" width="112" height="34" rx="8" fill="#c2410c"/>
+  <text x="284" y="184" fill="#fff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="650">Review diff</text>
+  <rect x="270" y="208" width="220" height="56" rx="8" fill="#fff"/>
+  <text x="282" y="232" fill="#c2410c" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13">Button / Primary</text>
+  <text x="282" y="250" fill="#a16207" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12">new snapshot</text>
 </svg>

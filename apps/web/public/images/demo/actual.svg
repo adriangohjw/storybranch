@@ -1,4 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="48" viewBox="0 0 800 48">
-  <rect width="800" height="48" fill="#db2777"/>
-  <text x="12" y="30" fill="#fff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="14">storybranch</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="300" viewBox="0 0 800 300">
+  <rect width="800" height="300" rx="16" fill="#f6f3ee"/>
+  <text x="32" y="52" fill="#1d4ed8" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12" font-weight="700" letter-spacing="1.2">THIS SCAN</text>
+  <text x="32" y="100" fill="#14181f" font-family="ui-sans-serif,system-ui,sans-serif" font-size="32" font-weight="700">Every story,</text>
+  <text x="32" y="140" fill="#14181f" font-family="ui-sans-serif,system-ui,sans-serif" font-size="32" font-weight="700">one PNG</text>
+  <text x="32" y="176" fill="#4a5568" font-family="ui-sans-serif,system-ui,sans-serif" font-size="15">Baselines live in git. Accept the ones you meant to change.</text>
+  <rect x="32" y="204" width="112" height="40" rx="8" fill="#1d4ed8"/>
+  <text x="48" y="229" fill="#fff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="14" font-weight="650">Accept all</text>
+  <rect x="156" y="204" width="158" height="40" rx="20" fill="#dcfce7"/>
+  <text x="172" y="229" fill="#166534" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="700">12 stories changed</text>
+  <rect x="520" y="36" width="248" height="228" rx="12" fill="#fff"/>
+  <text x="540" y="64" fill="#71717a" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12">This scan</text>
+  <rect x="540" y="80" width="208" height="44" rx="8" fill="#f0fdf4"/>
+  <text x="552" y="107" fill="#166534" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="650">Hero / Default · accept</text>
+  <rect x="540" y="132" width="208" height="44" rx="8" fill="#fef2f2"/>
+  <text x="552" y="159" fill="#b91c1c" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="650">Card / Compact · 860 px</text>
+  <text x="540" y="198" fill="#71717a" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12">Layout, copy, and actions changed.</text>
 </svg>
