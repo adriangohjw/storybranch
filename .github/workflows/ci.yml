@@ -2,6 +2,8 @@ name: CI
 
 on:
   push:
+  schedule:
+    - cron: "15 9 * * 6"
 
 permissions: {}
 
@@ -11,6 +13,7 @@ concurrency:
 
 jobs:
   lint:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -25,6 +28,7 @@ jobs:
         run: bun run lint
 
   typecheck:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -39,6 +43,7 @@ jobs:
         run: bun run typecheck
 
   format:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -53,6 +58,7 @@ jobs:
         run: bun run format
 
   review-ui:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -67,6 +73,7 @@ jobs:
         run: bun run build:review
 
   test:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -83,6 +90,7 @@ jobs:
         run: bun run test
 
   codeql:
+    if: github.event_name == 'schedule'
     permissions:
       security-events: write
       packages: read
