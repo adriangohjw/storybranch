@@ -18,10 +18,12 @@ updates:
           - react-dom
           - "@types/react"
           - "@types/react-dom"
-      review-ui:
+      vite:
         patterns:
           - vite
           - "@vitejs/*"
+      tailwind:
+        patterns:
           - tailwindcss
           - "@tailwindcss/*"
           - tailwind-merge
