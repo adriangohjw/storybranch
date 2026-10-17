@@ -1,34 +1,15 @@
 # yaml-language-server: $schema=https://lefthook.dev/schema.json
-# Ultracite pre-commit job: https://www.ultracite.ai/docs/git-hooks#lefthook
 
 pre-commit:
   jobs:
-    - name: ultracite fix
-      run: bunx ultracite fix {staged_files}
-      glob:
-        - "*.js"
-        - "*.jsx"
-        - "*.mjs"
-        - "*.cjs"
-        - "*.ts"
-        - "*.tsx"
-        - "*.mts"
-        - "*.cts"
-        - "*.json"
-        - "*.jsonc"
-        - "*.css"
-        - "*.scss"
-        - "*.less"
-        - "*.vue"
-        - "*.svelte"
-        - "*.astro"
-        - "*.html"
-        - "*.md"
-        - "*.mdx"
-        - "*.yaml"
-        - "*.yml"
-        - "*.graphql"
-        - "*.gql"
+    - name: lint fix
+      run: bunx oxlint --fix {staged_files}
+      glob: "*.{ts,tsx,js,jsx,mjs,cjs,mts,cts}"
+      stage_fixed: true
+
+    - name: format
+      run: bunx oxfmt {staged_files}
+      glob: "*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,jsonc,css,md,mdx,yaml,yml}"
       stage_fixed: true
 
 pre-push:

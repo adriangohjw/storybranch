@@ -17,8 +17,6 @@
     "lint:fix": "turbo run lint:fix",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "check": "ultracite check",
-    "fix": "ultracite fix",
     "prepare": "lefthook install"
   },
   "catalog": {
@@ -62,8 +60,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "storybook": "catalog:",
-    "turbo": "catalog:",
-    "ultracite": "catalog:"
+    "turbo": "catalog:"
   },
   "packageManager": "bun@1.4.3",
   "patchedDependencies": {

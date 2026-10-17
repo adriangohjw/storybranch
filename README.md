@@ -97,7 +97,7 @@ patches
 turbo.json
   └─ Turborepo task pipeline (`build`, `lint`, `format`, `typecheck`, `test`, `dev`)
 lefthook.yml
-  └─ Pre-commit: Ultracite fix on staged files, then `turbo` lint / format / typecheck
+  └─ `pre-commit`: oxlint/oxfmt on staged files · `pre-push`: `turbo` lint / format / typecheck
 ```
 
 ## Usage
@@ -148,13 +148,16 @@ bun run typecheck     # turbo run typecheck (per-package `bun check`; requires B
 bun run build:review  # Vite production build → apps/cli/review/public/
 bun run build         # turbo build (review-ui + web stub)
 bun run test          # unit tests + Playwright e2e (install Chromium first)
-bun run check         # ultracite check (lint + format, whole repo)
-bun run fix           # ultracite fix (same toolchain as the pre-commit hook)
 ```
 
-### Git hooks (Lefthook + Ultracite)
+### Git hooks (Lefthook)
 
-[`lefthook.yml`](lefthook.yml) follows the [Ultracite Lefthook integration](https://www.ultracite.ai/docs/git-hooks#lefthook): on each commit, staged files are auto-fixed with `ultracite fix`, re-staged, then the repo runs the same **lint**, **format**, and **typecheck** tasks as CI (`turbo run …`). Skip in a pinch with `git commit --no-verify` or `LEFTHOOK=0 git commit …`.
+[`lefthook.yml`](lefthook.yml):
+
+- **`pre-commit`** — `oxlint --fix` and `oxfmt` on staged files (`stage_fixed`)
+- **`pre-push`** — same **lint**, **format**, and **typecheck** tasks as CI (`turbo run …`, in parallel)
+
+Skip hooks with `git commit --no-verify` / `git push --no-verify`, or `LEFTHOOK=0` before the git command.
 
 ### Review UI (HMR)
 
