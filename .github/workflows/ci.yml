@@ -34,16 +34,13 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
-    container:
-      image: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:7852dc5a7d72f5fe458a597d690f6c42fbc8e9e26ddfa95f8e6ef552558d9bbf
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Install unzip for setup-bun
-        run: apt-get update && apt-get install -y unzip
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
       - run: bun install --frozen-lockfile
+      - run: bunx playwright install --with-deps chromium
       - run: bun test
 
   jactionlint:
