@@ -9,7 +9,7 @@
     "format:fix": "oxfmt .",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "bun check --no-script"
   },
   "dependencies": {
     "@storybranch/report": "workspace:*",

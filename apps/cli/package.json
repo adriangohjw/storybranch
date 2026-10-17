@@ -11,7 +11,7 @@
     "lint": "oxlint src/cli.ts src/review-server.ts src/review-spawn.ts",
     "lint:fix": "oxlint --fix src/cli.ts src/review-server.ts src/review-spawn.ts",
     "test": "bun test",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "bun check --no-script",
     "prepack": "bun run --cwd ../../ build:review"
   },
   "dependencies": {

@@ -87,7 +87,7 @@ bun run lint          # turbo run lint (per-package oxlint)
 bun run lint:fix
 bun run format        # turbo run format (per-package oxfmt)
 bun run format:fix
-bun run typecheck     # turbo run typecheck (per-package tsc)
+bun run typecheck     # turbo run typecheck (per-package `bun check`; requires Bun 1.4.3+)
 bun run build:review  # Vite production build → apps/cli/review/public/
 bun run build         # turbo build (review-ui + web stub)
 bun run test          # unit tests + Playwright e2e (install Chromium first)

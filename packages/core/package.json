@@ -14,7 +14,7 @@
     "lint": "oxlint src/capture.ts src/images.ts src/plan.ts src/progress.ts",
     "lint:fix": "oxlint --fix src/capture.ts src/images.ts src/plan.ts src/progress.ts",
     "test": "bun test",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "bun check --no-script"
   },
   "dependencies": {
     "@storybranch/report": "workspace:*",
