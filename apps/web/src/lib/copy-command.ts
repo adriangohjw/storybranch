@@ -1,3 +1,5 @@
+import { toast } from "sonner";
+
 export function wireCopy(root: ParentNode = document): void {
   for (const button of root.querySelectorAll<HTMLButtonElement>(
     "[data-copy]"
@@ -21,13 +23,9 @@ export function wireCopy(root: ParentNode = document): void {
 
         try {
           await navigator.clipboard.writeText(command);
-          const previous = button.textContent;
-          button.textContent = "Copied";
-          window.setTimeout(() => {
-            button.textContent = previous;
-          }, 1400);
+          toast.success("Copied to clipboard");
         } catch {
-          button.textContent = "Failed";
+          toast.error("Could not copy");
         }
       })();
     });

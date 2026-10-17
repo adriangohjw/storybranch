@@ -1,5 +1,5 @@
 {
   "extends": "@storybranch/tsconfig/base.json",
-  "include": ["./**/*.ts", "./**/*.mjs"],
+  "include": ["./**/*.ts", "./**/*.tsx", "./**/*.mjs", "./**/*.astro"],
   "exclude": ["dist"]
 }

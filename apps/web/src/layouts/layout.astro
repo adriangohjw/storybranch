@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import { AppToaster } from "../components/app-toaster.tsx";
 
 interface Props {
   title?: string;
@@ -36,5 +37,6 @@ const siteUrl = Astro.site?.href ?? "https://storybranch.pages.dev";
   </head>
   <body class="min-h-dvh">
     <slot />
+    <AppToaster client:load />
   </body>
 </html>
