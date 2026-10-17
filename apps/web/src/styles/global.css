@@ -1,40 +1,7 @@
-@font-face {
-  font-family: "Syne";
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("/fonts/syne-600.ttf") format("truetype");
-  ascent-override: 84%;
-  descent-override: 32%;
-  line-gap-override: 0%;
-}
-
-@font-face {
-  font-family: "Syne";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("/fonts/syne-700.ttf") format("truetype");
-  ascent-override: 84%;
-  descent-override: 32%;
-  line-gap-override: 0%;
-}
-
-@font-face {
-  font-family: "Syne";
-  font-style: normal;
-  font-weight: 800;
-  font-display: swap;
-  src: url("/fonts/syne-800.ttf") format("truetype");
-  ascent-override: 84%;
-  descent-override: 32%;
-  line-gap-override: 0%;
-}
-
 @import "tailwindcss";
 
 @theme {
-  --font-syne: "Syne", ui-sans-serif, system-ui, sans-serif;
+  --font-syne: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
@@ -51,13 +18,6 @@
   --color-good: #3d9a6a;
   --color-warn: #c9842a;
   --color-bad: #d45b5b;
-}
-
-@utility font-syne {
-  font-family: var(--font-syne);
-  line-height: 1.85 !important;
-  padding-block: 0.08em;
-  overflow: visible;
 }
 
 @layer base {
