@@ -21,8 +21,6 @@
   "devDependencies": {
     "@storybranch/oxfmt-config": "workspace:*",
     "@storybranch/oxlint-config": "workspace:*",
-    "@storybranch/tsconfig": "workspace:*",
-    "oxfmt": "catalog:",
-    "oxlint": "catalog:"
+    "@storybranch/tsconfig": "workspace:*"
   }
 }
