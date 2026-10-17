@@ -4,8 +4,6 @@ node_modules/
 # Astro / Cloudflare Pages (apps/web)
 apps/web/dist/
 apps/web/.astro/
-.wrangler/
-
 # storybook
 debug-storybook.log
 storybook-static/

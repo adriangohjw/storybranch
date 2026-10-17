@@ -1,12 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
   <rect width="32" height="32" rx="8" fill="#14181F"/>
   <text
-    font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif"
-    font-size="15"
+    x="16"
+    y="21.5"
+    text-anchor="middle"
+    font-family="ui-sans-serif, system-ui, sans-serif"
+    font-size="13"
     font-weight="700"
-    letter-spacing="-0.02em"
-  >
-    <tspan x="5" y="22" fill="#F3F0EA">S</tspan>
-    <tspan x="16.5" y="22" fill="#D63B5A">B</tspan>
-  </text>
+    letter-spacing="-0.5"
+    fill="#F3F0EA"
+  >SB</text>
 </svg>
