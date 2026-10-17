@@ -98,8 +98,6 @@ export const App = () => {
             >
               <option value="all">All</option>
               <option value="attention">Needs attention</option>
-              <option value="changed">Changed</option>
-              <option value="new">New</option>
               <option value="stale">Stale</option>
               <option value="error">Error</option>
               <option value="unchanged">Unchanged</option>

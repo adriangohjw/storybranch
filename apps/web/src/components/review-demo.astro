@@ -57,6 +57,7 @@ const shots = [
 const groups = Map.groupBy(shots, (shot) => shot.storyId);
 
 const badgeClass = {
+  approved: "bg-violet-500/20 text-violet-300",
   changed: "bg-amber-500/20 text-amber-300",
   new: "bg-sky-500/20 text-sky-300",
   unchanged: "bg-emerald-500/20 text-emerald-300",
@@ -93,8 +94,7 @@ const initialId = "hero--default__1200x900.png";
           >
             <option value="all" selected>All</option>
             <option value="attention">Needs attention</option>
-            <option value="changed">Changed</option>
-            <option value="new">New</option>
+            <option value="approved">Approved</option>
             <option value="unchanged">Unchanged</option>
           </select>
         </label>
@@ -155,6 +155,7 @@ const initialId = "hero--default__1200x900.png";
                             "rounded-full px-1.5 py-px text-[9px] leading-none font-semibold tracking-wide uppercase",
                             badgeClass[shot.status],
                           ]}
+                          data-shot-badge
                         >
                           {shot.status}
                         </span>

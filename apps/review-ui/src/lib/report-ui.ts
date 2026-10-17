@@ -4,13 +4,17 @@ export function needsAttention(status: ShotStatus): boolean {
   return status !== "unchanged";
 }
 
+export function pendingApproval(status: ShotStatus): boolean {
+  return status === "new" || status === "changed";
+}
+
 export function matchesFilter(entry: ReportEntry, filter: string): boolean {
   if (filter === "all") {
     return true;
   }
 
   if (filter === "attention") {
-    return needsAttention(entry.status);
+    return pendingApproval(entry.status);
   }
 
   return entry.status === filter;

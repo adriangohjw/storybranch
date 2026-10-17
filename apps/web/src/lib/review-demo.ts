@@ -1,17 +1,29 @@
-function needsAttention(status: string): boolean {
-  return status !== "unchanged";
+function pendingApproval(status: string): boolean {
+  return status === "new" || status === "changed";
 }
 
-function matchesFilter(status: string, value: string): boolean {
+function matchesFilter(
+  status: string,
+  value: string,
+  approved: boolean
+): boolean {
   if (value === "all") {
     return true;
   }
 
   if (value === "attention") {
-    return needsAttention(status);
+    return !approved && pendingApproval(status);
   }
 
-  return status === value;
+  if (value === "approved") {
+    return approved;
+  }
+
+  if (value === "unchanged") {
+    return status === "unchanged";
+  }
+
+  return false;
 }
 
 function initReviewDemo(root: HTMLElement): void {
@@ -44,7 +56,6 @@ function initReviewDemo(root: HTMLElement): void {
 
   const diffKnob = root.querySelector<HTMLElement>("[data-diff-knob]");
   const acceptedMsg = root.querySelector<HTMLElement>("[data-accepted-msg]");
-  const shotCount = root.querySelector<HTMLElement>("[data-shot-count]");
   const aside = root.querySelector<HTMLElement>("[data-aside]");
   const asideLabel = root.querySelector<HTMLElement>("[data-aside-label]");
   const shotList = root.querySelector<HTMLElement>("[data-shot-list]");
@@ -66,19 +77,23 @@ function initReviewDemo(root: HTMLElement): void {
     selectButtons[0]?.dataset.id ??
     null;
 
-  function remainingRows(): HTMLElement[] {
-    return rows.filter((row) => row.dataset.accepted !== "1");
+  function rowApproved(row: HTMLElement): boolean {
+    return row.dataset.approved === "1";
   }
 
   function visibleRows(): HTMLElement[] {
-    const value = filter?.value ?? "attention";
+    const value = filter?.value ?? "all";
 
-    return remainingRows().filter((row) => {
+    return rows.filter((row) => {
       if (row.hidden === true) {
         return false;
       }
 
-      return matchesFilter(row.dataset.status ?? "", value);
+      return matchesFilter(
+        row.dataset.status ?? "",
+        value,
+        rowApproved(row)
+      );
     });
   }
 
@@ -173,16 +188,34 @@ function initReviewDemo(root: HTMLElement): void {
     }
   }
 
+  function showEmptyFilterMessage(): void {
+    if (acceptedMsg === null) {
+      return;
+    }
+
+    const value = filter?.value ?? "all";
+    const pending = rows.filter(
+      (row) => !rowApproved(row) && pendingApproval(row.dataset.status ?? "")
+    );
+
+    if (value === "attention" && pending.length === 0) {
+      acceptedMsg.textContent = "No snapshots need attention.";
+    } else {
+      acceptedMsg.textContent = "No snapshots match this filter.";
+    }
+
+    acceptedMsg.classList.remove("hidden");
+  }
+
   function applyFilter(): void {
-    const value = filter?.value ?? "attention";
+    const value = filter?.value ?? "all";
 
     for (const row of rows) {
-      if (row.dataset.accepted === "1") {
-        row.hidden = true;
-        continue;
-      }
-
-      row.hidden = !matchesFilter(row.dataset.status ?? "", value);
+      row.hidden = !matchesFilter(
+        row.dataset.status ?? "",
+        value,
+        rowApproved(row)
+      );
     }
 
     syncGroups();
@@ -197,43 +230,41 @@ function initReviewDemo(root: HTMLElement): void {
 
       if (first !== undefined && first !== null) {
         selectShot(first);
-      } else if (acceptedMsg !== null) {
-        acceptedMsg.textContent =
-          remainingRows().length === 0
-            ? "All demo snapshots accepted."
-            : "No snapshots match this filter.";
-        acceptedMsg.classList.remove("hidden");
+      } else {
+        showEmptyFilterMessage();
       }
     }
+  }
+
+  function markRowApproved(row: HTMLElement): void {
+    row.dataset.approved = "1";
+
+    const badge = row.querySelector<HTMLElement>("[data-shot-badge]");
+
+    if (badge !== null) {
+      badge.textContent = "approved";
+      badge.className =
+        "rounded-full px-1.5 py-px text-[9px] leading-none font-semibold tracking-wide uppercase bg-violet-500/20 text-violet-300";
+    }
+
+    const acceptButton = row.querySelector<HTMLButtonElement>("[data-accept]");
+
+    acceptButton?.remove();
   }
 
   function acceptId(id: string): void {
     const row = rows.find((candidate) => candidate.dataset.id === id);
 
-    if (row === undefined || row.dataset.accepted === "1") {
+    if (row === undefined || rowApproved(row)) {
       return;
     }
 
-    row.dataset.accepted = "1";
-    row.hidden = true;
-
-    if (shotCount !== null) {
-      shotCount.textContent = String(remainingRows().length);
+    if (!pendingApproval(row.dataset.status ?? "")) {
+      return;
     }
 
-    syncGroups();
-
-    if (selectedId === id) {
-      const next =
-        visibleRows()[0]?.querySelector<HTMLButtonElement>("[data-select]");
-
-      if (next !== undefined && next !== null) {
-        selectShot(next);
-      } else if (acceptedMsg !== null) {
-        acceptedMsg.textContent = "All demo snapshots accepted.";
-        acceptedMsg.classList.remove("hidden");
-      }
-    }
+    markRowApproved(row);
+    applyFilter();
   }
 
   filter?.addEventListener("change", applyFilter);
@@ -259,12 +290,14 @@ function initReviewDemo(root: HTMLElement): void {
   root.querySelector("[data-accept-all]")?.addEventListener("click", () => {
     for (const row of rows) {
       if (
-        row.dataset.accepted !== "1" &&
-        needsAttention(row.dataset.status ?? "")
+        !rowApproved(row) &&
+        pendingApproval(row.dataset.status ?? "")
       ) {
-        acceptId(row.dataset.id ?? "");
+        markRowApproved(row);
       }
     }
+
+    applyFilter();
   });
 
   applyFilter();
