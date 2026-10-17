@@ -16,6 +16,7 @@ function shotsOf(plan: ReturnType<typeof planShots>): Shot[] {
   if (!("shots" in plan)) {
     throw new Error("expected shots");
   }
+
   return plan.shots;
 }
 
@@ -32,6 +33,7 @@ test("viewports become one shot per width at height 900", () => {
       chromatic: { viewports: [320, 1200] },
     },
   });
+
   const [narrow, wide] = shotsOf(plan);
   expect(narrow).toMatchObject({
     globals: {},
@@ -56,6 +58,7 @@ test("modes win and a named viewport is looked up", () => {
       },
     },
   });
+
   const [narrow, phone, tall] = shotsOf(plan);
   expect(narrow).toMatchObject({
     globals: {},
@@ -87,6 +90,7 @@ test("a mode without a viewport stays at 1200x900", () => {
       chromatic: { modes: { dark: { backgrounds: { value: "dark" } } } },
     },
   });
+
   const [shot] = shotsOf(plan);
   expect(shot).toMatchObject({
     globals: { backgrounds: { value: "dark" } },
@@ -101,6 +105,7 @@ test("built-in mobile1 applies when the story sets no options", () => {
     globals: { viewport: { isRotated: false, value: "mobile1" } },
     parameters: {},
   });
+
   const [shot] = shotsOf(plan);
   expect(shot).toMatchObject({ height: 568, label: "mobile1", width: 320 });
 });
@@ -110,6 +115,7 @@ test("pinned viewport uses the option size and rotation swaps axes", () => {
     ...base,
     globals: { viewport: { isRotated: true, value: "mobile1" } },
   });
+
   const [shot] = shotsOf(plan);
   expect(shot).toMatchObject({ height: 320, label: "mobile1", width: 568 });
 });
@@ -121,6 +127,7 @@ test("modes and viewports together are an error", () => {
       chromatic: { modes: { a: { viewport: 100 } }, viewports: [200] },
     },
   });
+
   expect(plan).toEqual({
     error: "chromatic.modes and chromatic.viewports are both set",
   });
@@ -131,6 +138,7 @@ test("unknown named viewport is an error", () => {
     globals: {},
     parameters: { chromatic: { modes: { phone: { viewport: "nope" } } } },
   });
+
   expect(plan).toEqual({ error: "unknown viewport nope" });
 });
 
@@ -158,6 +166,7 @@ test("capture flags come from chromatic parameters", () => {
       },
     },
   });
+
   const [shot] = shotsOf(plan);
   expect(shot).toMatchObject({
     cropToViewport: true,

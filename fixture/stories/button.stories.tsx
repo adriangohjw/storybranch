@@ -1,19 +1,17 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-function Box({ label }: { label: string }) {
-  return (
-    <div
-      style={{
-        background: "#c2410c",
-        color: "white",
-        fontFamily: "sans-serif",
-        padding: 12,
-      }}
-    >
-      {label}
-    </div>
-  );
-}
+const Box = ({ label }: { label: string }) => (
+  <div
+    style={{
+      background: "#c2410c",
+      color: "white",
+      fontFamily: "sans-serif",
+      padding: 12,
+    }}
+  >
+    {label}
+  </div>
+);
 
 const meta = {
   args: { label: "storybranch" },

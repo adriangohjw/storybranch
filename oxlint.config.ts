@@ -1,14 +1,21 @@
 import { defineConfig } from "oxlint";
+import antiSlop from "ultracite/oxlint/anti-slop";
 import core from "ultracite/oxlint/core";
+import { jsPluginSettings, selectJsPlugins } from "ultracite/oxlint/js-plugins";
+import react from "ultracite/oxlint/react";
+
+const reactDoctor = selectJsPlugins(["react-doctor"]);
 
 export default defineConfig({
   env: core.env,
-  extends: [core],
+  extends: [core, react, antiSlop, reactDoctor],
   ignorePatterns: core.ignorePatterns,
+  jsPlugins: [...antiSlop.jsPlugins, ...reactDoctor.jsPlugins],
   options: { typeAware: true },
   overrides: [
     {
       files: ["src/**/*.{ts,tsx}"],
+      ignores: ["src/review/ui/**"],
       rules: {
         // Ultracite core enables `no-restricted-imports` but leaves patterns to
         // the project. Prefer `@/` (see tsconfig paths) over `./` in `src/`.
@@ -33,4 +40,5 @@ export default defineConfig({
     "no-await-in-loop": "off",
     "no-use-before-define": "off",
   },
+  settings: jsPluginSettings,
 });

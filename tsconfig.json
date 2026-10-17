@@ -21,6 +21,8 @@
   },
   "include": [
     "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/review/ui/vite-env.d.ts",
     "fixture/**/*.ts",
     "fixture/**/*.tsx",
     "oxlint.config.ts",
