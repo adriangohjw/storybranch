@@ -1,17 +1,28 @@
 {
   "name": "@storybranch/web",
-  "type": "module",
-  "version": "0.0.1",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "astro dev",
+    "astro": "astro",
     "build": "astro build",
+    "dev": "astro dev",
+    "format": "oxfmt --check .",
+    "format:fix": "oxfmt .",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
     "preview": "astro preview",
-    "astro": "astro"
+    "typecheck": "bun ../../scripts/bun-check.ts"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.3.3",
-    "astro": "^7.4.0",
-    "tailwindcss": "^4.3.3"
+    "@tailwindcss/vite": "catalog:",
+    "astro": "catalog:",
+    "tailwindcss": "catalog:"
+  },
+  "devDependencies": {
+    "@storybranch/oxfmt-config": "workspace:*",
+    "@storybranch/oxlint-config": "workspace:*",
+    "@storybranch/tsconfig": "workspace:*",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:"
   }
 }

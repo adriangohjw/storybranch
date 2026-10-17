@@ -18,11 +18,11 @@ bun run preview
 
 ## Cloudflare Pages
 
-| Setting | Value |
-| --- | --- |
-| Root directory | `/` (repo root — Bun workspaces) |
-| Build command | `bun install && bun run --filter @storybranch/web build` |
-| Build output | `apps/web/dist` |
+| Setting        | Value                                                    |
+| -------------- | -------------------------------------------------------- |
+| Root directory | `/` (repo root — Bun workspaces)                         |
+| Build command  | `bun install && bun run --filter @storybranch/web build` |
+| Build output   | `apps/web/dist`                                          |
 
 If you prefer Pages root `apps/web` instead, install still needs the monorepo lockfile (e.g. build command `cd ../.. && bun install && bun run --filter @storybranch/web build`, output `apps/web/dist`).
 
@@ -34,5 +34,3 @@ In the Cloudflare dashboard: **Workers & Pages → storybranch → Settings → 
 - **Exclude paths:** _(leave empty)_
 
 Pages skips the build when a push touches only files outside those paths. See [Build watch paths](https://developers.cloudflare.com/pages/configuration/build-watch-paths/).
-
-If you deploy via the GitHub Action (`.github/workflows/deploy-web.yml`) instead of the dashboard Git integration, that workflow already filters on `apps/web/**` — use one approach, not both, to avoid double deploys.

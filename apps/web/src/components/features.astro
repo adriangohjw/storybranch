@@ -1,19 +1,19 @@
 ---
 const features = [
   {
-    title: "Capture",
     body: "Point storybranch at your Storybook URL. It walks the story index and writes PNGs under .storybranch/.",
     command: "storybranch test --url …",
+    title: "Capture",
   },
   {
-    title: "Diff locally",
     body: "Baselines live in git. Actuals and pixel diffs stay on disk — no Chromatic upload, no account.",
     command: ".storybranch/baseline · actual · diff",
+    title: "Diff locally",
   },
   {
-    title: "Review & accept",
     body: "Open the review UI to compare baseline / actual / diff, then Accept per shot or approve everything from the CLI.",
     command: "storybranch review · approve",
+    title: "Review & accept",
   },
 ] as const;
 ---

@@ -81,7 +81,7 @@ First viewport budget: brand, one headline, one supporting sentence, one CTA gro
 - Build command: `bun install && bun run build` (or equivalent from monorepo root if configured)
 - Output directory: `dist`
 - No server routes, auth, or APIs on the landing site
-- **Skip when unchanged:** Cloudflare dashboard Build watch paths → include `apps/web/*` (see [Build watch paths](https://developers.cloudflare.com/pages/configuration/build-watch-paths/)). Optionally use `.github/workflows/deploy-web.yml` with `paths: apps/web/**` instead of (not in addition to) the dashboard Git integration.
+- **Skip when unchanged:** Cloudflare dashboard Build watch paths → include `apps/web/*` (see [Build watch paths](https://developers.cloudflare.com/pages/configuration/build-watch-paths/)).
 
 ## Out of scope
 

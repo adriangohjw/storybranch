@@ -26,6 +26,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
+    "astro": "^7.4.0",
     "log-update": "^8.0.0",
     "ora": "^9.4.1",
     "picocolors": "^1.1.1",

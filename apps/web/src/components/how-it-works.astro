@@ -1,19 +1,19 @@
 ---
 const steps = [
   {
-    title: "Run Storybook",
     body: "Start your Storybook instance locally (or wherever Chromium can reach it).",
     code: "bunx storybook dev -p 6006",
+    title: "Run Storybook",
   },
   {
-    title: "Capture & diff",
     body: "storybranch walks the story index, writes PNGs, and compares them to committed baselines.",
     code: "bunx storybranch test --url http://127.0.0.1:6006",
+    title: "Capture & diff",
   },
   {
-    title: "Review or approve",
     body: "Open the review UI for changed shots, or promote every actual from the CLI in one step.",
     code: "bunx storybranch review   # or: storybranch approve",
+    title: "Review or approve",
   },
 ] as const;
 ---
