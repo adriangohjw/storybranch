@@ -50,7 +50,11 @@ function initReviewDemo(root: HTMLElement): void {
   const shotList = root.querySelector<HTMLElement>("[data-shot-list]");
   const collapseBtn = root.querySelector<HTMLButtonElement>("[data-collapse]");
   const main = root.querySelector<HTMLElement>("[data-main]");
-  const baselineFrame = root.querySelector<HTMLElement>("[data-baseline-frame]");
+
+  const baselineFrame = root.querySelector<HTMLElement>(
+    "[data-baseline-frame]"
+  );
+
   const previewFrame = root.querySelector<HTMLElement>("[data-preview-frame]");
 
   let overlayOn = true;
@@ -90,6 +94,43 @@ function initReviewDemo(root: HTMLElement): void {
     }
   }
 
+  function setFrameAspect(aspect: string): void {
+    if (baselineFrame !== null) {
+      baselineFrame.style.aspectRatio = aspect;
+    }
+
+    if (previewFrame !== null) {
+      previewFrame.style.aspectRatio = aspect;
+    }
+  }
+
+  function setBaselinePanel(baseline: string): void {
+    if (baseline === "") {
+      if (baselineImg !== null) {
+        baselineImg.hidden = true;
+      }
+
+      if (baselineFrame !== null) {
+        baselineFrame.hidden = true;
+      }
+
+      noBaseline?.classList.remove("hidden");
+
+      return;
+    }
+
+    if (baselineImg !== null) {
+      baselineImg.hidden = false;
+      baselineImg.src = baseline;
+    }
+
+    if (baselineFrame !== null) {
+      baselineFrame.hidden = false;
+    }
+
+    noBaseline?.classList.add("hidden");
+  }
+
   function selectShot(button: HTMLButtonElement): void {
     selectedId = button.dataset.id ?? null;
 
@@ -105,41 +146,14 @@ function initReviewDemo(root: HTMLElement): void {
     const diff = button.dataset.diff ?? "";
     const aspect = button.dataset.aspect ?? "800 / 300";
 
-    if (baselineFrame !== null) {
-      baselineFrame.style.aspectRatio = aspect;
-    }
-
-    if (previewFrame !== null) {
-      previewFrame.style.aspectRatio = aspect;
-    }
+    setFrameAspect(aspect);
 
     if (actualImg !== null && actual.length > 0) {
       actualImg.hidden = false;
       actualImg.src = actual;
     }
 
-    if (baseline === "") {
-      if (baselineImg !== null) {
-        baselineImg.hidden = true;
-      }
-
-      if (baselineFrame !== null) {
-        baselineFrame.hidden = true;
-      }
-
-      noBaseline?.classList.remove("hidden");
-    } else {
-      if (baselineImg !== null) {
-        baselineImg.hidden = false;
-        baselineImg.src = baseline;
-      }
-
-      if (baselineFrame !== null) {
-        baselineFrame.hidden = false;
-      }
-
-      noBaseline?.classList.add("hidden");
-    }
+    setBaselinePanel(baseline);
 
     const hasDiff = diff.length > 0;
 
