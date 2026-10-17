@@ -1,0 +1,179 @@
+import type { Report, ReportEntry } from "@storybranch/report";
+import { useEffect, useMemo, useState } from "react";
+
+import { acceptAll, fetchReport } from "@/api.ts";
+import { ComparisonViewer } from "@/comparison-viewer.tsx";
+import { cn } from "@/lib/cn.ts";
+import { matchesFilter } from "@/lib/report-ui.ts";
+import { ShotList } from "@/shot-list.tsx";
+
+export const App = () => {
+  const [report, setReport] = useState<Report | null>(null);
+  const [filter, setFilter] = useState("attention");
+  const [selectedFilename, setSelectedFilename] = useState<string | null>(null);
+  const [shotListCollapsed, setShotListCollapsed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const next = await fetchReport();
+
+        if (!cancelled) {
+          setReport(next);
+        }
+      } catch (loadError: unknown) {
+        if (!cancelled) {
+          setError(
+            loadError instanceof Error ? loadError.message : String(loadError)
+          );
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const refreshReport = () => {
+    void (async () => {
+      try {
+        const next = await fetchReport();
+        setReport(next);
+        setError(null);
+      } catch (loadError: unknown) {
+        setError(
+          loadError instanceof Error ? loadError.message : String(loadError)
+        );
+      }
+    })();
+  };
+
+  const visible = useMemo(() => {
+    if (report === null) {
+      return [];
+    }
+
+    return report.entries.filter((entry) => matchesFilter(entry, filter));
+  }, [filter, report]);
+
+  const selected: ReportEntry | null = useMemo(() => {
+    if (report === null || selectedFilename === null) {
+      return null;
+    }
+
+    return (
+      report.entries.find((entry) => entry.filename === selectedFilename) ??
+      null
+    );
+  }, [report, selectedFilename]);
+
+  return (
+    <div className="min-h-full font-sans leading-normal">
+      <header className="border-b border-zinc-800 px-5 py-4">
+        <h1 className="text-lg font-semibold tracking-tight">
+          storybranch review
+        </h1>
+        {report === null ? null : (
+          <p className="mt-1 text-sm text-zinc-400">
+            commit {report.commit.slice(0, 7)} · {report.entries.length}{" "}
+            snapshots
+          </p>
+        )}
+        {error === null ? null : (
+          <p className="mt-2 text-sm text-red-400">{error}</p>
+        )}
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <label className="flex items-center gap-2 text-sm text-zinc-300">
+            Filter
+            <select
+              className="rounded-md border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm text-zinc-100"
+              onChange={(event) => {
+                setFilter(event.target.value);
+              }}
+              value={filter}
+            >
+              <option value="attention">Needs attention</option>
+              <option value="changed">Changed</option>
+              <option value="new">New</option>
+              <option value="stale">Stale</option>
+              <option value="error">Error</option>
+              <option value="unchanged">Unchanged</option>
+              <option value="all">All</option>
+            </select>
+          </label>
+          <button
+            className="rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-900 hover:bg-white"
+            onClick={() => {
+              void (async () => {
+                setReport(await acceptAll());
+              })();
+            }}
+            type="button"
+          >
+            Accept all
+          </button>
+        </div>
+      </header>
+      <main
+        className={cn(
+          "grid min-h-[calc(100vh-9rem)] grid-cols-1",
+          shotListCollapsed
+            ? "lg:grid-cols-[auto_1fr]"
+            : "lg:grid-cols-[minmax(11rem,14rem)_1fr]"
+        )}
+      >
+        <aside
+          className={cn(
+            "flex flex-col border-b border-zinc-800 lg:border-r lg:border-b-0",
+            shotListCollapsed ? "lg:w-9" : "lg:max-w-56"
+          )}
+        >
+          <div
+            className={cn(
+              "flex shrink-0 items-center border-b border-zinc-800 px-1.5 py-1.5",
+              shotListCollapsed ? "justify-center" : "justify-between gap-2 px-2"
+            )}
+          >
+            {shotListCollapsed ? null : (
+              <span className="truncate text-xs font-medium text-zinc-400">
+                Needs approval
+              </span>
+            )}
+            <button
+              aria-expanded={!shotListCollapsed}
+              aria-label={
+                shotListCollapsed ? "Expand snapshot list" : "Collapse snapshot list"
+              }
+              className="rounded p-1 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+              onClick={() => {
+                setShotListCollapsed((collapsed) => !collapsed);
+              }}
+              type="button"
+            >
+              <span aria-hidden className="block text-sm leading-none">
+                {shotListCollapsed ? "⟩" : "⟨"}
+              </span>
+            </button>
+          </div>
+          {shotListCollapsed ? null : (
+            <div className="min-h-0 flex-1 overflow-auto p-2">
+              <ShotList
+                entries={visible}
+                onAccept={refreshReport}
+                onSelect={setSelectedFilename}
+                selectedFilename={selectedFilename}
+              />
+            </div>
+          )}
+        </aside>
+        <section className="min-w-0 overflow-auto p-4">
+          <ComparisonViewer entry={selected} />
+        </section>
+      </main>
+    </div>
+  );
+};

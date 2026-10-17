@@ -1,0 +1,31 @@
+{
+  "name": "@storybranch/review-ui",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build && touch ../cli/review/public/.gitkeep",
+    "dev": "vite",
+    "format": "oxfmt --check .",
+    "format:fix": "oxfmt .",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "typecheck": "bun ../../scripts/bun-check.ts"
+  },
+  "dependencies": {
+    "@storybranch/report": "workspace:*",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "tailwind-merge": "catalog:"
+  },
+  "devDependencies": {
+    "@storybranch/oxfmt-config": "workspace:*",
+    "@storybranch/oxlint-config": "workspace:*",
+    "@storybranch/tsconfig": "workspace:*",
+    "@tailwindcss/vite": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "tailwindcss": "catalog:",
+    "vite": "catalog:"
+  }
+}

@@ -4,7 +4,7 @@ Local visual diffs for Storybook 10 and newer.
 
 ## Features
 
-- ⚡ [Bun](https://bun.com) for runtime, package management, tests, and typechecking (`bun check`)
+- ⚡ [Bun](https://bun.com) workspaces + [Turborepo](https://turbo.build) monorepo; Bun for runtime, tests, and CLI
 - 🎨 [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) with [Ultracite](https://www.ultracite.dev/) presets
 - 💚 CI on GitHub Actions:
   - ✅ Lint, format, and typecheck (parallel)
@@ -24,24 +24,23 @@ Local visual diffs for Storybook 10 and newer.
   └─ dependabot.yml
 .vscode
   └─ Recommended extensions and editor settings
-fixture
-  └─ Minimal Storybook app used by tests and manual runs
+apps
+  ├─ cli/         # Published `storybranch` CLI (bin) + review static assets
+  ├─ review-ui/   # Vite + React review SPA (`@storybranch/review-ui`)
+  └─ web/         # Landing site placeholder (`@storybranch/web`)
+packages
+  ├─ core/        # Capture engine (`@storybranch/core`)
+  ├─ fixture/     # Minimal Storybook app for tests and manual runs
+  └─ report/      # Report types and JSON I/O (`@storybranch/report`)
+tooling
+  ├─ github/      # Shared composite action (Bun install + Turborepo cache)
+  ├─ oxlint/      # `@storybranch/oxlint-config` (base + composable presets)
+  ├─ oxfmt/       # `@storybranch/oxfmt-config`
+  └─ typescript/  # `@storybranch/tsconfig` (`base.json`)
 patches
   └─ Bun patches for dependencies
-src
-  ├─ CLI, capture logic, report API, and unit/e2e tests
-  └─ review
-        ├─ ui/          # Vite + React source for the review SPA
-        └─ public/      # Vite build output (gitignored; run `build:review`)
-tooling
-  └─ github
-        └─ Shared composite action for CI setup
-oxfmt.config.ts
-  └─ Oxfmt configuration (extends Ultracite)
-oxlint.config.ts
-  └─ Oxlint configuration (extends Ultracite, type-aware)
-tsconfig.json
-  └─ TypeScript project options (checked by `bun check`)
+turbo.json
+  └─ Turborepo task pipeline (`build`, `lint`, `format`, `typecheck`, `test`, `dev`)
 ```
 
 ## Usage
@@ -49,7 +48,7 @@ tsconfig.json
 ```bash
 bun install
 bunx playwright install chromium
-bunx storybook dev -p 6006 --config-dir fixture/.storybook
+bunx storybook dev -p 6006 --config-dir packages/fixture/.storybook
 bunx storybranch test --url http://127.0.0.1:6006
 bunx storybranch review   # reopen the last run in the browser UI
 bunx storybranch approve  # promote all actuals from the CLI (no UI)
@@ -78,19 +77,20 @@ On a run with **missing / changed / stale** snapshots, `test` starts a backgroun
 
 ## Imports
 
-Code under `src/` imports other `src/` modules with the `@/` alias (`tsconfig.json` `paths`), not relative `./` paths. Oxlint enforces that for `src/**` (except `src/review/ui/**`, which keeps co-located relative imports and uses `@/` only for shared types like `@/report.ts`) via `no-restricted-imports` in `oxlint.config.ts`.
+Workspace packages use `workspace:*` for cross-package imports (e.g. `@storybranch/report`, `@storybranch/core/capture`). Within a package’s `src/`, import sibling modules with the `@/` alias (`paths` in that package’s `tsconfig.json`), not `./` or `../`; each package’s `oxlint.config.ts` composes `@storybranch/oxlint-config` blocks (e.g. `react-doctor` + `src-alias-imports` on CLI packages, `react-stack` on review UI). Shared lint/format/tsconfig live under `tooling/*` (`@storybranch/oxlint-config`, `@storybranch/oxfmt-config`, `@storybranch/tsconfig`).
 
 ## Development
 
 ```bash
 bun install
-bun run lint          # oxlint
+bun run lint          # turbo run lint (per-package oxlint)
 bun run lint:fix
-bun run format        # oxfmt --check
+bun run format        # turbo run format (per-package oxfmt)
 bun run format:fix
-bun run typecheck     # bun check
-bun run build:review  # Vite production build → src/review/public/
-bun test              # unit tests + Playwright e2e (install Chromium first)
+bun run typecheck     # turbo run typecheck (per-package `bun check`; requires Bun 1.4.3+)
+bun run build:review  # Vite production build → apps/cli/review/public/
+bun run build         # turbo build (review-ui + web stub)
+bun run test          # unit tests + Playwright e2e (install Chromium first)
 ```
 
 ### Review UI (HMR)
@@ -99,8 +99,8 @@ bun test              # unit tests + Playwright e2e (install Chromium first)
 2. Terminal A: `bunx storybranch review` (API on port 4321).
 3. Terminal B: `bun run dev:review` (Vite dev server; proxies `/api` and `/images` to 4321).
 
-Review UI assets are **not** committed (`src/review/public/assets/`, `index.html`). After `bun install`, run `bun run build:review` before `storybranch review`. CI runs the same build before tests; `prepack` builds for publish.
+Review UI assets are **not** committed (`apps/cli/review/public/assets/`, `index.html`). After `bun install`, run `bun run build:review` before `storybranch review`. CI runs the same build before tests; `prepack` on the `storybranch` package (`apps/cli`) builds the UI for publish.
 
 The repo pins Bun via `packageManager` in `package.json`. CI reads that field through `oven-sh/setup-bun` and the shared `./tooling/github/setup` action.
 
-Structure and tooling docs follow the same ideas as [Open Government Products Starter Kit](https://github.com/opengovsg/starter-kit) (features list, tree layout, shared CI setup), adapted for a single-package Bun CLI instead of a Turborepo.
+Structure and tooling docs follow the same ideas as [Open Government Products Starter Kit](https://github.com/opengovsg/starter-kit) (apps vs packages vs tooling, shared CI setup and Turborepo cache).
