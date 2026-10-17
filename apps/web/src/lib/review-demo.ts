@@ -1,6 +1,14 @@
+function needsAttention(status: string): boolean {
+  return status !== "unchanged";
+}
+
 function matchesFilter(status: string, value: string): boolean {
-  if (value === "all" || value === "attention") {
+  if (value === "all") {
     return true;
+  }
+
+  if (value === "attention") {
+    return needsAttention(status);
   }
 
   return status === value;
@@ -215,11 +223,16 @@ function initReviewDemo(root: HTMLElement): void {
 
   root.querySelector("[data-accept-all]")?.addEventListener("click", () => {
     for (const row of rows) {
-      if (row.dataset.accepted !== "1") {
+      if (
+        row.dataset.accepted !== "1" &&
+        needsAttention(row.dataset.status ?? "")
+      ) {
         acceptId(row.dataset.id ?? "");
       }
     }
   });
+
+  applyFilter();
 
   diffToggle?.addEventListener("click", () => {
     overlayOn = !overlayOn;

@@ -5,7 +5,7 @@
   <text x="32" y="140" fill="#14181f" font-family="ui-sans-serif,system-ui,sans-serif" font-size="32" font-weight="700">before it ships</text>
   <text x="32" y="176" fill="#4a5568" font-family="ui-sans-serif,system-ui,sans-serif" font-size="15">Pixel-diff stories locally and review them in the browser.</text>
   <rect x="32" y="204" width="124" height="40" rx="8" fill="#c2410c"/>
-  <text x="48" y="229" fill="#fff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="14" font-weight="650">Review diff</text>
+  <text x="48" y="229" fill="#fff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="14" font-weight="600">Review diff</text>
   <rect x="168" y="204" width="76" height="40" rx="8" fill="none" stroke="#d4d4d8"/>
   <text x="190" y="229" fill="#14181f" font-family="ui-sans-serif,system-ui,sans-serif" font-size="14">Docs</text>
   <rect x="520" y="36" width="248" height="228" rx="12" fill="#fff"/>

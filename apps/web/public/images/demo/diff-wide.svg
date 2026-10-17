@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="300" viewBox="0 0 800 300">
+  <rect width="800" height="300" fill="#000"/>
+  <rect x="32" y="204" width="124" height="40" rx="8" fill="#ff2bd6" opacity="0.9"/>
+  <text x="540" y="156" fill="#ff2bd6" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" opacity="0.9">changed · 48 px</text>
+</svg>

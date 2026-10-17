@@ -3,36 +3,18 @@ import { LuCheck } from "react-icons/lu";
 
 const shots = [
   {
-    actual: "/images/demo/actual.svg",
-    baseline: "/images/demo/baseline.svg",
-    diff: "/images/demo/diff.svg",
-    id: "hero--default__1200x900.png",
-    label: "hero--default__1200x900.png",
-    status: "changed" as const,
-    storyId: "hero--default",
-  },
-  {
-    actual: "/images/demo/actual.svg",
-    baseline: "/images/demo/baseline.svg",
-    diff: "/images/demo/diff.svg",
+    actual: "/images/demo/actual-narrow.svg",
+    baseline: "/images/demo/baseline-narrow.svg",
+    diff: "/images/demo/diff-narrow.svg",
     id: "hero--modes__narrow.png",
     label: "hero--modes__narrow.png",
     status: "changed" as const,
     storyId: "hero--modes",
   },
   {
-    actual: "/images/demo/actual.svg",
-    baseline: "/images/demo/baseline.svg",
-    diff: "/images/demo/diff.svg",
-    id: "hero--modes__tall.png",
-    label: "hero--modes__tall.png",
-    status: "changed" as const,
-    storyId: "hero--modes",
-  },
-  {
-    actual: "/images/demo/actual.svg",
-    baseline: "/images/demo/baseline.svg",
-    diff: "/images/demo/diff.svg",
+    actual: "/images/demo/actual-wide.svg",
+    baseline: "/images/demo/baseline-wide.svg",
+    diff: "/images/demo/diff-wide.svg",
     id: "hero--modes__wide.png",
     label: "hero--modes__wide.png",
     status: "changed" as const,
@@ -47,6 +29,15 @@ const shots = [
     status: "new" as const,
     storyId: "hero--pinned",
   },
+  {
+    actual: "/images/demo/baseline.svg",
+    baseline: "/images/demo/baseline.svg",
+    diff: null,
+    id: "hero--default__1200x900.png",
+    label: "hero--default__1200x900.png",
+    status: "unchanged" as const,
+    storyId: "hero--default",
+  },
 ];
 
 const groups = Map.groupBy(shots, (shot) => shot.storyId);
@@ -54,9 +45,11 @@ const groups = Map.groupBy(shots, (shot) => shot.storyId);
 const badgeClass = {
   changed: "bg-amber-500/20 text-amber-300",
   new: "bg-sky-500/20 text-sky-300",
+  unchanged: "bg-emerald-500/20 text-emerald-300",
 } as const;
----
 
+const initialId = "hero--modes__narrow.png";
+---
 
 <section class="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20" id="review">
   <div class="max-w-2xl">
@@ -87,6 +80,7 @@ const badgeClass = {
             <option value="attention">Needs attention</option>
             <option value="changed">Changed</option>
             <option value="new">New</option>
+            <option value="unchanged">Unchanged</option>
             <option value="all">All</option>
           </select>
         </label>
@@ -104,7 +98,7 @@ const badgeClass = {
       <aside class="flex flex-col border-b border-zinc-800 lg:border-r lg:border-b-0" data-aside>
         <div class="flex shrink-0 items-center justify-between gap-2 border-b border-zinc-800 px-2 py-1.5">
           <span class="truncate text-xs font-medium text-zinc-400" data-aside-label>
-            Needs approval
+            Snapshots
           </span>
           <button
             aria-label="Collapse snapshot list"
@@ -123,13 +117,13 @@ const badgeClass = {
                   {storyId}
                 </h4>
                 <ul class="space-y-1">
-                  {storyShots.map((shot, index) => (
+                  {storyShots.map((shot) => (
                     <li class="flex items-center gap-0.5" data-shot-row data-status={shot.status} data-id={shot.id}>
                       <button
                         class:list={[
                           "flex min-w-0 flex-1 flex-col items-start gap-1 rounded-md border px-2 py-1.5 text-left transition-colors",
                           "hover:border-zinc-600 hover:bg-zinc-800/80",
-                          index === 0 && storyId === "hero--default"
+                          shot.id === initialId
                             ? "border-zinc-500 bg-zinc-800"
                             : "border-transparent",
                         ]}
@@ -151,15 +145,17 @@ const badgeClass = {
                         </span>
                         <span class="text-xs leading-snug break-all text-zinc-200">{shot.label}</span>
                       </button>
-                      <button
-                        aria-label="Accept"
-                        class="shrink-0 rounded p-1 text-zinc-300 hover:bg-zinc-800 hover:text-white"
-                        data-accept
-                        data-id={shot.id}
-                        type="button"
-                      >
-                        <LuCheck aria-hidden className="size-3.5" />
-                      </button>
+                      {shot.status !== "unchanged" ? (
+                        <button
+                          aria-label="Accept"
+                          class="shrink-0 rounded p-1 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                          data-accept
+                          data-id={shot.id}
+                          type="button"
+                        >
+                          <LuCheck aria-hidden className="size-3.5" />
+                        </button>
+                      ) : null}
                     </li>
                   ))}
                 </ul>
@@ -178,7 +174,7 @@ const badgeClass = {
               alt="baseline"
               class="block w-full rounded border border-zinc-800 bg-zinc-900/50"
               data-baseline-img
-              src="/images/demo/baseline.svg"
+              src="/images/demo/baseline-narrow.svg"
             />
           </figure>
           <figure class="m-0">
@@ -205,14 +201,14 @@ const badgeClass = {
                 alt="this scan"
                 class="block w-full"
                 data-actual-img
-                src="/images/demo/actual.svg"
+                src="/images/demo/actual-narrow.svg"
               />
               <img
                 alt=""
                 aria-hidden
                 class="pointer-events-none absolute inset-0 size-full object-contain opacity-85 mix-blend-screen"
                 data-diff-img
-                src="/images/demo/diff.svg"
+                src="/images/demo/diff-narrow.svg"
               />
             </div>
           </figure>

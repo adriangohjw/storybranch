@@ -77,7 +77,6 @@ test(
       expect(baselines).toEqual([
         "hero--default__1200x900.png",
         "hero--modes__narrow.png",
-        "hero--modes__tall.png",
         "hero--modes__wide.png",
         "hero--pinned__mobile1.png",
       ]);

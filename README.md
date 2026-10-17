@@ -99,7 +99,7 @@ pixels hero--modes__narrow.png
 
 ![Review UI comparing baseline and this scan with diff overlay](docs/images/review-pixel-diff.png)
 
-The fixture story is a sample hero. The screenshot above is that hero after the headline, actions, and side panel change.
+The fixture story is a sample hero. The screenshot above is that hero after the primary CTA color shifts.
 
 ## Features
 
