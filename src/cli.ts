@@ -20,22 +20,28 @@ function flag(name: string): boolean {
 
 function option(name: string): string | undefined {
   const index = args.indexOf(name);
+
   if (index === -1) {
     return undefined;
   }
+
   return args[index + 1];
 }
 
 function portFromArgs(): number {
   const fromFlag = option("--port");
+
   if (fromFlag !== undefined && fromFlag !== "") {
     const port = Number(fromFlag);
+
     if (!Number.isInteger(port) || port < 1 || port > 65_535) {
       console.error(`invalid --port: ${fromFlag}`);
       process.exit(1);
     }
+
     return port;
   }
+
   return reviewPortFromEnv();
 }
 
@@ -45,8 +51,11 @@ function projectRoot(): string {
 
 if (command === "test") {
   const url = option("--url");
+
   if (url === undefined || url === "") {
-    console.error("usage: storybranch test --url <storybook> [--open] [--review]");
+    console.error(
+      "usage: storybranch test --url <storybook> [--open] [--review]"
+    );
     process.exit(1);
   }
 
@@ -60,8 +69,9 @@ if (command === "test") {
       spawnDetachedReview(process.cwd(), port, false);
       const reviewUrl = `http://127.0.0.1:${port}`;
       console.log(`storybranch review at ${reviewUrl}`);
+
       if (flag("--open")) {
-        await openBrowser(reviewUrl);
+        openBrowser(reviewUrl);
       }
     } else {
       console.error(
@@ -96,6 +106,7 @@ if (command === "review") {
     port: portFromArgs(),
     root: projectRoot(),
   });
+
   process.exit(code);
 }
 

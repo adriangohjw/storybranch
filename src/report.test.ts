@@ -11,8 +11,8 @@ import {
   shotLabelFromFilename,
   storyIdFromFilename,
   writeReport,
-  type Report,
 } from "./report.ts";
+import type { Report } from "./report.ts";
 
 test("story id and label parse from filename", () => {
   expect(storyIdFromFilename("button--default__1200x900.png")).toBe(
@@ -37,6 +37,7 @@ test("acceptEntry promotes actual and clears attention", async () => {
   const png = Buffer.from([137, 80, 78, 71]);
   await mkdir(actualDir, { recursive: true });
   await Bun.write(path.join(actualDir, filename), png);
+
   const report: Report = {
     actualDir,
     commit: "abc",
@@ -52,6 +53,7 @@ test("acceptEntry promotes actual and clears attention", async () => {
     ],
     root,
   };
+
   await writeReport(root, report);
   const updated = await acceptEntry(root, filename);
   expect(updated.entries[0]?.status).toBe("unchanged");
@@ -60,6 +62,7 @@ test("acceptEntry promotes actual and clears attention", async () => {
 
 test("acceptAllAttention skips errors", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "storybranch-report-"));
+
   const report: Report = {
     actualDir: path.join(root, ".storybranch", "actual", "abc"),
     commit: "abc",
@@ -73,6 +76,7 @@ test("acceptAllAttention skips errors", async () => {
     ],
     root,
   };
+
   await writeReport(root, report);
   const updated = await acceptAllAttention(root);
   expect(updated.entries[0]?.status).toBe("error");

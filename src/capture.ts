@@ -13,9 +13,8 @@ import {
   shotLabelFromFilename,
   storyIdFromFilename,
   writeReport,
-  type Report,
-  type ReportEntry,
 } from "./report.ts";
+import type { Report, ReportEntry } from "./report.ts";
 
 interface IndexEntry {
   id?: string;
@@ -55,7 +54,10 @@ export async function capture(
   const response = await fetch(indexUrl);
 
   if (!response.ok) {
-    const failures = [`index.json returned ${response.status} from ${indexUrl}`];
+    const failures = [
+      `index.json returned ${response.status} from ${indexUrl}`,
+    ];
+
     return { failures, report: emptyReport(root, "", "") };
   }
 
@@ -63,6 +65,7 @@ export async function capture(
 
   if (!isStoryIndex(body)) {
     const failures = [`index.json from ${indexUrl} was not a story index`];
+
     return { failures, report: emptyReport(root, "", "") };
   }
 
@@ -183,12 +186,12 @@ export async function capture(
     actualDir,
     commit,
     createdAt: new Date().toISOString(),
-    entries: entries.toSorted((a, b) =>
-      entryKey(a).localeCompare(entryKey(b))
-    ),
+    entries: entries.toSorted((a, b) => entryKey(a).localeCompare(entryKey(b))),
     root,
   };
+
   await writeReport(root, report);
+
   return { failures, report };
 }
 
@@ -206,6 +209,7 @@ function entryKey(entry: ReportEntry): string {
   if (entry.filename !== undefined) {
     return entry.filename;
   }
+
   return entry.storyId;
 }
 
@@ -308,6 +312,7 @@ async function shootStory(
     }
 
     let diffPath: string | undefined;
+
     if (result.reason === "pixels") {
       diffPath = path.join(diffDir, filename);
       await Bun.write(diffPath, result.diff);

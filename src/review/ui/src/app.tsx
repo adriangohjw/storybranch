@@ -1,35 +1,60 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type { Report, ReportEntry } from "../../../report.ts";
-
 import { acceptAll, fetchReport } from "./api.ts";
-import { ComparisonViewer } from "./ComparisonViewer.tsx";
-import { ShotList } from "./ShotList.tsx";
+import { ComparisonViewer } from "./comparison-viewer.tsx";
 import { matchesFilter } from "./lib/report-ui.ts";
+import { ShotList } from "./shot-list.tsx";
 
-export function App() {
+export const App = () => {
   const [report, setReport] = useState<Report | null>(null);
   const [filter, setFilter] = useState("attention");
   const [selectedFilename, setSelectedFilename] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    try {
-      setError(null);
-      setReport(await fetchReport());
-    } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : String(loadError));
-    }
+  useEffect(() => {
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const next = await fetchReport();
+
+        if (!cancelled) {
+          setReport(next);
+        }
+      } catch (loadError: unknown) {
+        if (!cancelled) {
+          setError(
+            loadError instanceof Error ? loadError.message : String(loadError)
+          );
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const refreshReport = () => {
+    void (async () => {
+      try {
+        const next = await fetchReport();
+        setReport(next);
+        setError(null);
+      } catch (loadError: unknown) {
+        setError(
+          loadError instanceof Error ? loadError.message : String(loadError)
+        );
+      }
+    })();
+  };
 
   const visible = useMemo(() => {
     if (report === null) {
       return [];
     }
+
     return report.entries.filter((entry) => matchesFilter(entry, filter));
   }, [filter, report]);
 
@@ -37,19 +62,28 @@ export function App() {
     if (report === null || selectedFilename === null) {
       return null;
     }
-    return report.entries.find((entry) => entry.filename === selectedFilename) ?? null;
+
+    return (
+      report.entries.find((entry) => entry.filename === selectedFilename) ??
+      null
+    );
   }, [report, selectedFilename]);
 
   return (
     <div className="min-h-full font-sans leading-normal">
       <header className="border-b border-zinc-800 px-5 py-4">
-        <h1 className="text-lg font-semibold tracking-tight">storybranch review</h1>
-        {report !== null ? (
+        <h1 className="text-lg font-semibold tracking-tight">
+          storybranch review
+        </h1>
+        {report === null ? null : (
           <p className="mt-1 text-sm text-zinc-400">
-            commit {report.commit.slice(0, 7)} · {report.entries.length} snapshots
+            commit {report.commit.slice(0, 7)} · {report.entries.length}{" "}
+            snapshots
           </p>
-        ) : null}
-        {error !== null ? <p className="mt-2 text-sm text-red-400">{error}</p> : null}
+        )}
+        {error === null ? null : (
+          <p className="mt-2 text-sm text-red-400">{error}</p>
+        )}
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <label className="flex items-center gap-2 text-sm text-zinc-300">
             Filter
@@ -71,8 +105,10 @@ export function App() {
           </label>
           <button
             className="rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-900 hover:bg-white"
-            onClick={async () => {
-              setReport(await acceptAll());
+            onClick={() => {
+              void (async () => {
+                setReport(await acceptAll());
+              })();
             }}
             type="button"
           >
@@ -81,12 +117,10 @@ export function App() {
         </div>
       </header>
       <main className="grid min-h-[calc(100vh-9rem)] grid-cols-1 lg:grid-cols-[minmax(240px,360px)_1fr]">
-        <aside className="overflow-auto border-b border-zinc-800 p-2 lg:border-b-0 lg:border-r">
+        <aside className="overflow-auto border-b border-zinc-800 p-2 lg:border-r lg:border-b-0">
           <ShotList
             entries={visible}
-            onAccept={() => {
-              void load();
-            }}
+            onAccept={refreshReport}
             onSelect={setSelectedFilename}
             selectedFilename={selectedFilename}
           />
@@ -97,4 +131,4 @@ export function App() {
       </main>
     </div>
   );
-}
+};

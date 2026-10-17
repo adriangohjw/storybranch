@@ -58,7 +58,7 @@ bunx storybranch approve  # promote all actuals from the CLI (no UI)
 ### Artifacts
 
 | Path | Role |
-|------|------|
+| --- | --- |
 | `.storybranch/baseline/` | Committed reference PNGs |
 | `.storybranch/actual/<commit>/` | Latest capture per git SHA (gitignored) |
 | `.storybranch/diff/` | Pixel diff images (gitignored) |
@@ -69,7 +69,7 @@ bunx storybranch approve  # promote all actuals from the CLI (no UI)
 On a run with **missing / changed / stale** snapshots, `test` starts a background server on `http://127.0.0.1:4321` and prints the URL. Use the UI to filter shots, compare images, and **Accept** per snapshot or **Accept all** (baselines update immediately). `storybranch approve` still promotes every actual and removes stale baselines in one step.
 
 | Command / flag | Effect |
-|----------------|--------|
+| --- | --- |
 | `test --open` | Open the review URL in your browser when review is offered |
 | `test --review` | Offer review even when the run is fully green |
 | `review [--open]` | Serve the last `report.json` until Ctrl+C |

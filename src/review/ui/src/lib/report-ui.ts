@@ -8,19 +8,25 @@ export function matchesFilter(entry: ReportEntry, filter: string): boolean {
   if (filter === "all") {
     return true;
   }
+
   if (filter === "attention") {
     return needsAttention(entry.status);
   }
+
   return entry.status === filter;
 }
 
-export function groupEntries(entries: ReportEntry[]): [string, ReportEntry[]][] {
+export function groupEntries(
+  entries: ReportEntry[]
+): [string, ReportEntry[]][] {
   const groups = new Map<string, ReportEntry[]>();
+
   for (const entry of entries) {
     const list = groups.get(entry.storyId) ?? [];
     list.push(entry);
     groups.set(entry.storyId, list);
   }
+
   return [...groups.entries()].toSorted(([a], [b]) => a.localeCompare(b));
 }
 
