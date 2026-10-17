@@ -7,6 +7,8 @@ import type { Page } from "playwright";
 import { actualDirectory, comparePng } from "./images.ts";
 import { isCapturable, planShots, shotFilename } from "./plan.ts";
 import type { PlanInput, Shot } from "./plan.ts";
+import type { CaptureProgress } from "./progress.ts";
+import { captureProgressEnabled, createCaptureProgress } from "./progress.ts";
 
 interface IndexEntry {
   id?: string;
@@ -26,9 +28,14 @@ function isStoryIndex(
   return typeof value.entries === "object" && value.entries !== null;
 }
 
+export interface CaptureOptions {
+  progress?: boolean;
+}
+
 export async function capture(
   storybookUrl: string,
-  root: string
+  root: string,
+  options: CaptureOptions = {}
 ): Promise<string[]> {
   const base = storybookBase(storybookUrl);
   const indexUrl = new URL("index.json", base);
@@ -53,6 +60,13 @@ export async function capture(
 
   const failures: string[] = [];
   const expected = new Set<string>();
+  const progressEnabled = options.progress ?? captureProgressEnabled();
+  const progress: CaptureProgress = createCaptureProgress(
+    stories.length,
+    progressEnabled
+  );
+  const started = Date.now();
+  let shotsCaptured = 0;
   const browser = await chromium.launch();
   try {
     const context = await browser.newContext({
@@ -62,30 +76,47 @@ export async function capture(
     const page = await context.newPage();
     await page.addInitScript(installStoryHook);
 
-    for (const story of stories) {
+    progress.header(stories.length);
+
+    for (const [index, story] of stories.entries()) {
+      const current = index + 1;
       const iframe = new URL("iframe.html", base);
       iframe.searchParams.set("id", story.id);
       iframe.searchParams.set("viewMode", "story");
+      let storyStats = { failed: 0, shots: 0, skipped: true };
+      progress.storyStart(current, story.id);
       try {
-        await shootStory(
+        storyStats = await shootStory(
           page,
           iframe.toString(),
           story.id,
+          current,
           actualDir,
           diffDir,
           baselineDir,
           expected,
-          failures
+          failures,
+          progress
         );
+        shotsCaptured += storyStats.shots;
       } catch (error) {
         failures.push(
           `${story.id} ${error instanceof Error ? error.message : String(error)}`
         );
+        storyStats = { failed: 1, shots: 0, skipped: false };
       }
+      progress.storyDone(current, story.id, storyStats);
     }
   } finally {
     await browser.close();
   }
+
+  progress.finish({
+    elapsedMs: Date.now() - started,
+    failed: failures.length,
+    shots: shotsCaptured,
+    stories: stories.length,
+  });
 
   let baselines: string[] = [];
   try {
@@ -106,26 +137,34 @@ async function shootStory(
   page: Page,
   iframeUrl: string,
   storyId: string,
+  storyIndex: number,
   actualDir: string,
   diffDir: string,
   baselineDir: string,
   expected: Set<string>,
-  failures: string[]
-): Promise<void> {
+  failures: string[],
+  progress: CaptureProgress
+): Promise<{ shots: number; failed: number; skipped: boolean }> {
   await page.setViewportSize({ height: 900, width: 1200 });
   await page.goto(iframeUrl, { waitUntil: "load" });
+  progress.storyActive(storyIndex, storyId, null);
   await waitForStory(page);
   const input = await page.evaluate(readPlanInput, storyId);
   const plan = planShots(input);
   if ("skip" in plan) {
-    return;
+    return { failed: 0, shots: 0, skipped: true };
   }
   if ("error" in plan) {
     failures.push(`${storyId} ${plan.error}`);
-    return;
+    return { failed: 1, shots: 0, skipped: false };
   }
 
-  for (const shot of plan.shots) {
+  let shotFailures = 0;
+  for (const [shotIndex, shot] of plan.shots.entries()) {
+    progress.storyActive(storyIndex, storyId, {
+      index: shotIndex + 1,
+      total: plan.shots.length,
+    });
     const filename = shotFilename(storyId, shot.label);
     expected.add(filename);
     await page.setViewportSize({ height: shot.height, width: shot.width });
@@ -148,6 +187,7 @@ async function shootStory(
     const baseline = Bun.file(baselinePath);
     if (!(await baseline.exists())) {
       failures.push(`missing baseline ${filename}`);
+      shotFailures += 1;
       continue;
     }
     const result = comparePng(Buffer.from(await baseline.bytes()), png, {
@@ -161,7 +201,13 @@ async function shootStory(
       await Bun.write(path.join(diffDir, filename), result.diff);
     }
     failures.push(`${result.reason} ${filename}`);
+    shotFailures += 1;
   }
+  return {
+    failed: shotFailures,
+    shots: plan.shots.length,
+    skipped: false,
+  };
 }
 
 async function waitForStory(page: Page): Promise<void> {

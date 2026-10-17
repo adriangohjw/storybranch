@@ -1,4 +1,6 @@
 #!/usr/bin/env bun
+import pc from "picocolors";
+
 import { capture } from "./capture.ts";
 import { promoteActuals } from "./images.ts";
 
@@ -12,12 +14,17 @@ if (command === "test") {
   }
   const failures = await capture(url, process.cwd());
   if (failures.length > 0) {
+    if (process.stderr.isTTY) {
+      console.error(`\n${pc.bold("Failures:")}`);
+    }
     for (const failure of failures) {
       console.error(failure);
     }
     process.exit(1);
   }
-  console.log("ok");
+  if (!process.stderr.isTTY) {
+    console.log("ok");
+  }
   process.exit(0);
 }
 
