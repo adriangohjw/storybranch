@@ -2,6 +2,61 @@
 
 Local visual diffs for Storybook 10 and newer.
 
+storybranch drives Playwright against your Storybook, saves one PNG per story (and per [Chromatic mode](https://www.chromatic.com/docs/modes/)), compares them to committed baselines, and opens a small review UI when something needs your attention.
+
+## Contents
+
+- [How it works](#how-it-works)
+  - [First run — missing baselines](#first-run--missing-baselines)
+  - [UI change — pixel diff](#ui-change--pixel-diff)
+- [Features](#features)
+- [Project structure](#project-structure)
+- [Usage](#usage)
+  - [Artifacts](#artifacts)
+  - [Review UI](#review-ui)
+- [Imports](#imports)
+- [Development](#development)
+  - [Review UI (HMR)](#review-ui-hmr)
+
+## How it works
+
+1. **Capture** — `storybranch test --url <storybook>` walks `index.json`, screenshots each story, and writes actuals under `.storybranch/actual/<git-sha>/`.
+2. **Compare** — Each PNG is diffed against `.storybranch/baseline/`. New stories, pixel changes, and stale baselines show up in `report.json`.
+3. **Review** — When anything needs attention, a local server serves the review UI so you can inspect baseline / actual / diff and accept updates.
+4. **Commit** — Check updated baselines into git so the next run (and CI) share the same reference images.
+
+### First run — missing baselines
+
+Nothing in `.storybranch/baseline/` yet, so every snapshot is **new**. The CLI lists them and starts review on `http://127.0.0.1:4321` (by default):
+
+```text
+$ bunx storybranch test --url http://127.0.0.1:6006
+storybranch review at http://127.0.0.1:4321
+missing baseline button--default__1200x900.png
+missing baseline button--modes__narrow.png
+…
+```
+
+![Review UI with new snapshots](docs/images/review-missing-baselines.png)
+
+Use **Accept** (or `storybranch approve`) to copy actuals into `baseline/` and clear the failures.
+
+### UI change — pixel diff
+
+After you change a component, the next run marks mismatches as **changed** and highlights pixels in the diff column:
+
+```text
+$ bunx storybranch test --url http://127.0.0.1:6006
+storybranch review at http://127.0.0.1:4321
+pixels button--default__1200x900.png
+pixels button--modes__narrow.png
+…
+```
+
+![Review UI comparing baseline, actual, and diff](docs/images/review-pixel-diff.png)
+
+The fixture in this repo uses a tiny orange “button” story; the screenshot above is from temporarily shifting it to blue to demonstrate the diff view.
+
 ## Features
 
 - ⚡ [Bun](https://bun.com) for runtime, package management, tests, and typechecking (`bun check`)
@@ -66,7 +121,7 @@ bunx storybranch approve  # promote all actuals from the CLI (no UI)
 
 ### Review UI
 
-On a run with **missing / changed / stale** snapshots, `test` starts a background server on `http://127.0.0.1:4321` and prints the URL. Use the UI to filter shots, compare images, and **Accept** per snapshot or **Accept all** (baselines update immediately). `storybranch approve` still promotes every actual and removes stale baselines in one step.
+See [How it works](#how-it-works) for screenshots. On a run with **missing / changed / stale** snapshots, `test` starts a background server on `http://127.0.0.1:4321` and prints the URL. Use the UI to filter shots, compare images, and **Accept** per snapshot or **Accept all** (baselines update immediately). `storybranch approve` still promotes every actual and removes stale baselines in one step.
 
 | Command / flag | Effect |
 | --- | --- |
@@ -100,6 +155,8 @@ bun test              # unit tests + Playwright e2e (install Chromium first)
 3. Terminal B: `bun run dev:review` (Vite dev server; proxies `/api` and `/images` to 4321).
 
 Review UI assets are **not** committed (`src/review/public/assets/`, `index.html`). After `bun install`, run `bun run build:review` before `storybranch review`. CI runs the same build before tests; `prepack` builds for publish.
+
+To refresh README screenshots after UI changes: `bun scripts/capture-readme-screenshots.ts` (requires Chromium from Playwright and a free port `6020` / `4322`).
 
 The repo pins Bun via `packageManager` in `package.json`. CI reads that field through `oven-sh/setup-bun` and the shared `./tooling/github/setup` action.
 
