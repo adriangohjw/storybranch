@@ -28,12 +28,12 @@ Production deploys use **Cloudflare Pages** connected to this GitHub repo (Worke
 
 ### Build settings
 
-| Setting           | Value                              |
-| ----------------- | ---------------------------------- |
-| Production branch | `main`                             |
-| Root directory    | `/` (repo root — Bun workspaces)   |
-| Build command     | `bun install && bun run build` |
-| Build output      | `apps/web/dist`                    |
+| Setting           | Value                            |
+| ----------------- | -------------------------------- |
+| Production branch | `main`                           |
+| Root directory    | `/` (repo root — Bun workspaces) |
+| Build command     | `bun install && bun run build`   |
+| Build output      | `apps/web/dist`                  |
 
 If you set the Pages root directory to `apps/web` instead, the install step still needs the monorepo lockfile at the repo root (e.g. build command `cd ../.. && bun install && bun run build`, output `dist`).
 
