@@ -29,7 +29,9 @@ export const ComparisonViewer = ({ entry }: ComparisonViewerProps) => {
     <div>
       <div className="grid gap-4 lg:grid-cols-2">
         <figure className="m-0">
-          <figcaption className="mb-1 text-xs text-zinc-500">Baseline</figcaption>
+          <figcaption className="mb-1 text-xs text-zinc-500">
+            Baseline
+          </figcaption>
           {entry.baselinePath === undefined ? (
             <p className="text-xs text-zinc-600">No baseline</p>
           ) : (

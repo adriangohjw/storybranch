@@ -135,7 +135,9 @@ export const App = () => {
           <div
             className={cn(
               "flex shrink-0 items-center border-b border-zinc-800 px-1.5 py-1.5",
-              shotListCollapsed ? "justify-center" : "justify-between gap-2 px-2"
+              shotListCollapsed
+                ? "justify-center"
+                : "justify-between gap-2 px-2"
             )}
           >
             {shotListCollapsed ? null : (
@@ -146,7 +148,9 @@ export const App = () => {
             <button
               aria-expanded={!shotListCollapsed}
               aria-label={
-                shotListCollapsed ? "Expand snapshot list" : "Collapse snapshot list"
+                shotListCollapsed
+                  ? "Expand snapshot list"
+                  : "Collapse snapshot list"
               }
               className="rounded p-1 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
               onClick={() => {
