@@ -24,6 +24,7 @@
     "@storybranch/oxlint-config": "workspace:*",
     "@storybranch/tsconfig": "workspace:*",
     "@types/bun": "catalog:",
+    "oxfmt": "catalog:",
     "playwright": "catalog:",
     "ultracite": "catalog:"
   }
