@@ -31,15 +31,6 @@ export async function startReviewServer(
     port: options.port,
     async fetch(request) {
       const url = new URL(request.url);
-      if (url.pathname === "/") {
-        return serveFile(path.join(PUBLIC_DIR, "index.html"), "text/html; charset=utf-8");
-      }
-      if (url.pathname === "/app.js") {
-        return serveFile(path.join(PUBLIC_DIR, "app.js"), "text/javascript; charset=utf-8");
-      }
-      if (url.pathname === "/styles.css") {
-        return serveFile(path.join(PUBLIC_DIR, "styles.css"), "text/css; charset=utf-8");
-      }
       if (url.pathname === "/api/report") {
         return json(active);
       }
@@ -76,6 +67,10 @@ export async function startReviewServer(
         return new Response(file, {
           headers: { "content-type": "image/png" },
         });
+      }
+      const staticResponse = await servePublic(url.pathname);
+      if (staticResponse !== null) {
+        return staticResponse;
       }
       return new Response("not found", { status: 404 });
     },
@@ -134,10 +129,18 @@ function json(body: unknown): Response {
   });
 }
 
-async function serveFile(filePath: string, contentType: string): Promise<Response> {
-  const file = Bun.file(filePath);
-  if (!(await file.exists())) {
-    return new Response("not found", { status: 404 });
+async function servePublic(pathname: string): Promise<Response | null> {
+  const relative = pathname === "/" ? "index.html" : pathname.replace(/^\//u, "");
+  if (relative.includes("..")) {
+    return null;
   }
-  return new Response(file, { headers: { "content-type": contentType } });
+  const resolved = path.join(PUBLIC_DIR, relative);
+  if (!resolved.startsWith(PUBLIC_DIR)) {
+    return null;
+  }
+  const file = Bun.file(resolved);
+  if (!(await file.exists())) {
+    return null;
+  }
+  return new Response(file);
 }

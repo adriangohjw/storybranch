@@ -55,7 +55,7 @@ Baselines are committed from `.storybranch/baseline`. Fresh captures land in `.s
 
 ## Development
 
-After editing the review UI (`src/review/source/` or `src/review/public/index.html`), run `bun run build:review` and commit the generated files under `src/review/public/`.
+After editing the review UI (`src/review/ui/`), run `bun run build:review` and commit the generated files under `src/review/public/`. For local UI work with HMR, run `storybranch review` in one terminal and `bun run dev:review` in another (Vite proxies `/api` and `/images` to port 4321).
 
 ```bash
 bun install

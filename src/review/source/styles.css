@@ -1,4 +1,0 @@
-@import "tailwindcss";
-
-@source "../public/index.html";
-@source "./app.ts";

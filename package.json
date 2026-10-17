@@ -12,9 +12,8 @@
     "format": "oxfmt --check",
     "format:fix": "oxfmt",
     "test": "bun test",
-    "build:review": "bun run build:review:css && bun run build:review:js",
-    "build:review:css": "tailwindcss -i ./src/review/source/styles.css -o ./src/review/public/styles.css --minify",
-    "build:review:js": "bun build ./src/review/source/app.ts --outfile ./src/review/public/app.js --minify --target browser"
+    "build:review": "vite build --config src/review/ui/vite.config.ts",
+    "dev:review": "vite --config src/review/ui/vite.config.ts"
   },
   "dependencies": {
     "pixelmatch": "^8.0.0",
@@ -22,8 +21,9 @@
     "pngjs": "^7.0.0"
   },
   "devDependencies": {
-    "@tailwindcss/cli": "^4.1.13",
     "@storybook/react-vite": "10.6.1",
+    "@tailwindcss/vite": "^4.1.13",
+    "@vitejs/plugin-react": "^5.0.4",
     "@types/bun": "^1.4.3",
     "@types/pngjs": "^6.0.5",
     "@types/react": "^19.3.0",
