@@ -6,21 +6,19 @@
 import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+
 import { chromium } from "playwright";
 
+import { startReviewServer } from "../apps/cli/src/review-server.ts";
 import { capture } from "../packages/core/src/capture.ts";
 import { promoteActuals } from "../packages/core/src/images.ts";
-import { startReviewServer } from "../apps/cli/src/review-server.ts";
 
 const root = path.join(import.meta.dir, "..");
 const outDir = path.join(root, "docs", "images");
 const storybookPort = 6020;
 const reviewPort = 4322;
 const url = `http://127.0.0.1:${storybookPort}`;
-const storyPath = path.join(
-  root,
-  "packages/fixture/stories/button.stories.tsx"
-);
+const storyPath = path.join(root, "packages/fixture/stories/hero.stories.tsx");
 const originalStory = await readFile(storyPath, "utf-8");
 
 const storybook = Bun.spawn({
@@ -156,7 +154,7 @@ try {
     browser,
     work,
     "review-missing-baselines.png",
-    "button--default__1200x900.png",
+    "hero--modes__narrow.png",
     false
   );
 
@@ -170,7 +168,7 @@ try {
 
   await writeFile(
     storyPath,
-    originalStory.replace("#c2410c", "#1d4ed8"),
+    originalStory.replace("const revised = false;", "const revised = true;"),
     "utf-8"
   );
   await Bun.sleep(1500);
@@ -185,7 +183,7 @@ try {
     browser,
     work,
     "review-pixel-diff.png",
-    "button--default__1200x900.png",
+    "hero--modes__narrow.png",
     true
   );
 

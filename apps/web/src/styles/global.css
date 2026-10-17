@@ -62,11 +62,30 @@
   animation: rise 0.7s ease-out 0.35s both;
 }
 
+@keyframes review-demo-empty-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.75);
+  }
+  55% {
+    transform: scale(1.12);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.review-demo-empty-pop {
+  animation: review-demo-empty-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-rise,
   .animate-rise-delay-1,
   .animate-rise-delay-2,
-  .animate-rise-delay-3 {
+  .animate-rise-delay-3,
+  .review-demo-empty-pop {
     animation: none;
   }
 }

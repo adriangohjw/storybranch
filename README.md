@@ -119,8 +119,8 @@ Nothing in `.storybranch/baseline/` yet, so every snapshot is **new**. The CLI l
 ```text
 $ bunx storybranch test --url http://127.0.0.1:6006
 storybranch review at http://127.0.0.1:4321
-missing baseline button--default__1200x900.png
-missing baseline button--modes__narrow.png
+missing baseline hero--default__1200x900.png
+missing baseline hero--modes__narrow.png
 …
 ```
 
@@ -135,14 +135,14 @@ After you change a component, the next run marks mismatches as **changed** and h
 ```text
 $ bunx storybranch test --url http://127.0.0.1:6006
 storybranch review at http://127.0.0.1:4321
-pixels button--default__1200x900.png
-pixels button--modes__narrow.png
+pixels hero--default__1200x900.png
+pixels hero--modes__narrow.png
 …
 ```
 
 ![Review UI comparing baseline and this scan with diff overlay](docs/images/review-pixel-diff.png)
 
-The fixture in this repo uses a tiny orange “button” story; the screenshot above is from temporarily shifting it to blue to demonstrate the diff view.
+The fixture story is a sample hero. The screenshot above is that hero after the primary CTA color shifts.
 
 ## Features
 

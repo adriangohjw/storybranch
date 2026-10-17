@@ -1,60 +1,70 @@
 ---
+import { LuCheck, LuRotateCcw } from "react-icons/lu";
+
 const shots = [
   {
-    actual: "/images/demo/actual.svg",
+    actual: "/images/demo/actual-copy.svg",
+    aspect: "800 / 300",
     baseline: "/images/demo/baseline.svg",
-    diff: "/images/demo/diff.svg",
-    id: "button--default__1200x900.png",
-    label: "button--default__1200x900.png",
+    diff: "/images/demo/diff-copy.svg",
+    id: "hero--default__1200x900.png",
+    label: "hero--default__1200x900.png",
     status: "changed" as const,
-    storyId: "button--default",
+    storyId: "hero--default",
   },
   {
-    actual: "/images/demo/actual.svg",
-    baseline: "/images/demo/baseline.svg",
-    diff: "/images/demo/diff.svg",
-    id: "button--modes__narrow.png",
-    label: "button--modes__narrow.png",
+    actual: "/images/demo/actual-narrow-added.svg",
+    aspect: "320 / 420",
+    baseline: "/images/demo/baseline-narrow.svg",
+    diff: "/images/demo/diff-narrow-added.svg",
+    id: "hero--modes__narrow.png",
+    label: "hero--modes__narrow.png",
     status: "changed" as const,
-    storyId: "button--modes",
+    storyId: "hero--modes",
   },
   {
-    actual: "/images/demo/actual.svg",
-    baseline: "/images/demo/baseline.svg",
-    diff: "/images/demo/diff.svg",
-    id: "button--modes__tall.png",
-    label: "button--modes__tall.png",
+    actual: "/images/demo/actual-wide.svg",
+    aspect: "800 / 300",
+    baseline: "/images/demo/baseline-wide.svg",
+    diff: "/images/demo/diff-wide.svg",
+    id: "hero--modes__wide.png",
+    label: "hero--modes__wide.png",
     status: "changed" as const,
-    storyId: "button--modes",
-  },
-  {
-    actual: "/images/demo/actual.svg",
-    baseline: "/images/demo/baseline.svg",
-    diff: "/images/demo/diff.svg",
-    id: "button--modes__wide.png",
-    label: "button--modes__wide.png",
-    status: "changed" as const,
-    storyId: "button--modes",
+    storyId: "hero--modes",
   },
   {
     actual: "/images/demo/actual-new.svg",
+    aspect: "320 / 420",
     baseline: null,
     diff: null,
-    id: "button--pinned__mobile1.png",
-    label: "button--pinned__mobile1.png",
+    id: "hero--pinned__mobile1.png",
+    label: "hero--pinned__mobile1.png",
     status: "new" as const,
-    storyId: "button--pinned",
+    storyId: "hero--pinned",
+  },
+  {
+    actual: "/images/demo/baseline.svg",
+    aspect: "800 / 300",
+    baseline: "/images/demo/baseline.svg",
+    diff: null,
+    id: "hero--skipped__1200x900.png",
+    label: "hero--skipped__1200x900.png",
+    status: "unchanged" as const,
+    storyId: "hero--skipped",
   },
 ];
 
 const groups = Map.groupBy(shots, (shot) => shot.storyId);
 
 const badgeClass = {
+  approved: "bg-violet-500/20 text-violet-300",
   changed: "bg-amber-500/20 text-amber-300",
   new: "bg-sky-500/20 text-sky-300",
+  unchanged: "bg-emerald-500/20 text-emerald-300",
 } as const;
----
 
+const initialId = "hero--default__1200x900.png";
+---
 
 <section class="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20" id="review">
   <div class="max-w-2xl">
@@ -82,10 +92,10 @@ const badgeClass = {
             class="rounded-md border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm text-zinc-100"
             data-filter
           >
+            <option value="all" selected>All</option>
             <option value="attention">Needs attention</option>
-            <option value="changed">Changed</option>
-            <option value="new">New</option>
-            <option value="all">All</option>
+            <option value="approved">Approved</option>
+            <option value="unchanged">Unchanged</option>
           </select>
         </label>
         <button
@@ -98,11 +108,11 @@ const badgeClass = {
       </div>
     </header>
 
-    <div class="grid min-h-[22rem] grid-cols-1 lg:grid-cols-[minmax(11rem,14rem)_1fr]" data-main>
+    <div class="grid min-h-[22rem] grid-cols-1 lg:grid-cols-[minmax(14rem,18rem)_1fr]" data-main>
       <aside class="flex flex-col border-b border-zinc-800 lg:border-r lg:border-b-0" data-aside>
         <div class="flex shrink-0 items-center justify-between gap-2 border-b border-zinc-800 px-2 py-1.5">
           <span class="truncate text-xs font-medium text-zinc-400" data-aside-label>
-            Needs approval
+            Snapshots
           </span>
           <button
             aria-label="Collapse snapshot list"
@@ -121,13 +131,13 @@ const badgeClass = {
                   {storyId}
                 </h4>
                 <ul class="space-y-1">
-                  {storyShots.map((shot, index) => (
-                    <li class="flex items-center gap-1" data-shot-row data-status={shot.status} data-id={shot.id}>
+                  {storyShots.map((shot) => (
+                    <li class="flex items-center gap-0.5" data-shot-row data-status={shot.status} data-id={shot.id}>
                       <button
                         class:list={[
-                          "flex min-w-0 flex-1 items-center gap-2 rounded-md border px-2 py-1.5 text-left text-sm transition-colors",
+                          "flex min-w-0 flex-1 flex-col items-start gap-1 rounded-md border px-2 py-1.5 text-left transition-colors",
                           "hover:border-zinc-600 hover:bg-zinc-800/80",
-                          index === 0 && storyId === "button--default"
+                          shot.id === initialId
                             ? "border-zinc-500 bg-zinc-800"
                             : "border-transparent",
                         ]}
@@ -136,27 +146,43 @@ const badgeClass = {
                         data-baseline={shot.baseline ?? ""}
                         data-actual={shot.actual}
                         data-diff={shot.diff ?? ""}
+                        data-aspect={shot.aspect}
                         data-status={shot.status}
                         type="button"
                       >
                         <span
                           class:list={[
-                            "shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase",
+                            "rounded-full px-1.5 py-px text-[9px] leading-none font-semibold tracking-wide uppercase",
                             badgeClass[shot.status],
                           ]}
+                          data-shot-badge
                         >
                           {shot.status}
                         </span>
-                        <span class="min-w-0 flex-1 truncate text-zinc-200">{shot.label}</span>
+                        <span class="text-xs leading-snug break-all text-zinc-200">{shot.label}</span>
                       </button>
-                      <button
-                        class="shrink-0 rounded border border-zinc-600 px-2 py-0.5 text-xs text-zinc-200 hover:bg-zinc-700"
-                        data-accept
-                        data-id={shot.id}
-                        type="button"
-                      >
-                        Accept
-                      </button>
+                      {shot.status !== "unchanged" ? (
+                        <div class="flex shrink-0 items-center">
+                          <button
+                            aria-label="Accept"
+                            class="rounded p-1 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                            data-accept
+                            data-id={shot.id}
+                            type="button"
+                          >
+                            <LuCheck aria-hidden className="size-3.5" />
+                          </button>
+                          <button
+                            aria-label="Undo approval"
+                            class="hidden rounded p-1 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                            data-reset
+                            data-id={shot.id}
+                            type="button"
+                          >
+                            <LuRotateCcw aria-hidden className="size-3.5" />
+                          </button>
+                        </div>
+                      ) : null}
                     </li>
                   ))}
                 </ul>
@@ -166,22 +192,30 @@ const badgeClass = {
         </div>
       </aside>
 
-      <div class="min-w-0 overflow-auto p-4" data-viewer>
-        <div class="grid gap-4 lg:grid-cols-2">
+      <div class="relative min-w-0 overflow-auto p-4" data-viewer>
+        <div class="grid gap-4 lg:grid-cols-2" data-comparison>
           <figure class="m-0">
-            <figcaption class="mb-1 text-xs text-zinc-500">Baseline</figcaption>
+            <div class="mb-1 flex h-5 items-center">
+              <figcaption class="text-xs text-zinc-500">Baseline</figcaption>
+            </div>
             <p class="hidden text-xs text-zinc-600" data-no-baseline>No baseline</p>
-            <img
-              alt="baseline"
-              class="block w-full rounded border border-zinc-800 bg-zinc-900/50"
-              data-baseline-img
-              src="/images/demo/baseline.svg"
-            />
+            <div
+              class="relative w-full overflow-hidden rounded border border-zinc-800 bg-zinc-900/50"
+              data-baseline-frame
+              style="aspect-ratio: 800 / 300"
+            >
+              <img
+                alt="baseline"
+                class="absolute inset-0 size-full object-contain"
+                data-baseline-img
+                src="/images/demo/baseline.svg"
+              />
+            </div>
           </figure>
           <figure class="m-0">
-            <div class="mb-1 flex flex-wrap items-center justify-between gap-2">
+            <div class="mb-1 flex h-5 items-center justify-between gap-2">
               <figcaption class="text-xs text-zinc-500">This scan</figcaption>
-              <div class="flex items-center gap-2 text-xs text-zinc-400" data-diff-controls>
+              <div class="flex shrink-0 items-center gap-2 text-xs text-zinc-400" data-diff-controls>
                 <span>Diff overlay</span>
                 <button
                   aria-label="Toggle diff overlay"
@@ -197,24 +231,41 @@ const badgeClass = {
                 </button>
               </div>
             </div>
-            <div class="relative overflow-hidden rounded border border-zinc-800 bg-zinc-900/50">
+            <div
+              class="relative w-full overflow-hidden rounded border border-zinc-800 bg-zinc-900/50"
+              data-preview-frame
+              style="aspect-ratio: 800 / 300"
+            >
               <img
                 alt="this scan"
-                class="block w-full"
+                class="absolute inset-0 size-full object-contain"
                 data-actual-img
-                src="/images/demo/actual.svg"
+                src="/images/demo/actual-copy.svg"
               />
               <img
                 alt=""
                 aria-hidden
                 class="pointer-events-none absolute inset-0 size-full object-contain opacity-85 mix-blend-screen"
                 data-diff-img
-                src="/images/demo/diff.svg"
+                src="/images/demo/diff-copy.svg"
               />
             </div>
           </figure>
         </div>
-        <p class="mt-4 hidden text-sm text-emerald-400" data-accepted-msg></p>
+        <div
+          class="hidden min-h-[min(22rem,55vh)] flex-col items-center justify-center gap-3 px-6 py-12 text-center"
+          data-empty-state
+        >
+          <span
+            aria-hidden="true"
+            class="text-5xl leading-none review-demo-empty-pop"
+            data-empty-emoji
+          >
+            🎉
+          </span>
+          <p class="text-lg font-semibold text-emerald-300" data-empty-title></p>
+          <p class="max-w-xs text-sm text-zinc-400" data-empty-subtitle></p>
+        </div>
       </div>
     </div>
   </div>
