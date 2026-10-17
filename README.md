@@ -60,7 +60,7 @@ The fixture in this repo uses a tiny orange “button” story; the screenshot a
 ## Features
 
 - ⚡ [Bun](https://bun.com) workspaces + [Turborepo](https://turbo.build) monorepo; Bun for runtime, tests, and CLI
-- 🎨 [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) with [Ultracite](https://www.ultracite.dev/) presets
+- 🎨 [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) with [Ultracite](https://www.ultracite.dev/) presets; [Lefthook](https://lefthook.dev/) pre-commit (auto-fix + CI checks)
 - 💚 CI on GitHub Actions:
   - ✅ Lint, format, and typecheck (parallel)
   - ✅ Tests with [Playwright](https://playwright.dev/) via `bun test`
@@ -137,7 +137,7 @@ Workspace packages use `workspace:*` for cross-package imports (e.g. `@storybran
 ## Development
 
 ```bash
-bun install
+bun install           # runs `lefthook install` via prepare (skipped when CI=true)
 bun run lint          # turbo run lint (per-package oxlint)
 bun run lint:fix
 bun run format        # turbo run format (per-package oxfmt)
@@ -146,7 +146,13 @@ bun run typecheck     # turbo run typecheck (per-package `bun check`; requires B
 bun run build:review  # Vite production build → apps/cli/review/public/
 bun run build         # turbo build (review-ui + web stub)
 bun run test          # unit tests + Playwright e2e (install Chromium first)
+bun run check         # ultracite check (lint + format, whole repo)
+bun run fix           # ultracite fix (same toolchain as the pre-commit hook)
 ```
+
+### Git hooks (Lefthook + Ultracite)
+
+[`lefthook.yml`](lefthook.yml) follows the [Ultracite Lefthook integration](https://www.ultracite.ai/docs/git-hooks#lefthook): on each commit, staged files are auto-fixed with `ultracite fix`, re-staged, then the repo runs the same **lint**, **format**, and **typecheck** tasks as CI (`turbo run …`). Skip in a pinch with `git commit --no-verify` or `LEFTHOOK=0 git commit …`.
 
 ### Review UI (HMR)
 
