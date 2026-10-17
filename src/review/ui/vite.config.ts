@@ -7,16 +7,16 @@ import { defineConfig } from "vite";
 const root = import.meta.dirname;
 
 export default defineConfig({
-  resolve: {
-    alias: {
-      "@": path.join(root, "../../.."),
-    },
-  },
   build: {
     emptyOutDir: true,
     outDir: path.join(root, "../public"),
   },
   plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      "@": path.join(root, "../../.."),
+    },
+  },
   root,
   server: {
     proxy: {

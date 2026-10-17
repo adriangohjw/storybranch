@@ -1,4 +1,5 @@
 import type { ReportEntry } from "@/report.ts";
+
 import { acceptShot } from "./api.ts";
 import { cn } from "./lib/cn.ts";
 import { badgeTone, groupEntries, needsAttention } from "./lib/report-ui.ts";
