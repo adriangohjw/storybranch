@@ -11,7 +11,6 @@
     "typecheck": "tsc --noEmit",
     "format": "oxfmt --check",
     "format:fix": "oxfmt",
-    "check": "bun run lint && bun run typecheck && bun run format",
     "test": "bun test"
   },
   "dependencies": {

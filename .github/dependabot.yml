@@ -7,6 +7,27 @@ updates:
       interval: weekly
     cooldown:
       default-days: 7
+    groups:
+      storybook:
+        patterns:
+          - storybook
+          - "@storybook/*"
+      react:
+        patterns:
+          - react
+          - react-dom
+          - "@types/react"
+          - "@types/react-dom"
+      oxc:
+        patterns:
+          - oxlint
+          - oxfmt
+          - oxlint-tsgolint
+      image:
+        patterns:
+          - pixelmatch
+          - pngjs
+          - "@types/pngjs"
     commit-message:
       prefix: chore(deps)
 
@@ -16,5 +37,9 @@ updates:
       interval: weekly
     cooldown:
       default-days: 7
+    groups:
+      github-actions:
+        patterns:
+          - "*"
     commit-message:
       prefix: ci
