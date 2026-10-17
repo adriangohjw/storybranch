@@ -70,3 +70,8 @@
     animation: none;
   }
 }
+
+/* Syne draws outside Tailwind's default text-* line-height boxes; avoid clipping glyphs. */
+.font-display {
+  line-height: 1.35;
+}
