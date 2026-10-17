@@ -14,11 +14,13 @@ export function comparePng(
   | { match: false; reason: "pixels"; diff: Buffer } {
   const left = PNG.sync.read(baseline);
   const right = PNG.sync.read(actual);
+
   if (left.width !== right.width || left.height !== right.height) {
     return { match: false, reason: "size" };
   }
 
   const diff = new PNG({ height: left.height, width: left.width });
+
   const mismatched = pixelmatch(
     left.data,
     right.data,
@@ -30,9 +32,11 @@ export function comparePng(
       threshold: options.threshold,
     }
   );
+
   if (mismatched === 0) {
     return { match: true };
   }
+
   return {
     diff: Buffer.from(PNG.sync.write(diff)),
     match: false,
@@ -45,14 +49,17 @@ export async function actualDirectory(root: string): Promise<string> {
     stderr: "pipe",
     stdout: "pipe",
   });
+
   const [stdout, stderr, code] = await Promise.all([
     new Response(proc.stdout).text(),
     new Response(proc.stderr).text(),
     proc.exited,
   ]);
+
   if (code !== 0) {
     throw new Error(stderr.trim() || "git rev-parse HEAD failed");
   }
+
   return path.join(root, ".storybranch", "actual", stdout.trim());
 }
 
@@ -62,17 +69,21 @@ export async function promoteActuals(
   const actualDir = await actualDirectory(root);
   const baselineDir = path.join(root, ".storybranch", "baseline");
   const actualNames = await readdir(actualDir);
+
   const actuals = actualNames
     .filter((file) => file.endsWith(".png"))
     .toSorted();
+
   await mkdir(baselineDir, { recursive: true });
   let baselines: string[] = [];
+
   try {
     const baselineNames = await readdir(baselineDir);
     baselines = baselineNames.filter((file) => file.endsWith(".png"));
   } catch {
     baselines = [];
   }
+
   const kept = new Set(actuals);
   const removed = baselines.filter((file) => !kept.has(file)).toSorted();
   await Promise.all(
@@ -85,5 +96,6 @@ export async function promoteActuals(
       await rm(path.join(baselineDir, file));
     })
   );
+
   return { removed, updated: actuals };
 }

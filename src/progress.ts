@@ -8,12 +8,15 @@ function progressEnabled(explicit?: boolean): boolean {
   if (explicit === false) {
     return false;
   }
+
   if (explicit === true) {
     return true;
   }
+
   if (process.env.NO_COLOR !== undefined) {
     return false;
   }
+
   return process.stderr.isTTY ?? false;
 }
 
@@ -21,6 +24,7 @@ function truncateId(id: string): string {
   if (id.length <= ID_MAX) {
     return id;
   }
+
   return `${id.slice(0, ID_MAX - 1)}…`;
 }
 
@@ -32,12 +36,15 @@ function formatActive(
 ): string {
   const count = pc.dim(`[${current}/${total}]`);
   const name = pc.cyan(truncateId(id));
+
   if (shot === null) {
     return `${count} ${name} ${pc.dim("· loading…")}`;
   }
+
   if (shot.total <= 1) {
     return `${count} ${name} ${pc.dim("· capturing")}`;
   }
+
   return `${count} ${name} ${pc.dim(`· shot ${shot.index}/${shot.total}`)}`;
 }
 
@@ -76,6 +83,7 @@ export function createCaptureProgress(
     if (spinner.isSpinning) {
       spinner.stop();
     }
+
     logUpdate.clear();
   };
 
@@ -83,18 +91,22 @@ export function createCaptureProgress(
     finish(stats) {
       stopSpinner();
       const seconds = (stats.elapsedMs / 1000).toFixed(1);
+
       const outcome =
         stats.failed > 0
           ? pc.red(`${stats.failed} failed`)
           : pc.green("all matched");
+
       process.stderr.write(
         `\n${pc.bold("storybranch")} ${pc.dim("·")} ${pc.dim(`${seconds}s`)} ${pc.dim("·")} ${stats.stories} stories ${pc.dim("·")} ${stats.shots} shots ${pc.dim("·")} ${outcome}\n`
       );
+
       if (stats.failed > 0) {
         process.stderr.write(
           `${pc.dim("see diffs in")} ${pc.cyan(".storybranch/diff/")}\n`
         );
       }
+
       process.stderr.write("\n");
     },
 
@@ -106,6 +118,7 @@ export function createCaptureProgress(
 
     storyActive(current, id, shot) {
       spinner.text = formatActive(current, totalStories, id, shot);
+
       if (!spinner.isSpinning) {
         spinner.start();
       }
@@ -114,6 +127,7 @@ export function createCaptureProgress(
     storyDone(current, id, stats) {
       const count = pc.dim(`[${current}/${totalStories}]`);
       const name = truncateId(id);
+
       if (stats.failed > 0) {
         const detail =
           stats.shots > 0
@@ -121,15 +135,20 @@ export function createCaptureProgress(
                 ` · ${stats.failed} of ${stats.shots} shot${stats.shots === 1 ? "" : "s"} failed`
               )
             : "";
+
         spinner.fail(`${count} ${pc.red(name)}${detail}`);
         spinner = ora({ stream: process.stderr });
+
         return;
       }
+
       if (stats.skipped) {
         spinner.info(`${count} ${pc.dim(`${name} · skipped`)}`);
         spinner = ora({ stream: process.stderr });
+
         return;
       }
+
       stopSpinner();
     },
 

@@ -2,6 +2,21 @@ export interface ViewportOption {
   styles: { width: string; height: string };
 }
 
+export type JsonPrimitive = string | number | boolean | null;
+
+export type JsonValue =
+  | JsonPrimitive
+  | JsonValue[]
+  | { [key: string]: JsonValue };
+
+export interface ChromaticMode {
+  [key: string]: JsonValue;
+}
+
+export interface ShotGlobals {
+  [key: string]: JsonValue;
+}
+
 export interface PlanInput {
   parameters: {
     chromatic?: {
@@ -12,10 +27,10 @@ export interface PlanInput {
       diffThreshold?: number;
       diffIncludeAntiAliasing?: boolean;
       cropToViewport?: boolean;
-      modes?: Record<string, Record<string, unknown>>;
+      modes?: { [mode: string]: ChromaticMode };
       viewports?: number[];
     };
-    viewport?: { options?: Record<string, ViewportOption> };
+    viewport?: { options?: { [name: string]: ViewportOption } };
   };
   globals: { viewport?: { value?: string; isRotated?: boolean } };
 }
@@ -24,7 +39,7 @@ export interface Shot {
   label: string;
   width: number;
   height: number;
-  globals: Record<string, unknown>;
+  globals: ShotGlobals;
   delay: number;
   pauseAtEnd: boolean;
   threshold: number;
@@ -38,18 +53,19 @@ const DEFAULT_WIDTH = 1200;
 const DEFAULT_HEIGHT = 900;
 
 // Storybook's viewport addon uses these when parameters.viewport.options is unset.
-const MINIMAL_VIEWPORTS: Record<string, ViewportOption> = {
+const MINIMAL_VIEWPORTS = {
   desktop: { styles: { height: "1024px", width: "1280px" } },
   mobile1: { styles: { height: "568px", width: "320px" } },
   mobile2: { styles: { height: "896px", width: "414px" } },
   tablet: { styles: { height: "1112px", width: "834px" } },
-};
+} satisfies { [name: string]: ViewportOption };
 
 export function isCapturable(entry: {
   type: string;
   tags?: string[];
 }): boolean {
   const tags = entry.tags ?? [];
+
   // Storybook 10 stores `!test` by omitting the automatic `test` tag.
   return (
     entry.type === "story" && tags.includes("test") && !tags.includes("!test")
@@ -71,18 +87,22 @@ function captureFlags(chromatic: PlanInput["parameters"]["chromatic"]) {
 }
 
 function planModes(
-  modes: Record<string, Record<string, unknown>>,
+  modes: { [mode: string]: ChromaticMode },
   input: PlanInput,
   flags: ReturnType<typeof captureFlags>
 ): Plan {
   const shots: Shot[] = [];
+
   for (const [label, mode] of Object.entries(modes)) {
     const shot = shotForMode(label, mode, input, flags);
+
     if ("error" in shot) {
       return shot;
     }
+
     shots.push(shot);
   }
+
   return { shots };
 }
 
@@ -106,12 +126,16 @@ function planSingle(
   flags: ReturnType<typeof captureFlags>
 ): Plan {
   const pinned = input.globals.viewport?.value;
+
   if (pinned !== undefined && pinned.length > 0) {
     const size = lookupViewport(pinned, input);
+
     if ("error" in size) {
       return size;
     }
+
     const rotated = input.globals.viewport?.isRotated ?? false;
+
     return {
       shots: [
         {
@@ -140,31 +164,37 @@ function planSingle(
 
 export function planShots(input: PlanInput): Plan {
   const { chromatic } = input.parameters;
+
   if (chromatic?.disable === true || chromatic?.disableSnapshot === true) {
     return { skip: true };
   }
 
   const flags = captureFlags(chromatic);
+
   if (chromatic?.modes !== undefined && chromatic.viewports !== undefined) {
     return { error: "chromatic.modes and chromatic.viewports are both set" };
   }
+
   if (chromatic?.modes !== undefined) {
     return planModes(chromatic.modes, input, flags);
   }
+
   if (chromatic?.viewports !== undefined) {
     return planWidths(chromatic.viewports, flags);
   }
+
   return planSingle(input, flags);
 }
 
 function shotForMode(
   label: string,
-  mode: Record<string, unknown>,
+  mode: ChromaticMode,
   input: PlanInput,
   flags: Omit<Shot, "label" | "width" | "height" | "globals">
 ): Shot | { error: string } {
   const { viewport } = mode;
-  const globals: Record<string, unknown> = {};
+  const globals: ShotGlobals = {};
+
   for (const [key, value] of Object.entries(mode)) {
     if (key !== "viewport") {
       globals[key] = value;
@@ -180,7 +210,8 @@ function shotForMode(
       ...flags,
     };
   }
-  if (typeof viewport === "number") {
+
+  if (isModeViewportNumber(viewport)) {
     return {
       globals,
       height: DEFAULT_HEIGHT,
@@ -189,14 +220,19 @@ function shotForMode(
       ...flags,
     };
   }
-  if (typeof viewport === "string") {
+
+  if (isModeViewportString(viewport)) {
     const size = lookupViewport(viewport, input);
+
     if ("error" in size) {
       return size;
     }
+
     globals.viewport = { isRotated: false, value: viewport };
+
     return { globals, height: size.height, label, width: size.width, ...flags };
   }
+
   if (isViewportSize(viewport)) {
     return {
       globals,
@@ -206,6 +242,7 @@ function shotForMode(
       ...flags,
     };
   }
+
   return { error: `invalid viewport for mode ${label}` };
 }
 
@@ -213,20 +250,33 @@ function lookupViewport(
   name: string,
   input: PlanInput
 ): { width: number; height: number } | { error: string } {
-  const options = input.parameters.viewport?.options ?? MINIMAL_VIEWPORTS;
+  const options: { [name: string]: ViewportOption } =
+    input.parameters.viewport?.options ?? MINIMAL_VIEWPORTS;
+
   const option = options[name];
+
   if (option === undefined) {
     return { error: `unknown viewport ${name}` };
   }
+
   const width = pixels(option.styles.width, name, "width");
   const height = pixels(option.styles.height, name, "height");
-  if (typeof width !== "number") {
+
+  if (isPixelParseError(width)) {
     return width;
   }
-  if (typeof height !== "number") {
+
+  if (isPixelParseError(height)) {
     return height;
   }
+
   return { height, width };
+}
+
+function isPixelParseError(
+  result: number | { error: string }
+): result is { error: string } {
+  return typeof result === "object" && result !== null;
 }
 
 function pixels(
@@ -236,17 +286,38 @@ function pixels(
 ): number | { error: string } {
   const match = /^(?<size>\d+(?:\.\d+)?)px$/u.exec(value.trim());
   const size = match?.groups?.size;
+
   if (size === undefined) {
     return { error: `viewport ${name} ${axis} is not px` };
   }
+
   return Math.round(Number(size));
 }
 
+function isModeViewportNumber(value: JsonValue): value is number {
+  return typeof value === "number";
+}
+
+function isModeViewportString(value: JsonValue): value is string {
+  return typeof value === "string";
+}
+
 function isViewportSize(
-  value: unknown
+  value: JsonValue
 ): value is { width: number; height?: number } {
-  if (typeof value !== "object" || value === null || !("width" in value)) {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
     return false;
   }
-  return typeof value.width === "number";
+
+  if (!("width" in value)) {
+    return false;
+  }
+
+  const { width, height } = value;
+
+  if (typeof width !== "number") {
+    return false;
+  }
+
+  return height === undefined || typeof height === "number";
 }
