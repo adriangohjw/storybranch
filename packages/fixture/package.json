@@ -7,12 +7,11 @@
     "format:fix": "oxfmt .",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "bun check"
   },
   "devDependencies": {
     "@storybranch/oxfmt-config": "workspace:*",
     "@storybranch/oxlint-config": "workspace:*",
-    "@storybranch/tsconfig": "workspace:*",
-    "typescript": "catalog:"
+    "@storybranch/tsconfig": "workspace:*"
   }
 }

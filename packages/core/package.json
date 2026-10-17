@@ -14,7 +14,7 @@
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "test": "bun test",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "bun check"
   },
   "dependencies": {
     "@storybranch/report": "workspace:*",
