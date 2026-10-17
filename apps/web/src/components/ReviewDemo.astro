@@ -51,7 +51,6 @@ const groups = Map.groupBy(shots, (shot) => shot.storyId);
 const badgeClass = {
   changed: "bg-amber-500/20 text-amber-300",
   new: "bg-sky-500/20 text-sky-300",
-  unchanged: "bg-emerald-500/20 text-emerald-300",
 } as const;
 ---
 
@@ -84,7 +83,6 @@ const badgeClass = {
             <option value="attention">Needs attention</option>
             <option value="changed">Changed</option>
             <option value="new">New</option>
-            <option value="unchanged">Unchanged</option>
             <option value="all">All</option>
           </select>
         </label>
@@ -250,39 +248,49 @@ const badgeClass = {
       null;
 
     function matchesFilter(status: string, value: string) {
-      if (value === "all") return true;
-      if (value === "attention") return status !== "unchanged";
+      if (value === "all" || value === "attention") return true;
       return status === value;
+    }
+
+    function remainingRows() {
+      return rows.filter((row) => row.dataset.accepted !== "1");
     }
 
     function visibleRows() {
       const value = filter?.value ?? "attention";
-      return rows.filter((row) => {
+      return remainingRows().filter((row) => {
         if (row.hidden) return false;
         return matchesFilter(row.dataset.status ?? "", value);
       });
     }
 
-    function applyFilter() {
-      const value = filter?.value ?? "attention";
-      for (const row of rows) {
-        const status = row.dataset.status ?? "";
-        row.hidden = !matchesFilter(status, value);
-      }
+    function syncGroups() {
       for (const group of root.querySelectorAll<HTMLElement>("[data-story-group]")) {
         const anyVisible = [...group.querySelectorAll<HTMLElement>("[data-shot-row]")].some(
           (row) => !row.hidden
         );
         group.hidden = !anyVisible;
       }
+    }
+
+    function applyFilter() {
+      const value = filter?.value ?? "attention";
+      for (const row of rows) {
+        if (row.dataset.accepted === "1") {
+          row.hidden = true;
+          continue;
+        }
+        row.hidden = !matchesFilter(row.dataset.status ?? "", value);
+      }
+      syncGroups();
       const stillSelected = visibleRows().some((row) => row.dataset.id === selectedId);
       if (!stillSelected) {
         const first = visibleRows()[0]?.querySelector<HTMLButtonElement>("[data-select]");
         if (first) selectShot(first);
         else if (acceptedMsg) {
           acceptedMsg.textContent =
-            value === "attention"
-              ? "Nothing needs attention — switch filter to All or Unchanged."
+            remainingRows().length === 0
+              ? "All demo snapshots accepted."
               : "No snapshots match this filter.";
           acceptedMsg.classList.remove("hidden");
         }
@@ -325,31 +333,20 @@ const badgeClass = {
 
     function acceptId(id: string) {
       const row = rows.find((r) => r.dataset.id === id);
-      if (!row || row.dataset.status === "unchanged") return;
+      if (!row || row.dataset.accepted === "1") return;
 
-      row.dataset.status = "unchanged";
-      const selectBtn = row.querySelector<HTMLButtonElement>("[data-select]");
-      const badge = selectBtn?.querySelector("span");
-      if (badge) {
-        badge.textContent = "unchanged";
-        badge.className =
-          "shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase bg-emerald-500/20 text-emerald-300";
-      }
-      // After accept, baseline matches this scan (no diff).
-      if (selectBtn) {
-        const actual = selectBtn.dataset.actual ?? "";
-        selectBtn.dataset.baseline = actual;
-        selectBtn.dataset.diff = "";
-        selectBtn.dataset.status = "unchanged";
-      }
-      row.querySelector<HTMLButtonElement>("[data-accept]")?.remove();
-
-      applyFilter();
+      row.dataset.accepted = "1";
+      row.hidden = true;
+      if (shotCount) shotCount.textContent = String(remainingRows().length);
+      syncGroups();
 
       if (selectedId === id) {
-        const nextAttention = visibleRows()[0]?.querySelector<HTMLButtonElement>("[data-select]");
-        if (nextAttention) selectShot(nextAttention);
-        else if (selectBtn && !row.hidden) selectShot(selectBtn);
+        const next = visibleRows()[0]?.querySelector<HTMLButtonElement>("[data-select]");
+        if (next) selectShot(next);
+        else if (acceptedMsg) {
+          acceptedMsg.textContent = "All demo snapshots accepted.";
+          acceptedMsg.classList.remove("hidden");
+        }
       }
     }
 
