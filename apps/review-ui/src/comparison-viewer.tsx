@@ -47,6 +47,7 @@ export const ComparisonViewer = ({ entry }: ComparisonViewerProps) => {
               <div className="flex items-center gap-2 text-xs text-zinc-400">
                 <span>Diff overlay</span>
                 <button
+                  aria-label="Toggle diff overlay"
                   aria-pressed={diffOverlay}
                   className={cn(
                     "relative h-5 w-9 rounded-full transition-colors",
