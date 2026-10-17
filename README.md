@@ -61,9 +61,8 @@ The fixture in this repo uses a tiny orange “button” story; the screenshot a
 
 - ⚡ [Bun](https://bun.com) workspaces + [Turborepo](https://turbo.build) monorepo; Bun for runtime, tests, and CLI
 - 🎨 [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) with [Ultracite](https://www.ultracite.dev/) presets; [Lefthook](https://lefthook.dev/) (`pre-commit` fix, `pre-push` CI checks)
-- 💚 CI on GitHub Actions:
-  - ✅ Lint, format, and typecheck (parallel)
-  - ✅ Tests with [Playwright](https://playwright.dev/) via `bun test`
+- 💚 CI on GitHub Actions (single **✅ CI passed** required check):
+  - ✅ Lint, format, typecheck, build, and tests (parallel)
   - ✅ Workflow linting with [jactionlint](https://github.com/rhysd/actionlint)
 - 📖 [Storybook](https://storybook.js.org/) fixture for development and e2e coverage
 - 🖼️ Local **review UI** (Vite + React) to compare baseline / actual / diff and accept snapshots in the browser
@@ -74,8 +73,7 @@ The fixture in this repo uses a tiny orange “button” story; the screenshot a
 ```
 .github
   └─ workflows
-        ├─ CI (lint, typecheck, format, test)
-        └─ jactionlint
+        └─ CI (lint, jactionlint, typecheck, format, build, test → ✅ CI passed)
   └─ dependabot.yml
 .vscode
   └─ Recommended extensions and editor settings
