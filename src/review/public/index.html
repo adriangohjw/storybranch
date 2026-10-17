@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>storybranch review</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>storybranch review</h1>
+      <p id="meta"></p>
+      <div class="toolbar">
+        <label>
+          Filter
+          <select id="filter">
+            <option value="attention">Needs attention</option>
+            <option value="changed">Changed</option>
+            <option value="new">New</option>
+            <option value="stale">Stale</option>
+            <option value="error">Error</option>
+            <option value="unchanged">Unchanged</option>
+            <option value="all">All</option>
+          </select>
+        </label>
+        <button id="accept-all" type="button">Accept all</button>
+      </div>
+    </header>
+    <main>
+      <aside id="groups"></aside>
+      <section id="viewer">
+        <p class="placeholder">Select a snapshot to compare.</p>
+        <div id="panels" hidden>
+          <figure>
+            <figcaption>Baseline</figcaption>
+            <img id="baseline" alt="baseline" />
+          </figure>
+          <figure>
+            <figcaption>Actual</figcaption>
+            <img id="actual" alt="actual" />
+          </figure>
+          <figure id="diff-panel">
+            <figcaption>Diff</figcaption>
+            <img id="diff" alt="diff" />
+          </figure>
+        </div>
+        <div id="detail"></div>
+      </section>
+    </main>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

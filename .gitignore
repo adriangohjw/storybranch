@@ -1,4 +1,6 @@
 node_modules
 .storybranch/actual
 .storybranch/diff
+.storybranch/report.json
 storybook-static
+debug-storybook.log

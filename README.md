@@ -47,10 +47,11 @@ bun install
 bunx playwright install chromium
 bunx storybook dev -p 6006 --config-dir fixture/.storybook
 bunx storybranch test --url http://127.0.0.1:6006
-bunx storybranch approve
+bunx storybranch review   # reopen the last run in the browser UI
+bunx storybranch approve  # promote all actuals from the CLI
 ```
 
-Baselines are committed from `.storybranch/baseline`. Fresh captures land in `.storybranch/actual/<commit>`, and pixel diffs land in `.storybranch/diff`.
+Baselines are committed from `.storybranch/baseline`. Fresh captures land in `.storybranch/actual/<commit>`, pixel diffs land in `.storybranch/diff`, and the latest run summary is in `.storybranch/report.json` (gitignored). When a test run needs attention, the CLI prints a review URL; add `--open` to launch the browser, or `--review` to open the UI even on a fully green run.
 
 ## Development
 
