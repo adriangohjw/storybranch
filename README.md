@@ -96,6 +96,8 @@ patches
   └─ Bun patches for dependencies
 turbo.json
   └─ Turborepo task pipeline (`build`, `lint`, `format`, `typecheck`, `test`, `dev`)
+lefthook.yml
+  └─ Pre-commit: Ultracite fix on staged files, then `turbo` lint / format / typecheck
 ```
 
 ## Usage
