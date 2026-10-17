@@ -1,15 +1,14 @@
 import { mkdir, readdir } from "node:fs/promises";
 import path from "node:path";
 
-import { chromium } from "playwright";
-import type { Page } from "playwright";
-
 import {
   shotLabelFromFilename,
   storyIdFromFilename,
   writeReport,
 } from "@storybranch/report";
 import type { Report, ReportEntry } from "@storybranch/report";
+import { chromium } from "playwright";
+import type { Page } from "playwright";
 
 import { actualDirectory, comparePng } from "./images.ts";
 import { isCapturable, planShots, shotFilename } from "./plan.ts";

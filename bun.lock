@@ -117,6 +117,7 @@
         "ultracite": "catalog:",
       },
       "devDependencies": {
+        "@storybranch/oxfmt-config": "workspace:*",
         "@storybranch/tsconfig": "workspace:*",
         "oxfmt": "catalog:",
         "oxlint": "catalog:",

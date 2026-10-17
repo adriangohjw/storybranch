@@ -1,9 +1,8 @@
 #!/usr/bin/env bun
-import pc from "picocolors";
-
 import { capture } from "@storybranch/core/capture";
 import { promoteActuals } from "@storybranch/core/images";
 import { reportHasAttention } from "@storybranch/report";
+import pc from "picocolors";
 
 import { reviewUiBuilt } from "./review-server.ts";
 import {
