@@ -30,11 +30,10 @@
     "react": "19",
     "react-dom": "19",
     "storybook": "10.6.1",
-    "typescript": "^7.0.2",
     "ultracite": "8.0.1",
     "vite": "8"
   },
-  "packageManager": "bun@1.4.3",
+  "packageManager": "bun@1.4.3+sha512.EvQQ2dUJlixjKgJjeXZvdsHUWIKnVfYufrQNDHa++0YM4XksQ4GtGofEdRnQSiyNp/yUWiX6SlqS8zugZCo+2A==",
   "patchedDependencies": {
     "react-docgen-typescript@2.4.0": "patches/react-docgen-typescript@2.4.0.patch"
   }
