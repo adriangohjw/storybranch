@@ -9,7 +9,7 @@ import { ShotList } from "@/shot-list.tsx";
 
 export const App = () => {
   const [report, setReport] = useState<Report | null>(null);
-  const [filter, setFilter] = useState("attention");
+  const [filter, setFilter] = useState("all");
   const [selectedFilename, setSelectedFilename] = useState<string | null>(null);
   const [shotListCollapsed, setShotListCollapsed] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -96,13 +96,13 @@ export const App = () => {
               }}
               value={filter}
             >
+              <option value="all">All</option>
               <option value="attention">Needs attention</option>
               <option value="changed">Changed</option>
               <option value="new">New</option>
               <option value="stale">Stale</option>
               <option value="error">Error</option>
               <option value="unchanged">Unchanged</option>
-              <option value="all">All</option>
             </select>
           </label>
           <button

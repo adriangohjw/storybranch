@@ -37,7 +37,7 @@ export const ComparisonViewer = ({ entry }: ComparisonViewerProps) => {
           ) : (
             <img
               alt="baseline"
-              className="block w-full rounded border border-zinc-800 bg-zinc-900/50"
+              className="block w-full rounded border border-zinc-800 bg-zinc-900/50 object-contain"
               src={`/images/baseline/${file}`}
             />
           )}
@@ -76,7 +76,7 @@ export const ComparisonViewer = ({ entry }: ComparisonViewerProps) => {
             <div className="relative overflow-hidden rounded border border-zinc-800 bg-zinc-900/50">
               <img
                 alt="this scan"
-                className="block w-full"
+                className="block w-full object-contain"
                 src={`/images/actual/${file}`}
               />
               {hasDiff && diffOverlay ? (

@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="420" viewBox="0 0 320 420">
-  <rect width="320" height="420" fill="#fafafa"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="480" viewBox="0 0 320 480">
+  <rect width="320" height="480" fill="#fafafa"/>
   <rect x="16" y="16" width="288" height="388" rx="16" fill="#f6f3ee"/>
   <text x="28" y="48" fill="#c2410c" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" font-weight="700" letter-spacing="1">STORYBOOK VISUALS</text>
   <text x="28" y="78" fill="#14181f" font-family="ui-sans-serif,system-ui,sans-serif" font-size="20" font-weight="700">Catch UI drift</text>
