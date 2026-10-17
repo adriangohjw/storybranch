@@ -60,7 +60,7 @@ The fixture in this repo uses a tiny orange “button” story; the screenshot a
 ## Features
 
 - ⚡ [Bun](https://bun.com) workspaces + [Turborepo](https://turbo.build) monorepo; Bun for runtime, tests, and CLI
-- 🎨 [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) with [Ultracite](https://www.ultracite.dev/) presets; [Lefthook](https://lefthook.dev/) pre-commit (auto-fix + CI checks)
+- 🎨 [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) with [Ultracite](https://www.ultracite.dev/) presets; [Lefthook](https://lefthook.dev/) (`pre-commit` fix, `pre-push` CI checks)
 - 💚 CI on GitHub Actions:
   - ✅ Lint, format, and typecheck (parallel)
   - ✅ Tests with [Playwright](https://playwright.dev/) via `bun test`
