@@ -55,6 +55,8 @@ Baselines are committed from `.storybranch/baseline`. Fresh captures land in `.s
 
 ## Development
 
+After editing the review UI (`src/review/source/` or `src/review/public/index.html`), run `bun run build:review` and commit the generated files under `src/review/public/`.
+
 ```bash
 bun install
 bun run lint          # oxlint
