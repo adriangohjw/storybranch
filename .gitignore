@@ -1,6 +1,8 @@
 # dependencies
 node_modules/
 
+# turborepo
+.turbo/
 # storybook
 debug-storybook.log
 storybook-static/
@@ -11,5 +13,5 @@ storybook-static/
 .storybranch/report.json
 
 # review UI (vite build output)
-src/review/public/*
-!src/review/public/.gitkeep
+apps/cli/review/public/*
+!apps/cli/review/public/.gitkeep

@@ -1,0 +1,18 @@
+{
+  "name": "@storybranch/oxfmt-config",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./oxfmt.config.ts"
+  },
+  "scripts": {
+    "format": "oxfmt --check .",
+    "format:fix": "oxfmt ."
+  },
+  "dependencies": {
+    "ultracite": "catalog:"
+  },
+  "devDependencies": {
+    "oxfmt": "catalog:"
+  }
+}

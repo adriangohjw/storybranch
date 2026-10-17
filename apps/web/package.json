@@ -1,0 +1,9 @@
+{
+  "name": "@storybranch/web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "echo '@storybranch/web: landing page not implemented yet'",
+    "dev": "echo '@storybranch/web: landing page not implemented yet'"
+  }
+}
