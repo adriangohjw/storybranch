@@ -14,12 +14,12 @@ storybranch drives Playwright against your Storybook, saves one PNG per story (a
 - [How it works](#how-it-works)
   - [First run — missing baselines](#first-run--missing-baselines)
   - [UI change — pixel diff](#ui-change--pixel-diff)
+- [Features](#features)
 - [Usage](#usage)
   - [Artifacts](#artifacts)
   - [Review UI](#review-ui)
 - [Project structure](#project-structure)
 - [Development](#development)
-  - [Repository tooling](#repository-tooling)
   - [Review UI (HMR)](#review-ui-hmr)
   - [Landing site](#landing-site)
 - [Imports](#imports)
@@ -101,6 +101,19 @@ pixels button--modes__narrow.png
 
 The fixture in this repo uses a tiny orange “button” story; the screenshot above is from temporarily shifting it to blue to demonstrate the diff view.
 
+## Features
+
+- ⚡ [Bun](https://bun.com) workspaces + [Turborepo](https://turbo.build) monorepo; Bun for runtime, tests, and CLI
+- 🎨 [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) with [Ultracite](https://www.ultracite.dev/) presets; [Lefthook](https://lefthook.dev/) (`pre-commit` fix, `pre-push` CI checks)
+- 💚 CI on GitHub Actions (single **✅ CI passed** required check):
+  - ✅ Lint, format, typecheck, and `turbo` **build** (parallel jobs)
+  - ✅ Tests with [Playwright](https://playwright.dev/) via `bun test`
+  - ✅ Workflow linting with [jactionlint](https://github.com/rhysd/actionlint)
+- 📖 [Storybook](https://storybook.js.org/) fixture for development and e2e coverage
+- 🖼️ Local **review UI** (Vite + React) to compare baseline / actual / diff and accept snapshots in the browser
+- 🌐 **Marketing site** (`apps/web`, Astro + Tailwind) — deploy details in [`apps/web/README.md`](apps/web/README.md)
+- ⚙️ VS Code extension recommendations
+
 ## Usage
 
 ```bash
@@ -173,16 +186,6 @@ bun run typecheck     # turbo run typecheck (per-package `bun check`; requires B
 bun run build         # review-ui → apps/cli/review/public/, web → apps/web/dist
 bun run test          # unit tests + Playwright e2e (install Chromium first)
 ```
-
-### Repository tooling
-
-Monorepo layout and quality gates for contributors:
-
-- [Bun](https://bun.com) workspaces + [Turborepo](https://turbo.build); Bun for runtime, tests, and CLI
-- [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) with [Ultracite](https://www.ultracite.dev/) presets; [Lefthook](https://lefthook.dev/) (`pre-commit` fix, `pre-push` CI checks)
-- GitHub Actions CI (lint, format, typecheck, build, Playwright tests, actionlint, CodeQL)
-- [Storybook](https://storybook.js.org/) fixture under `packages/fixture` for development and e2e coverage
-- Marketing site in `apps/web` (Astro) — deploy details in [`apps/web/README.md`](apps/web/README.md)
 
 ### Git hooks (Lefthook)
 
