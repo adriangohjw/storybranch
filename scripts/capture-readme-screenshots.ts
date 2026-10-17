@@ -3,23 +3,25 @@
  * Regenerate docs/images for the README.
  * Usage: bun scripts/capture-readme-screenshots.ts
  */
-import { chromium } from "playwright";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { mkdtemp } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { chromium } from "playwright";
 
-import { capture } from "../packages/storybranch/src/capture.ts";
-import { promoteActuals } from "../packages/storybranch/src/images.ts";
-import { startReviewServer } from "../packages/storybranch/src/review-server.ts";
+import { capture } from "../packages/core/src/capture.ts";
+import { promoteActuals } from "../packages/core/src/images.ts";
+import { startReviewServer } from "../apps/cli/src/review-server.ts";
 
 const root = path.join(import.meta.dir, "..");
 const outDir = path.join(root, "docs", "images");
 const storybookPort = 6020;
 const reviewPort = 4322;
 const url = `http://127.0.0.1:${storybookPort}`;
-const storyPath = path.join(root, "fixture/stories/button.stories.tsx");
-const originalStory = await readFile(storyPath, "utf8");
+const storyPath = path.join(
+  root,
+  "packages/fixture/stories/button.stories.tsx"
+);
+const originalStory = await readFile(storyPath, "utf-8");
 
 const storybook = Bun.spawn({
   cmd: [
@@ -31,7 +33,7 @@ const storybook = Bun.spawn({
     "--ci",
     "--exact-port",
     "--config-dir",
-    "fixture/.storybook",
+    "packages/fixture/.storybook",
     "--no-open",
   ],
   cwd: root,
@@ -85,10 +87,6 @@ async function initRepo(cwd: string): Promise<void> {
   }
 }
 
-function formatFailures(failures: string[]): string {
-  return failures.length === 0 ? "ok\n" : `${failures.join("\n")}\n`;
-}
-
 async function screenshotReview(
   browser: Awaited<ReturnType<typeof chromium.launch>>,
   cwd: string,
@@ -135,10 +133,10 @@ try {
   await initRepo(work);
 
   const first = await capture(url, work);
-  await Bun.write(
-    path.join(outDir, "cli-first-run.txt"),
-    formatFailures(first.failures)
-  );
+
+  if (first.failures.length > 0) {
+    console.log(first.failures.join("\n"));
+  }
 
   const browser = await chromium.launch();
 
@@ -161,15 +159,15 @@ try {
   await writeFile(
     storyPath,
     originalStory.replace("#c2410c", "#1d4ed8"),
-    "utf8"
+    "utf-8"
   );
   await Bun.sleep(1500);
 
   const changed = await capture(url, work);
-  await Bun.write(
-    path.join(outDir, "cli-changed.txt"),
-    formatFailures(changed.failures)
-  );
+
+  if (changed.failures.length > 0) {
+    console.log(changed.failures.join("\n"));
+  }
 
   await screenshotReview(
     browser,
@@ -183,6 +181,6 @@ try {
 
   console.log(`Wrote screenshots to ${outDir}`);
 } finally {
-  await writeFile(storyPath, originalStory, "utf8");
+  await writeFile(storyPath, originalStory, "utf-8");
   storybook.kill();
 }
