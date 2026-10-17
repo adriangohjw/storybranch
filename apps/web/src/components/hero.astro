@@ -3,7 +3,12 @@ import CopyCommand from "./copy-command.astro";
 import TerminalDemo from "./terminal-demo.astro";
 
 const github = "https://github.com/adriangohjw/storybranch";
-const command = "bunx storybranch test --url http://127.0.0.1:6006";
+
+const setup =
+  "git clone https://github.com/adriangohjw/storybranch.git && cd storybranch && bun install && bunx playwright install chromium && bun run build";
+
+const run =
+  "bun /path/to/storybranch/apps/cli/src/cli.ts test --url http://127.0.0.1:6006";
 ---
 
 <section class="mx-auto grid w-full max-w-6xl gap-10 px-5 pb-16 pt-6 sm:px-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-center lg:gap-12 lg:pb-24 lg:pt-10">
@@ -26,10 +31,10 @@ const command = "bunx storybranch test --url http://127.0.0.1:6006";
     </p>
     <div class="animate-rise-delay-3 mt-8 flex flex-wrap items-center gap-3">
       <a
-        href="#how"
+        href="#review"
         class="rounded-md bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-deep"
       >
-        Get started
+        See a review
       </a>
       <a
         href={github}
@@ -40,10 +45,18 @@ const command = "bunx storybranch test --url http://127.0.0.1:6006";
         View on GitHub
       </a>
     </div>
-    <div class="animate-rise-delay-3 mt-6 max-w-xl">
-      <CopyCommand command={command} />
-      <p class="mt-2 text-xs text-ink-muted">
-        Requires a running Storybook. Clone from GitHub if the package is not published yet.
+    <div class="animate-rise-delay-3 mt-6 max-w-xl space-y-3">
+      <p class="text-xs font-medium tracking-wide text-ink-muted uppercase">
+        The package is not on npm yet
+      </p>
+      <CopyCommand command={setup} />
+      <p class="text-xs leading-relaxed text-ink-muted">
+        Then, from your app, with Storybook 10+ already running:
+      </p>
+      <CopyCommand command={run} />
+      <p class="text-xs leading-relaxed text-ink-muted">
+        After publish, that second command is
+        <code class="font-mono text-ink">bunx storybranch test --url http://127.0.0.1:6006</code>.
       </p>
     </div>
   </div>

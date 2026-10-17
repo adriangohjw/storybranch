@@ -1,18 +1,18 @@
 ---
 const steps = [
   {
-    body: "Start your Storybook instance locally (or wherever Chromium can reach it).",
+    body: "Start Storybook 10+ locally, or anywhere Chromium can reach it.",
     code: "bunx storybook dev -p 6006",
     title: "Run Storybook",
   },
   {
-    body: "storybranch walks the story index, writes PNGs, and compares them to committed baselines.",
-    code: "bunx storybranch test --url http://127.0.0.1:6006",
+    body: "storybranch walks the story index, writes PNGs, and compares them to committed baselines. Exit 1 means a shot needs attention.",
+    code: "storybranch test --url http://127.0.0.1:6006",
     title: "Capture & diff",
   },
   {
-    body: "Open the review UI for changed shots, or promote every actual from the CLI in one step.",
-    code: "bunx storybranch review   # or: storybranch approve",
+    body: "Reopen the review UI, or promote every actual into baseline/ from the CLI.",
+    code: "storybranch review\nstorybranch approve",
     title: "Review or approve",
   },
 ] as const;
@@ -26,6 +26,12 @@ const steps = [
     <p class="mt-3 text-base text-ink-muted sm:text-lg">
       No dashboard signup. Baselines are files you already know how to review in a PR.
     </p>
+    <p class="mt-3 text-sm leading-relaxed text-ink-muted">
+      Today <code class="font-mono text-ink">storybranch</code> is
+      <code class="font-mono text-ink">bun /path/to/storybranch/apps/cli/src/cli.ts</code>
+      after the clone in the hero. After publish, it is
+      <code class="font-mono text-ink">bunx storybranch</code>.
+    </p>
   </div>
 
   <ol class="mt-12 space-y-8">
@@ -38,9 +44,7 @@ const steps = [
             <p class="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted sm:text-[15px]">
               {step.body}
             </p>
-            <div class="mt-4 overflow-x-auto rounded-lg border border-ink/10 bg-terminal px-4 py-3 font-mono text-[12px] text-white/90 sm:text-[13px]">
-              <span class="text-moss">$</span> {step.code}
-            </div>
+            <div class="mt-4 overflow-x-auto rounded-lg border border-ink/10 bg-terminal px-4 py-3 font-mono text-[12px] whitespace-pre text-white/90 sm:text-[13px]"><span class="text-moss">$</span> {step.code}</div>
           </div>
         </li>
       ))

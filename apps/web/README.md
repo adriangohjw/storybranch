@@ -24,7 +24,9 @@ bun run build
 
 ## Cloudflare Pages
 
-Production deploys use **Cloudflare Pages** connected to this GitHub repo (Workers & Pages → **storybranch** → Git integration). Cloudflare runs the build on push; there is no GitHub Actions deploy workflow.
+Production deploys use **Cloudflare Pages** connected to this GitHub repo (Workers & Pages → **storybranch** → Git integration), on the custom domain [storybook.adriangohjw.com](https://storybook.adriangohjw.com). Cloudflare runs the build on push; there is no GitHub Actions deploy workflow.
+
+Agent-oriented index: [`public/llms.txt`](public/llms.txt) is served at `/llms.txt` (see [llms.txt](https://llmstxt.org/)). The site layout sets `rel="describedby"` to that URL.
 
 ### Build settings
 

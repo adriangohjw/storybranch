@@ -2,9 +2,10 @@
 interface Props {
   class?: string;
   command: string;
+  prompt?: boolean;
 }
 
-const { command, class: className = "" } = Astro.props;
+const { command, class: className = "", prompt = true } = Astro.props;
 ---
 
 <div
@@ -14,17 +15,13 @@ const { command, class: className = "" } = Astro.props;
   ]}
 >
   <code
-    class="flex-1 overflow-x-auto px-4 py-3 font-mono text-[13px] leading-relaxed text-ink sm:text-sm"
-  >
-    <span class="text-moss select-none">$</span>
-    {" "}
-    <span data-command>{command}</span>
-  </code>
+    class="flex-1 overflow-x-auto px-4 py-3 font-mono text-[13px] leading-relaxed whitespace-pre text-ink sm:text-sm"
+  >{prompt ? <span class="text-moss select-none">$ </span> : null}<span data-command>{command}</span></code>
   <button
     type="button"
     class="shrink-0 border-l border-ink/10 bg-paper-2/60 px-4 text-xs font-semibold tracking-wide text-ink-muted transition-colors hover:bg-paper-2 hover:text-ink"
     data-copy
-    aria-label="Copy install command"
+    aria-label="Copy command"
   >
     Copy
   </button>
