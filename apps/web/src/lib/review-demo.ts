@@ -1,3 +1,20 @@
+const statusBadgeClass = {
+  changed:
+    "rounded-full px-1.5 py-px text-[9px] leading-none font-semibold tracking-wide uppercase bg-amber-500/20 text-amber-300",
+  new: "rounded-full px-1.5 py-px text-[9px] leading-none font-semibold tracking-wide uppercase bg-sky-500/20 text-sky-300",
+} as const;
+
+function statusBadgeClassFor(status: string): string {
+  if (status === "new") {
+    return statusBadgeClass.new;
+  }
+
+  return statusBadgeClass.changed;
+}
+
+const approvedBadgeClass =
+  "rounded-full px-1.5 py-px text-[9px] leading-none font-semibold tracking-wide uppercase bg-violet-500/20 text-violet-300";
+
 function pendingApproval(status: string): boolean {
   return status === "new" || status === "changed";
 }
@@ -30,6 +47,19 @@ function rowApproved(row: HTMLElement): boolean {
   return row.dataset.approved === "1";
 }
 
+function setRowActionButtons(row: HTMLElement, approved: boolean): void {
+  const acceptButton = row.querySelector<HTMLButtonElement>("[data-accept]");
+  const resetButton = row.querySelector<HTMLButtonElement>("[data-reset]");
+
+  if (approved) {
+    acceptButton?.classList.add("hidden");
+    resetButton?.classList.remove("hidden");
+  } else {
+    acceptButton?.classList.remove("hidden");
+    resetButton?.classList.add("hidden");
+  }
+}
+
 function markRowApproved(row: HTMLElement): void {
   row.dataset.approved = "1";
 
@@ -37,13 +67,24 @@ function markRowApproved(row: HTMLElement): void {
 
   if (badge !== null) {
     badge.textContent = "approved";
-    badge.className =
-      "rounded-full px-1.5 py-px text-[9px] leading-none font-semibold tracking-wide uppercase bg-violet-500/20 text-violet-300";
+    badge.className = approvedBadgeClass;
   }
 
-  const acceptButton = row.querySelector<HTMLButtonElement>("[data-accept]");
+  setRowActionButtons(row, true);
+}
 
-  acceptButton?.remove();
+function unmarkRowApproved(row: HTMLElement): void {
+  delete row.dataset.approved;
+
+  const status = row.dataset.status ?? "changed";
+  const badge = row.querySelector<HTMLElement>("[data-shot-badge]");
+
+  if (badge !== null) {
+    badge.textContent = status;
+    badge.className = statusBadgeClassFor(status);
+  }
+
+  setRowActionButtons(row, false);
 }
 
 function initReviewDemo(root: HTMLElement): void {
@@ -333,6 +374,21 @@ function initReviewDemo(root: HTMLElement): void {
     applyFilter();
   }
 
+  function resetId(id: string): void {
+    const row = rows.find((candidate) => candidate.dataset.id === id);
+
+    if (row === undefined || !rowApproved(row)) {
+      return;
+    }
+
+    if (!pendingApproval(row.dataset.status ?? "")) {
+      return;
+    }
+
+    unmarkRowApproved(row);
+    applyFilter();
+  }
+
   filter?.addEventListener("change", applyFilter);
 
   for (const button of selectButtons) {
@@ -349,6 +405,18 @@ function initReviewDemo(root: HTMLElement): void {
 
       if (id !== undefined && id !== "") {
         acceptId(id);
+      }
+    });
+  }
+
+  for (const button of root.querySelectorAll<HTMLButtonElement>(
+    "[data-reset]"
+  )) {
+    button.addEventListener("click", () => {
+      const { id } = button.dataset;
+
+      if (id !== undefined && id !== "") {
+        resetId(id);
       }
     });
   }

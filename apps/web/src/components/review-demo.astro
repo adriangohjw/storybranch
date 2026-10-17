@@ -1,5 +1,5 @@
 ---
-import { LuCheck } from "react-icons/lu";
+import { LuCheck, LuRotateCcw } from "react-icons/lu";
 
 const shots = [
   {
@@ -162,15 +162,26 @@ const initialId = "hero--default__1200x900.png";
                         <span class="text-xs leading-snug break-all text-zinc-200">{shot.label}</span>
                       </button>
                       {shot.status !== "unchanged" ? (
-                        <button
-                          aria-label="Accept"
-                          class="shrink-0 rounded p-1 text-zinc-300 hover:bg-zinc-800 hover:text-white"
-                          data-accept
-                          data-id={shot.id}
-                          type="button"
-                        >
-                          <LuCheck aria-hidden className="size-3.5" />
-                        </button>
+                        <div class="flex shrink-0 items-center">
+                          <button
+                            aria-label="Accept"
+                            class="rounded p-1 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                            data-accept
+                            data-id={shot.id}
+                            type="button"
+                          >
+                            <LuCheck aria-hidden className="size-3.5" />
+                          </button>
+                          <button
+                            aria-label="Undo approval"
+                            class="hidden rounded p-1 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                            data-reset
+                            data-id={shot.id}
+                            type="button"
+                          >
+                            <LuRotateCcw aria-hidden className="size-3.5" />
+                          </button>
+                        </div>
                       ) : null}
                     </li>
                   ))}
