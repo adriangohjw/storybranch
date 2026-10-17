@@ -22,20 +22,24 @@ From the repo root:
 bun run build
 ```
 
-## Cloudflare Pages
+## Cloudflare
 
-Production deploys use **Cloudflare Pages** connected to this GitHub repo (Workers & Pages → **storybranch** → Git integration). Cloudflare runs the build on push; there is no GitHub Actions deploy workflow.
+Production deploys use **Workers Builds** connected to this GitHub repo (Workers & Pages → **storybranch** → Git integration). Cloudflare runs the build on push; there is no GitHub Actions deploy workflow.
+
+`apps/web/wrangler.jsonc` publishes the static Astro output (`./dist`) as Worker assets. That file is required: without it, `wrangler deploy` runs `astro add cloudflare`, which installs with npm and fails on this repo’s `catalog:` dependencies.
 
 ### Build settings
 
-| Setting           | Value                            |
-| ----------------- | -------------------------------- |
-| Production branch | `main`                           |
-| Root directory    | `/` (repo root — Bun workspaces) |
-| Build command     | `bun install && bun run build`   |
-| Build output      | `apps/web/dist`                  |
+| Setting                | Value                                |
+| ---------------------- | ------------------------------------ |
+| Production branch      | `main`                               |
+| Root directory         | `/` (repo root — Bun workspaces)     |
+| Build command          | `bun install && bun run build`       |
+| Deploy command         | `npx wrangler deploy --cwd apps/web` |
+| Preview deploy command | `npx wrangler deploy --cwd apps/web` |
+| Build output           | `apps/web/dist`                      |
 
-If you set the Pages root directory to `apps/web` instead, the install step still needs the monorepo lockfile at the repo root (e.g. build command `cd ../.. && bun install && bun run build`, output `dist`).
+If the root directory is `apps/web` instead, the install still needs the monorepo lockfile (`cd ../.. && bun install && bun run build`) and the deploy command is `npx wrangler deploy`.
 
 ### Skip builds when `apps/web` did not change
 
