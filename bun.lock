@@ -125,7 +125,6 @@
         "@storybranch/tsconfig": "workspace:*",
         "oxfmt": "catalog:",
         "oxlint": "catalog:",
-        "typescript": "catalog:",
       },
     },
     "tooling/typescript": {
