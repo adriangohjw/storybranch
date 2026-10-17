@@ -123,13 +123,13 @@ export const App = () => {
           "grid min-h-[calc(100vh-9rem)] grid-cols-1",
           shotListCollapsed
             ? "lg:grid-cols-[auto_1fr]"
-            : "lg:grid-cols-[minmax(11rem,14rem)_1fr]"
+            : "lg:grid-cols-[minmax(14rem,18rem)_1fr]"
         )}
       >
         <aside
           className={cn(
             "flex flex-col border-b border-zinc-800 lg:border-r lg:border-b-0",
-            shotListCollapsed ? "lg:w-9" : "lg:max-w-56"
+            shotListCollapsed ? "lg:w-9" : "lg:max-w-72"
           )}
         >
           <div

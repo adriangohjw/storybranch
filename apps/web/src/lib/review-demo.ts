@@ -254,10 +254,10 @@ function initReviewDemo(root: HTMLElement): void {
       collapsed ? "Expand snapshot list" : "Collapse snapshot list"
     );
     aside?.classList.toggle("lg:w-9", collapsed);
-    aside?.classList.toggle("lg:max-w-56", !collapsed);
+    aside?.classList.toggle("lg:max-w-72", !collapsed);
     main?.classList.toggle("lg:grid-cols-[auto_1fr]", collapsed);
     main?.classList.toggle(
-      "lg:grid-cols-[minmax(11rem,14rem)_1fr]",
+      "lg:grid-cols-[minmax(14rem,18rem)_1fr]",
       !collapsed
     );
   });

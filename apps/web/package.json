@@ -19,6 +19,7 @@
     "astro": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "react-icons": "catalog:",
     "sonner": "catalog:",
     "tailwindcss": "catalog:"
   },
