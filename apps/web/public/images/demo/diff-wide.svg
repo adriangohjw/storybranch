@@ -1,3 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="300" viewBox="0 0 800 300">
-  <rect x="32" y="204" width="124" height="40" rx="8" fill="#ff2bd6" opacity="0.85"/>
+  <defs>
+    <mask id="button" maskUnits="userSpaceOnUse">
+      <rect x="32" y="204" width="124" height="40" rx="8" fill="#fff"/>
+      <text x="48" y="229" fill="#000" font-family="ui-sans-serif,system-ui,sans-serif" font-size="14" font-weight="600">Review diff</text>
+    </mask>
+    <mask id="caption" maskUnits="userSpaceOnUse">
+      <text x="540" y="156" fill="#fff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13">changed - 48 px</text>
+      <text x="540" y="156" fill="#000" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13">changed - 142 px</text>
+    </mask>
+  </defs>
+  <rect x="32" y="204" width="124" height="40" rx="8" fill="#ff2bd6" mask="url(#button)"/>
+  <rect width="800" height="300" fill="#ff2bd6" mask="url(#caption)"/>
 </svg>
