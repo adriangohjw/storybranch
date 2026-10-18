@@ -2,7 +2,7 @@
 
 Local visual diffs for Storybook. Captures stories with Playwright, pixel-diffs them against baselines in git, and opens a review UI on localhost.
 
-Install it as a dev dependency of the Storybook app. Requires [Bun](https://bun.com) 1.4.3+.
+Install it as a dev dependency of the Storybook app. The `storybranch` command runs on [Node.js](https://nodejs.org) 22.18+.
 
 ## Install
 

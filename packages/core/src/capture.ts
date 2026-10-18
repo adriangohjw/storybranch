@@ -1,4 +1,4 @@
-import { mkdir, readdir } from "node:fs/promises";
+import { access, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import {
@@ -250,6 +250,16 @@ function entryKey(entry: ReportEntry): string {
   return entry.storyId;
 }
 
+async function readFileIfPresent(file: string): Promise<Buffer | undefined> {
+  try {
+    await access(file);
+  } catch {
+    return undefined;
+  }
+
+  return await readFile(file);
+}
+
 async function launchBrowser(browserName: BrowserName): Promise<Browser> {
   try {
     if (browserName === "firefox") {
@@ -335,13 +345,13 @@ async function shootStory(
     await page.evaluate(pauseAnimations, shot.pauseAtEnd);
     const png = await stablePng(page, shot);
     const actualPath = path.join(actualDir, filename);
-    await Bun.write(actualPath, png);
+    await writeFile(actualPath, png);
 
     const baselinePath = path.join(baselineDir, filename);
-    const baseline = Bun.file(baselinePath);
+    const baseline = await readFileIfPresent(baselinePath);
     const shotLabel = shot.label;
 
-    if (!(await baseline.exists())) {
+    if (baseline === undefined) {
       failures.push(`missing baseline ${filename}`);
       entries.push({
         actualPath,
@@ -355,7 +365,7 @@ async function shootStory(
       continue;
     }
 
-    const result = comparePng(Buffer.from(await baseline.bytes()), png, {
+    const result = comparePng(baseline, png, {
       includeAA: shot.includeAA,
       threshold: shot.threshold,
     });
@@ -377,7 +387,7 @@ async function shootStory(
 
     if (result.reason === "pixels") {
       diffPath = path.join(diffDir, filename);
-      await Bun.write(diffPath, result.diff);
+      await writeFile(diffPath, result.diff);
     }
 
     failures.push(`${result.reason} ${filename}`);

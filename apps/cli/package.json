@@ -34,7 +34,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "bun build ./src/cli.ts --outfile ./dist/cli.js --target bun --external playwright --external picocolors --external pixelmatch --external pngjs --external ora --external log-update",
+    "build": "bun build ./src/cli.ts --outfile ./dist/cli.js --target node --external playwright --external picocolors --external pixelmatch --external pngjs --external ora --external log-update",
     "format": "oxfmt --check .",
     "format:fix": "oxfmt .",
     "lint": "oxlint .",
@@ -63,6 +63,6 @@
     "oxfmt": "catalog:"
   },
   "engines": {
-    "bun": ">=1.4.3"
+    "node": ">=22.18.0"
   }
 }

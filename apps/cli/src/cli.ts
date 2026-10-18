@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 import { capture } from "@storybranch/core/capture";
 import { loadConfig, parseBrowserList } from "@storybranch/core/config";
 import {
@@ -20,7 +20,7 @@ import {
   spawnDetachedReview,
 } from "@/review-spawn.ts";
 
-const [command, ...args] = Bun.argv.slice(2);
+const [command, ...args] = process.argv.slice(2);
 
 const usage = `storybranch — local visual diffs for Storybook
 
@@ -153,9 +153,7 @@ if (command === "test") {
         openBrowser(reviewUrl);
       }
     } else {
-      console.error(
-        `${pc.yellow("review UI is not built")}; run ${pc.cyan("bun run build")}`
-      );
+      console.error(pc.yellow("review UI is not built"));
     }
   }
 
