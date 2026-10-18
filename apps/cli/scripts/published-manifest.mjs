@@ -14,6 +14,7 @@ export function publishedManifest(pkg) {
   const next = { ...pkg };
   delete next.devDependencies;
   delete next.scripts;
+  next.scripts = { postinstall: "playwright install chromium" };
 
   return next;
 }

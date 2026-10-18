@@ -8,10 +8,8 @@ test("npm is the default install wording", () => {
   );
 });
 
-test("each package manager gets matching playwright and script runners", () => {
-  expect(installCommand("playwright", "pnpm")).toBe(
-    "pnpm exec playwright install chromium"
-  );
+test("each package manager gets a matching script runner", () => {
   expect(installCommand("run", "npm")).toBe("npm run visual");
+  expect(installCommand("run", "pnpm")).toBe("pnpm run visual");
   expect(installCommand("run", "bun")).toBe("bun run visual");
 });

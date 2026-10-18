@@ -10,7 +10,7 @@ Add scripts: `visual` = `storybranch test --url <storybook>`, `visual:review` = 
 
 Commit only `.storybranch/baseline/`. Ignore `.storybranch/actual/`, `.storybranch/diff/`, and `.storybranch/report.json`. Run `npm run visual:approve` only when asked to accept shots. `visual:review` and `--open` are for a person.
 
-Install (npm): `npm install -D @adriangohjw/storybranch`, then `npx playwright install chromium`. pnpm and bun equivalents are on the site install section. Requires Bun 1.4.3+.
+Install (npm): `npm install -D @adriangohjw/storybranch`. That runs `playwright install chromium`. If install scripts are skipped (Bun unless trusted, pnpm unless allowed to build), run `npx playwright install chromium`. Requires Bun 1.4.3+.
 
 ## Docs
 

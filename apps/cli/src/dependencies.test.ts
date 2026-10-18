@@ -24,7 +24,7 @@ test("cli runtime dependencies use the root catalog", async () => {
   }
 });
 
-test("published manifest drops workspace dev dependencies and scripts", () => {
+test("published manifest drops workspace dev dependencies and keeps chromium postinstall", () => {
   const manifest = publishedManifest({
     dependencies: { picocolors: "catalog:" },
     devDependencies: { "@storybranch/core": "workspace:*" },
@@ -35,6 +35,7 @@ test("published manifest drops workspace dev dependencies and scripts", () => {
   expect(manifest).toEqual({
     dependencies: { picocolors: "catalog:" },
     name: "@adriangohjw/storybranch",
+    scripts: { postinstall: "playwright install chromium" },
   });
 });
 

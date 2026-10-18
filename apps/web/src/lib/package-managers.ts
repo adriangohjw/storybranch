@@ -10,11 +10,7 @@ export const PACKAGE_MANAGER_LABEL: Record<PackageManager, string> = {
 
 const PACKAGE = "@adriangohjw/storybranch";
 
-export type InstallCommandKind =
-  | "addPackage"
-  | "installPlaywright"
-  | "playwright"
-  | "run";
+export type InstallCommandKind = "addPackage" | "run";
 
 export function installCommand(
   kind: InstallCommandKind,
@@ -33,18 +29,6 @@ export function installCommand(
       return `bun add -d ${PACKAGE}`;
     }
 
-    case "playwright": {
-      if (pm === "npm") {
-        return "npx playwright install chromium";
-      }
-
-      if (pm === "pnpm") {
-        return "pnpm exec playwright install chromium";
-      }
-
-      return "bunx playwright install chromium";
-    }
-
     case "run": {
       if (pm === "npm") {
         return "npm run visual";
@@ -55,10 +39,6 @@ export function installCommand(
       }
 
       return "bun run visual";
-    }
-
-    case "installPlaywright": {
-      return `${installCommand("addPackage", pm)} && ${installCommand("playwright", pm)}`;
     }
 
     default: {

@@ -8,10 +8,9 @@ Install it as a dev dependency of the Storybook app. Requires [Bun](https://bun.
 
 ```bash
 npm install -D @adriangohjw/storybranch
-npx playwright install chromium
 ```
 
-(`pnpm add -D` / `pnpm run`, or `bun add -d` / `bun run`, work too.)
+(`pnpm add -D` or `bun add -d` work too.) Install runs `playwright install chromium`. If the package manager skips lifecycle scripts, run `npx playwright install chromium` (`pnpm exec` / `bunx`). Bun needs `@adriangohjw/storybranch` in `trustedDependencies`.
 
 ## Scripts
 

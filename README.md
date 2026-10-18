@@ -61,22 +61,21 @@ Install `@adriangohjw/storybranch` as a dev dependency of the Storybook app you 
 
 ```bash
 npm install -D @adriangohjw/storybranch
-npx playwright install chromium
 ```
 
 **pnpm**:
 
 ```bash
 pnpm add -D @adriangohjw/storybranch
-pnpm exec playwright install chromium
 ```
 
 **bun**:
 
 ```bash
 bun add -d @adriangohjw/storybranch
-bunx playwright install chromium
 ```
+
+The published package’s `postinstall` runs `playwright install chromium`. Bun skips that unless `@adriangohjw/storybranch` is in `trustedDependencies`. pnpm skips it unless the package is allowed to build. If the script did not run, install Chromium yourself: `npx playwright install chromium` (`pnpm exec playwright install chromium`, `bunx playwright install chromium`).
 
 Publish from the repo root with `bun run publish:cli` when you are ready to put it on npm (see [Publish](#publish)).
 
@@ -265,7 +264,7 @@ bun run test          # unit tests + Playwright e2e (install Chromium first)
 The npm package is `@adriangohjw/storybranch` (`apps/cli` only). The `storybranch` command comes from the package `bin`.
 
 - **`prepublishOnly`** — runs fast CLI unit tests before publish (run `bun run test` from the repo root before releasing).
-- **`prepack`** — builds the review UI, bundles the CLI (so `@storybranch/core` and `@storybranch/report` are not separate installs), copies the repo `LICENSE`, and strips workspace `devDependencies` and monorepo `scripts` from the manifest on disk.
+- **`prepack`** — builds the review UI, bundles the CLI (so `@storybranch/core` and `@storybranch/report` are not separate installs), copies the repo `LICENSE`, drops workspace `devDependencies`, and replaces monorepo `scripts` with `postinstall` (`playwright install chromium`).
 - **`postpack`** — restores `apps/cli/package.json`.
 - **Packing** — Bun resolves `catalog:` dependency ranges from the root catalog when the tarball is created.
 
