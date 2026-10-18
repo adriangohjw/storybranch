@@ -44,7 +44,10 @@ interface ViewerEmptyStateProps {
   kind: ViewerEmptyKind;
 }
 
-export const ViewerEmptyState = ({ className, kind }: ViewerEmptyStateProps) => {
+export const ViewerEmptyState = ({
+  className,
+  kind,
+}: ViewerEmptyStateProps) => {
   const { icon: Icon, subtitle, title } = copy[kind];
 
   return (
@@ -58,7 +61,9 @@ export const ViewerEmptyState = ({ className, kind }: ViewerEmptyStateProps) => 
         aria-hidden
         className="flex size-14 items-center justify-center rounded-full border border-zinc-800 bg-zinc-900/80 text-zinc-300"
       >
-        <Icon className={cn("size-7", kind === "report-loading" && "animate-spin")} />
+        <Icon
+          className={cn("size-7", kind === "report-loading" && "animate-spin")}
+        />
       </span>
       <p className="text-lg font-semibold text-zinc-100">{title}</p>
       {subtitle === undefined ? null : (

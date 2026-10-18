@@ -1,4 +1,5 @@
-import { useCallback, useState, type SyntheticEvent } from "react";
+import type { SyntheticEvent } from "react";
+import { useCallback, useState } from "react";
 
 import { cn } from "@/lib/cn.ts";
 
@@ -21,16 +22,13 @@ export const SnapshotFrame = ({
 }: SnapshotFrameProps) => {
   const [aspectRatio, setAspectRatio] = useState<string | undefined>();
 
-  const onImageLoad = useCallback(
-    (event: SyntheticEvent<HTMLImageElement>) => {
-      const img = event.currentTarget;
+  const onImageLoad = useCallback((event: SyntheticEvent<HTMLImageElement>) => {
+    const img = event.currentTarget;
 
-      if (img.naturalWidth > 0 && img.naturalHeight > 0) {
-        setAspectRatio(`${img.naturalWidth} / ${img.naturalHeight}`);
-      }
-    },
-    []
-  );
+    if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+      setAspectRatio(`${img.naturalWidth} / ${img.naturalHeight}`);
+    }
+  }, []);
 
   if (src === undefined || src.length === 0) {
     return (
@@ -48,7 +46,7 @@ export const SnapshotFrame = ({
   return (
     <div
       className={cn(
-        "checker-surface relative w-full min-h-32 overflow-hidden rounded-md border border-zinc-800",
+        "checker-surface relative min-h-32 w-full overflow-hidden rounded-md border border-zinc-800",
         className
       )}
       style={aspectRatio === undefined ? undefined : { aspectRatio }}

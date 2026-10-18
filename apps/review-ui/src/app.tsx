@@ -61,31 +61,28 @@ export const App = () => {
     return report.entries.filter((entry) => matchesFilter(entry, filter));
   }, [filter, report]);
 
-  const selected: ReportEntry | null = useMemo(() => {
-    if (selectedFilename === null) {
+  const activeFilename = useMemo(() => {
+    if (visible.length === 0) {
       return null;
     }
 
-    return (
-      visible.find((entry) => entry.filename === selectedFilename) ?? null
-    );
-  }, [selectedFilename, visible]);
-
-  useEffect(() => {
-    if (visible.length === 0) {
-      setSelectedFilename(null);
-
-      return;
+    if (
+      selectedFilename !== null &&
+      visible.some((entry) => entry.filename === selectedFilename)
+    ) {
+      return selectedFilename;
     }
 
-    const stillVisible = visible.some(
-      (entry) => entry.filename === selectedFilename
-    );
-
-    if (!stillVisible) {
-      setSelectedFilename(visible[0]?.filename ?? null);
-    }
+    return visible[0]?.filename ?? null;
   }, [selectedFilename, visible]);
+
+  const selected: ReportEntry | null = useMemo(() => {
+    if (activeFilename === null) {
+      return null;
+    }
+
+    return visible.find((entry) => entry.filename === activeFilename) ?? null;
+  }, [activeFilename, visible]);
 
   return (
     <div className="min-h-full font-sans leading-normal">
@@ -180,7 +177,7 @@ export const App = () => {
                 entries={visible}
                 onAccept={refreshReport}
                 onSelect={setSelectedFilename}
-                selectedFilename={selectedFilename}
+                selectedFilename={activeFilename}
               />
             </div>
           )}

@@ -5,14 +5,16 @@ const statusBadgeClass = {
 } as const;
 
 const headerBadgeClass = {
-  approved: "rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase bg-violet-500/20 text-violet-300",
+  approved:
+    "rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase bg-violet-500/20 text-violet-300",
   changed:
     "rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase bg-amber-500/20 text-amber-300",
-  new:
-    "rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase bg-sky-500/20 text-sky-300",
+  new: "rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase bg-sky-500/20 text-sky-300",
   unchanged:
     "rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase bg-emerald-500/20 text-emerald-300",
 } as const;
+
+const shotBrowserPattern = /__(?<browser>chrome|firefox|edge)\.png$/iu;
 
 function statusBadgeClassFor(status: string): string {
   if (status === "new") {
@@ -29,7 +31,7 @@ function pendingApproval(status: string): boolean {
   return status === "new" || status === "changed";
 }
 
-function storyPartsFromId(storyId: string): { component: string; story: string } {
+function storyPartsFromId(storyId: string) {
   const marker = "--";
   const index = storyId.indexOf(marker);
 
@@ -43,8 +45,33 @@ function storyPartsFromId(storyId: string): { component: string; story: string }
   };
 }
 
+function headerBadgeClassFor(displayStatus: string): string {
+  switch (displayStatus) {
+    case "approved": {
+      return headerBadgeClass.approved;
+    }
+
+    case "changed": {
+      return headerBadgeClass.changed;
+    }
+
+    case "new": {
+      return headerBadgeClass.new;
+    }
+
+    case "unchanged": {
+      return headerBadgeClass.unchanged;
+    }
+
+    default: {
+      return headerBadgeClass.changed;
+    }
+  }
+}
+
 function browserFromShot(id: string, label: string): string {
-  const fromId = id.match(/__(chrome|firefox|edge)\.png$/i)?.[1];
+  const match = shotBrowserPattern.exec(id);
+  const fromId = match?.groups?.browser;
 
   if (fromId !== undefined) {
     return fromId;
@@ -81,6 +108,16 @@ function matchesFilter(
 
 function rowApproved(row: HTMLElement): boolean {
   return row.dataset.approved === "1";
+}
+
+function replayEmptyIconPop(icon: HTMLElement | null): void {
+  if (icon === null) {
+    return;
+  }
+
+  icon.classList.remove("review-demo-empty-pop");
+  void icon.offsetWidth;
+  icon.classList.add("review-demo-empty-pop");
 }
 
 function setRowActionButtons(row: HTMLElement, approved: boolean): void {
@@ -145,7 +182,10 @@ function initReviewDemo(root: HTMLElement): void {
   const actualImg = root.querySelector<HTMLImageElement>("[data-actual-img]");
   const diffImg = root.querySelector<HTMLImageElement>("[data-diff-img]");
 
-  const baselineEmpty = root.querySelector<HTMLElement>("[data-baseline-empty]");
+  const baselineEmpty = root.querySelector<HTMLElement>(
+    "[data-baseline-empty]"
+  );
+
   const diffControls = root.querySelector<HTMLElement>("[data-diff-controls]");
 
   const diffToggle =
@@ -154,12 +194,15 @@ function initReviewDemo(root: HTMLElement): void {
   const diffKnob = root.querySelector<HTMLElement>("[data-diff-knob]");
   const comparison = root.querySelector<HTMLElement>("[data-comparison]");
   const emptyState = root.querySelector<HTMLElement>("[data-empty-state]");
+
   const emptyIconAttention = root.querySelector<HTMLElement>(
     "[data-empty-icon-attention]"
   );
+
   const emptyIconFilter = root.querySelector<HTMLElement>(
     "[data-empty-icon-filter]"
   );
+
   const emptyTitle = root.querySelector<HTMLElement>("[data-empty-title]");
 
   const emptySubtitle = root.querySelector<HTMLElement>(
@@ -179,15 +222,22 @@ function initReviewDemo(root: HTMLElement): void {
   const previewFrame = root.querySelector<HTMLElement>("[data-preview-frame]");
 
   const headerBadge = root.querySelector<HTMLElement>("[data-header-badge]");
-  const headerBrowser = root.querySelector<HTMLElement>("[data-header-browser]");
+
+  const headerBrowser = root.querySelector<HTMLElement>(
+    "[data-header-browser]"
+  );
+
   const headerComponent = root.querySelector<HTMLElement>(
     "[data-header-component]"
   );
+
   const headerStory = root.querySelector<HTMLElement>("[data-header-story]");
   const headerLabel = root.querySelector<HTMLElement>("[data-header-label]");
+
   const headerFilename = root.querySelector<HTMLElement>(
     "[data-header-filename]"
   );
+
   const viewerAccept = root.querySelector<HTMLButtonElement>(
     "[data-viewer-accept]"
   );
@@ -264,14 +314,12 @@ function initReviewDemo(root: HTMLElement): void {
   function syncSnapshotHeader(button: HTMLButtonElement): void {
     const row = button.closest<HTMLElement>("[data-shot-row]");
     const status = row?.dataset.status ?? button.dataset.status ?? "changed";
-    const approved = row !== null && row !== undefined && rowApproved(row);
+    const approved = row !== null && rowApproved(row);
     const displayStatus = approved ? "approved" : status;
 
     if (headerBadge !== null) {
       headerBadge.textContent = displayStatus;
-      headerBadge.className =
-        headerBadgeClass[displayStatus as keyof typeof headerBadgeClass] ??
-        headerBadgeClass.changed;
+      headerBadge.className = headerBadgeClassFor(displayStatus);
     }
 
     const storyId = button.dataset.storyId ?? "";
@@ -366,16 +414,6 @@ function initReviewDemo(root: HTMLElement): void {
     return value === "attention" && pendingAttentionRows().length === 0;
   }
 
-  function replayEmptyIconPop(icon: HTMLElement | null): void {
-    if (icon === null) {
-      return;
-    }
-
-    icon.classList.remove("review-demo-empty-pop");
-    void icon.offsetWidth;
-    icon.classList.add("review-demo-empty-pop");
-  }
-
   function showEmptyViewer(): void {
     comparison?.classList.add("hidden");
     emptyState?.classList.remove("hidden");
@@ -451,20 +489,20 @@ function initReviewDemo(root: HTMLElement): void {
 
     const stillSelected = visible.some((row) => row.dataset.id === selectedId);
 
-    if (!stillSelected) {
-      const first =
-        visible[0]?.querySelector<HTMLButtonElement>("[data-select]");
-
-      if (first !== undefined && first !== null) {
-        selectShot(first);
-      }
-    } else {
+    if (stillSelected) {
       const selected = selectButtons.find(
         (button) => button.dataset.id === selectedId
       );
 
       if (selected !== undefined) {
         syncSnapshotHeader(selected);
+      }
+    } else {
+      const first =
+        visible[0]?.querySelector<HTMLButtonElement>("[data-select]");
+
+      if (first !== undefined && first !== null) {
+        selectShot(first);
       }
     }
   }

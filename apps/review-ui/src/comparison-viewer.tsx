@@ -11,10 +11,8 @@ import { acceptShot } from "@/api.ts";
 import { cn } from "@/lib/cn.ts";
 import { badgeTone, needsAttention } from "@/lib/report-ui.ts";
 import { SnapshotFrame } from "@/snapshot-frame.tsx";
-import {
-  ViewerEmptyState,
-  type ViewerEmptyKind,
-} from "@/viewer-empty-state.tsx";
+import type { ViewerEmptyKind } from "@/viewer-empty-state.tsx";
+import { ViewerEmptyState } from "@/viewer-empty-state.tsx";
 
 interface ComparisonViewerProps {
   entry: ReportEntry | null;
@@ -105,8 +103,7 @@ export const ComparisonViewer = ({
   const browser = browserFor(entry);
   const label = shotLabelFor(entry);
 
-  const canAccept =
-    needsAttention(entry.status) && entry.status !== "error";
+  const canAccept = needsAttention(entry.status) && entry.status !== "error";
 
   return (
     <div className="space-y-5">
@@ -129,7 +126,7 @@ export const ComparisonViewer = ({
             {story}
           </h2>
           <p className="text-sm text-zinc-400">{label}</p>
-          <p className="font-mono text-xs text-zinc-500 break-all">
+          <p className="font-mono text-xs break-all text-zinc-500">
             {entry.filename}
           </p>
         </div>
@@ -137,8 +134,14 @@ export const ComparisonViewer = ({
           <button
             className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
             onClick={() => {
+              const { filename } = entry;
+
+              if (filename === undefined) {
+                return;
+              }
+
               void (async () => {
-                await acceptShot(entry.filename!);
+                await acceptShot(filename);
                 onAccept();
               })();
             }}
@@ -215,9 +218,7 @@ export const ComparisonViewer = ({
             alt="This scan"
             emptyLabel="No capture image"
             overlaySrc={
-              hasDiff && diffOverlay
-                ? `/images/diff/${file}`
-                : undefined
+              hasDiff && diffOverlay ? `/images/diff/${file}` : undefined
             }
             src={
               entry.actualPath === undefined
