@@ -29,7 +29,7 @@ Install as a dev dependency. Typical package scripts:
   visual:review   storybranch review
   visual:approve  storybranch approve
 
-  storybranch test --url <storybook> [--browsers chrome,firefox,edge] [--parallel-browsers] [--cwd <pkg>] [--open] [--review] [--port <n>]
+  storybranch test --url <storybook> [--browsers chrome,firefox,edge,safari] [--parallel-browsers] [--cwd <pkg>] [--open] [--review] [--port <n>]
   storybranch review [--cwd <pkg>] [--open] [--once] [--port <n>]
   storybranch approve [--cwd <pkg>]
 
@@ -48,6 +48,9 @@ A clean run prints ok (non-TTY stdout). Inventory: .storybranch/report.json unde
 Commit .storybranch/baseline/. Ignore actual/, diff/, and report.json.
 The first run marks every shot as new. approve copies actuals into baseline/.
 review and --open are for a person. Read the report and run approve only when asked to accept.
+safari (alias webkit) launches Playwright WebKit, not Apple Safari. Install it with playwright install webkit.
+Linux WebKit screenshots do not match macOS: different compositing, fonts, and image format. Pin one OS for those baselines.
+Linux CI is the cheaper WebKit check. A macOS runner is the closer Safari check. Neither is iOS Safari.
 `;
 
 if (command === undefined || command === "--help" || command === "-h") {
@@ -104,7 +107,7 @@ if (command === "test") {
 
   if (url === undefined || url === "") {
     console.error(
-      "usage: storybranch test --url <storybook> [--browsers chrome,firefox,edge] [--parallel-browsers] [--cwd <pkg>] [--open] [--review] [--port <n>]\nrun storybranch --help for exit codes and the files to commit"
+      "usage: storybranch test --url <storybook> [--browsers chrome,firefox,edge,safari] [--parallel-browsers] [--cwd <pkg>] [--open] [--review] [--port <n>]\nrun storybranch --help for exit codes and the files to commit"
     );
     process.exit(1);
   }

@@ -78,7 +78,12 @@ export function browserFromFilename(filename: string): string | undefined {
 
   const browser = stem.slice(index + marker.length);
 
-  if (browser === "chrome" || browser === "firefox" || browser === "edge") {
+  if (
+    browser === "chrome" ||
+    browser === "firefox" ||
+    browser === "edge" ||
+    browser === "safari"
+  ) {
     return browser;
   }
 

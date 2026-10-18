@@ -115,7 +115,7 @@ Proof rules:
 - An approve is proved by stdout `updated 1, removed 0` and that PNG appearing under `.storybranch/baseline/`.
 - A clean rerun is proved by exit 0, stdout `ok`, empty failure stderr, and every report entry `unchanged`.
 - Accept in the browser is proved by the `Accept` click, then a second view: the baseline file exists and `/api/report` (or the reloaded heading and status text) shows `unchanged`.
-- Chrome is the browser this harness installs. Firefox and Edge are real CLI flags. Do not claim them verified unless that browser is installed and `--browsers` included it.
+- Chrome is the browser this harness installs. Firefox, Edge, and Safari (`webkit` is an alias) are real CLI flags. Do not claim them verified unless that browser is installed and `--browsers` included it. Safari launches Playwright WebKit, not Apple Safari. Linux WebKit screenshots do not match macOS.
 - There is no dry-run mode. `test` always screenshots and writes `actual/` and `report.json`.
 
 ## Cleanup

@@ -52,7 +52,7 @@ Related behavior:
 - **Baselines in git** — Reference images are normal files; PRs show baseline updates like any other asset change.
 - **Offline-friendly local runs** — After install, capture and review against a local Storybook work without reaching a hosted visual-testing service.
 - **Chromatic modes** — Multiple snapshots per story via [modes](https://www.chromatic.com/docs/modes/) naming, aligned with how Chromatic labels variant viewports/themes.
-- **Chrome, Firefox, and Edge** — Each shot is `{storyId}__{label}__{browser}.png`. The default browser is `chrome`. Add `firefox` and `edge` in config or with `--browsers`.
+- **Chrome, Firefox, Edge, and Safari** — Each shot is `{storyId}__{label}__{browser}.png`. The default browser is `chrome`. Add `firefox`, `edge`, and `safari` in config or with `--browsers`. `webkit` is an alias for `safari` and writes `__safari.png`.
 
 ## Install
 
@@ -76,7 +76,7 @@ pnpm add -D @adriangohjw/storybranch
 bun add -d @adriangohjw/storybranch
 ```
 
-The published package’s `postinstall` runs `playwright install chromium` (the `chrome` snapshot). Bun skips that unless `@adriangohjw/storybranch` is in `trustedDependencies`. pnpm skips it unless the package is allowed to build. If the script did not run, install Chromium yourself: `npx playwright install chromium` (`pnpm exec playwright install chromium`, `bunx playwright install chromium`). Firefox and Edge are not part of that install. When you select them, also run `npx playwright install firefox` and `npx playwright install msedge`.
+The published package’s `postinstall` runs `playwright install chromium` (the `chrome` snapshot). Bun skips that unless `@adriangohjw/storybranch` is in `trustedDependencies`. pnpm skips it unless the package is allowed to build. If the script did not run, install Chromium yourself: `npx playwright install chromium` (`pnpm exec playwright install chromium`, `bunx playwright install chromium`). Firefox, Edge, and Safari are not part of that install. When you select them, also run `npx playwright install firefox`, `npx playwright install msedge`, and `npx playwright install webkit`.
 
 Publish from the repo root with `bun run publish:cli` when you are ready to put it on npm (see [Publish](#publish)).
 
@@ -106,12 +106,14 @@ That script captures **Chrome** only. To capture more browsers, add `storybranch
 
 ```json
 {
-  "browsers": ["chrome", "firefox", "edge"],
+  "browsers": ["chrome", "firefox", "edge", "safari"],
   "captureParallel": false
 }
 ```
 
 A TypeScript file default-exports the same fields. `captureParallel: true` runs the selected browsers at the same time; the default is one browser after another. One run can override the file: `npm run visual -- --browsers chrome,firefox` and `npm run visual -- --parallel-browsers`.
+
+`safari` (and the alias `webkit`) launches Playwright’s WebKit build, not Apple Safari. Playwright does not drive branded Safari. On Linux and Windows that build uses a different network stack and compositor than macOS, so screenshots do not match a macOS capture (fonts, painting, and PNG details such as the alpha channel). Layout and JavaScript still follow WebKit. Linux CI, including this repo’s `ubuntu-latest` WebKit job, is the cheaper check for WebKit regressions. A macOS runner is the closer stand-in for desktop Safari. Neither is iOS Safari. Capture Safari baselines on one OS and keep CI on that OS.
 
 `visual` exits 1 when a snapshot needs attention. In a terminal you get the scan line, the attention summary, one `->` row per snapshot, and `storybranch review at http://127.0.0.1:4321` when the review UI is available. In CI or other non-TTY runs you get `missing baseline <file.png>`, `pixels <file.png>`, `size <file.png>`, or `stale <file.png>` (one per snapshot). A clean run prints `ok`. The inventory is `.storybranch/report.json`.
 
@@ -137,7 +139,7 @@ Paste this into the Storybook app’s `AGENTS.md`. `@adriangohjw/storybranch` is
 `@adriangohjw/storybranch` is a dev dependency. Storybook must already be running at your `--url`. Run `npm run visual` from the package that has `.storybook/` (or pass `--cwd`). (`pnpm run visual` or `bun run visual`.)
 
 - `visual` runs `storybranch test --url <storybook>`. Exit 1 means a visual diff. In a terminal: scan time, status summary, and one `->` row per snapshot, plus `storybranch review at …`. In CI/non-TTY: `missing baseline`, `pixels`, `size`, `stale` per snapshot. A clean run prints `ok`.
-- Default browser is `chrome`. Filenames end in `__chrome.png`, `__firefox.png`, or `__edge.png`. Extra browsers come from `storybranch.config.json` or `storybranch.config.ts` in that package, or from `--browsers`.
+- Default browser is `chrome`. Filenames end in `__chrome.png`, `__firefox.png`, `__edge.png`, or `__safari.png`. Extra browsers come from `storybranch.config.json` or `storybranch.config.ts` in that package, or from `--browsers`. `webkit` is an alias for `safari`. Linux WebKit shots do not match macOS; pin the runner OS.
 - Read `.storybranch/report.json` in that package (`new`, `changed`, `unchanged`, `stale`, `error`).
 - The first run marks every shot as `new` in the summary (or `missing baseline` lines in CI).
 - Commit only `.storybranch/baseline/` in that package. Ignore `actual/`, `diff/`, and `report.json`.
@@ -223,7 +225,7 @@ See [How it works](#how-it-works) for screenshots. On a run with **missing / cha
 
 | Script | Effect |
 | --- | --- |
-| `--browsers chrome,firefox,edge` | Browsers for this run (default `chrome`; overrides `storybranch.config.json` or `storybranch.config.ts` in the package) |
+| `--browsers chrome,firefox,edge,safari` | Browsers for this run (default `chrome`; overrides `storybranch.config.json` or `storybranch.config.ts` in the package). `webkit` is an alias for `safari` |
 | `--parallel-browsers` | Capture each browser at the same time (default is one browser after another; also `captureParallel` in config) |
 | `--cwd <path>` | Resolve the Storybook package from this path (walks up to `package.json` + `.storybook/`) |
 | `STORYBRANCH_ROOT` | Same as `--cwd` for all commands (env wins over process cwd, loses to `--cwd`) |
@@ -268,7 +270,7 @@ lefthook.yml
 
 ```bash
 bun install           # runs `lefthook install` via prepare (skipped when CI=true)
-bunx playwright install chromium firefox msedge
+bunx playwright install chromium firefox msedge webkit
 bun run build         # review UI, package bundle (bin loads dist/cli.js), and marketing site
 bunx storybook dev -p 6006 --config-dir packages/fixture/.storybook
 bun run visual          # fixture app runs the built storybranch bin
@@ -277,7 +279,7 @@ bun run lint:fix
 bun run format        # turbo run format (per-package oxfmt)
 bun run format:fix
 bun run typecheck     # turbo run typecheck (per-package `bun check`; requires Bun 1.4.3+)
-bun run test          # unit tests + Playwright e2e (install Chromium, Firefox, and Edge first)
+bun run test          # unit tests + Playwright e2e (install Chromium, Firefox, Edge, and WebKit first)
 ```
 
 ### Publish

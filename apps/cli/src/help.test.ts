@@ -15,4 +15,7 @@ test("help prints the usage contract", async () => {
   expect(stdout).toContain(".storybranch/baseline/");
   expect(stdout).toContain("report.json");
   expect(stdout).toContain("first run");
+  expect(stdout).toContain("safari");
+  expect(stdout).toContain("webkit");
+  expect(stdout).toContain("Linux");
 });

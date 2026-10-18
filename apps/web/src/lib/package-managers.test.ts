@@ -1,6 +1,12 @@
 import { expect, test } from "bun:test";
 
-import { installCommand } from "@/lib/package-managers.ts";
+import { agentsMarkdown, installCommand } from "@/lib/package-managers.ts";
+
+test("agent notes name safari and the linux webkit limit", () => {
+  const notes = agentsMarkdown("npm");
+  expect(notes).toContain("__safari.png");
+  expect(notes).toContain("Linux WebKit");
+});
 
 test("npm is the default install wording", () => {
   expect(installCommand("addPackage", "npm")).toBe(

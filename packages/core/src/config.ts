@@ -1,6 +1,6 @@
 import path from "node:path";
 
-export const BROWSER_NAMES = ["chrome", "firefox", "edge"] as const;
+export const BROWSER_NAMES = ["chrome", "firefox", "edge", "safari"] as const;
 
 export type BrowserName = (typeof BROWSER_NAMES)[number];
 
@@ -20,16 +20,18 @@ const TS_NAME = "storybranch.config.ts";
 export function parseBrowserList(names: readonly string[]): BrowserName[] {
   if (names.length === 0) {
     throw new Error(
-      "browsers must be a non-empty list of chrome, firefox, edge"
+      "browsers must be a non-empty list of chrome, firefox, edge, safari"
     );
   }
 
   const seen = new Set<string>();
   const browsers: BrowserName[] = [];
 
-  for (const name of names) {
-    if (!isBrowserName(name)) {
-      throw new Error(`unknown browser ${name}`);
+  for (const raw of names) {
+    const name = canonicalBrowser(raw);
+
+    if (name === undefined) {
+      throw new Error(`unknown browser ${raw}`);
     }
 
     if (seen.has(name)) {
@@ -92,6 +94,10 @@ export function installHint(browser: BrowserName): string {
     return "bunx playwright install msedge";
   }
 
+  if (browser === "safari") {
+    return "bunx playwright install webkit";
+  }
+
   return "bunx playwright install chromium";
 }
 
@@ -147,8 +153,27 @@ function isStringArray(value: unknown): value is string[] {
   return true;
 }
 
+function canonicalBrowser(value: string): BrowserName | undefined {
+  // ponytail: one filename. webkit is the Playwright engine name for safari.
+  if (value === "webkit") {
+    return "safari";
+  }
+
+  if (isBrowserName(value)) {
+    return value;
+  }
+
+  return undefined;
+}
+
 function isBrowserName(value: string): value is BrowserName {
-  return value === "chrome" || value === "firefox" || value === "edge";
+  for (const name of BROWSER_NAMES) {
+    if (name === value) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 function hasDefaultExport(value: unknown): value is { default: unknown } {
