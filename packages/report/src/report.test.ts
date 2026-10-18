@@ -6,6 +6,7 @@ import path from "node:path";
 import {
   acceptAllAttention,
   acceptEntry,
+  attentionSummary,
   needsAttention,
   readReport,
   shotLabelFromFilename,
@@ -27,6 +28,42 @@ test("needsAttention marks non-unchanged statuses", () => {
   expect(needsAttention("unchanged")).toBe(false);
   expect(needsAttention("changed")).toBe(true);
   expect(needsAttention("stale")).toBe(true);
+});
+
+test("attentionSummary formats status counts", () => {
+  const report: Report = {
+    actualDir: "/tmp/actual",
+    commit: "abc",
+    createdAt: new Date().toISOString(),
+    entries: [
+      {
+        filename: "a.png",
+        shotLabel: "x",
+        status: "new",
+        storyId: "a",
+      },
+      {
+        filename: "b.png",
+        shotLabel: "y",
+        status: "changed",
+        storyId: "b",
+      },
+      {
+        filename: "c.png",
+        shotLabel: "z",
+        status: "unchanged",
+        storyId: "c",
+      },
+    ],
+    root: "/tmp",
+  };
+
+  expect(attentionSummary(report)).toBe(
+    "2 snapshots need attention · 1 new · 1 changed · 1 unchanged"
+  );
+  expect(
+    attentionSummary({ ...report, entries: [report.entries[2]!] })
+  ).toBeNull();
 });
 
 test("acceptEntry promotes actual and clears attention", async () => {

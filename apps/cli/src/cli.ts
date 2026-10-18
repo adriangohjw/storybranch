@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import { capture } from "@storybranch/core/capture";
 import { promoteActuals } from "@storybranch/core/images";
-import { reportHasAttention } from "@storybranch/report";
+import { attentionSummary, reportHasAttention } from "@storybranch/report";
 import pc from "picocolors";
 
 import { reviewUiBuilt } from "@/review-server.ts";
@@ -25,14 +25,12 @@ Install as a dev dependency. Typical package scripts:
   storybranch review [--open] [--once] [--port <n>]
   storybranch approve
 
-test exits 1 when a snapshot needs attention:
-  missing baseline <file.png>
-  pixels <file.png>
-  size <file.png>
-  stale <file.png>
-A clean run prints ok. Inventory: .storybranch/report.json
+test exits 1 when a snapshot needs attention.
+In a terminal: a one-line summary (counts by status) and storybranch review at … when the review UI is available.
+In CI / non-TTY: missing baseline <file.png>, pixels <file.png>, size <file.png>, stale <file.png> (one per snapshot).
+A clean run prints ok (non-TTY stdout). Inventory: .storybranch/report.json
 Commit .storybranch/baseline/. Ignore actual/, diff/, and report.json.
-The first run is missing baseline for every shot. approve copies actuals into baseline/.
+The first run marks every shot as new. approve copies actuals into baseline/.
 review and --open are for a person. Read the report and run approve only when asked to accept.
 `;
 
@@ -90,12 +88,14 @@ if (command === "test") {
   const attention = reportHasAttention(report);
   const offerReview = attention || flag("--review");
   const port = portFromArgs();
+  let reviewAvailable = false;
 
   if (offerReview) {
     if (await reviewUiBuilt()) {
       spawnDetachedReview(process.cwd(), port, false);
       const reviewUrl = `http://127.0.0.1:${port}`;
       console.log(`storybranch review at ${reviewUrl}`);
+      reviewAvailable = true;
 
       if (flag("--open")) {
         openBrowser(reviewUrl);
@@ -108,12 +108,17 @@ if (command === "test") {
   }
 
   if (failures.length > 0) {
-    if (process.stderr.isTTY) {
-      console.error(`\n${pc.bold("Failures:")}`);
+    const tty = process.stderr.isTTY;
+    const summary = attentionSummary(report);
+
+    if (tty && summary !== null) {
+      console.error(`\n${summary}`);
     }
 
-    for (const failure of failures) {
-      console.error(failure);
+    if (!tty || !reviewAvailable) {
+      for (const failure of failures) {
+        console.error(failure);
+      }
     }
 
     process.exit(1);

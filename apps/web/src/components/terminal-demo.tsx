@@ -8,8 +8,7 @@ export function TerminalDemo() {
   const lines = [
     visual,
     "storybranch review at http://127.0.0.1:4321",
-    "missing baseline button--default__1200x900.png",
-    "pixels button--modes__narrow.png",
+    "2 snapshots need attention · 1 new · 1 changed",
   ];
 
   return (
@@ -33,8 +32,6 @@ export function TerminalDemo() {
         <span className="text-[#7dd3c0]">{lines[1]}</span>
         {"\n"}
         <span className="text-warn">{lines[2]}</span>
-        {"\n"}
-        <span className="text-bad">{lines[3]}</span>
       </pre>
     </div>
   );

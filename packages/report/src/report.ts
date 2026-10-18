@@ -54,6 +54,68 @@ export function reportHasAttention(report: Report): boolean {
   return report.entries.some((entry) => needsAttention(entry.status));
 }
 
+export function attentionSummary(report: Report): string | null {
+  let newCount = 0;
+  let changed = 0;
+  let stale = 0;
+  let error = 0;
+  let unchanged = 0;
+
+  for (const entry of report.entries) {
+    switch (entry.status) {
+      case "new":
+        newCount += 1;
+        break;
+      case "changed":
+        changed += 1;
+        break;
+      case "stale":
+        stale += 1;
+        break;
+      case "error":
+        error += 1;
+        break;
+      case "unchanged":
+        unchanged += 1;
+        break;
+      default:
+        break;
+    }
+  }
+
+  const attention = newCount + changed + stale + error;
+
+  if (attention === 0) {
+    return null;
+  }
+
+  const parts = [
+    `${attention} snapshot${attention === 1 ? "" : "s"} need attention`,
+  ];
+
+  if (newCount > 0) {
+    parts.push(`${newCount} new`);
+  }
+
+  if (changed > 0) {
+    parts.push(`${changed} changed`);
+  }
+
+  if (stale > 0) {
+    parts.push(`${stale} stale`);
+  }
+
+  if (error > 0) {
+    parts.push(`${error} error`);
+  }
+
+  if (unchanged > 0) {
+    parts.push(`${unchanged} unchanged`);
+  }
+
+  return parts.join(" · ");
+}
+
 export function reportPath(root: string): string {
   return path.join(root, REPORT_PATH);
 }

@@ -101,9 +101,9 @@ npm run visual
 
 (`pnpm run visual` or `bun run visual` if you use those package managers.)
 
-`visual` exits 1 when a snapshot needs attention. Failure lines are `missing baseline <file.png>`, `pixels <file.png>`, `size <file.png>`, or `stale <file.png>`. A clean run prints `ok`. The inventory is `.storybranch/report.json`. A run that needs a person also prints `storybranch review at http://127.0.0.1:4321`.
+`visual` exits 1 when a snapshot needs attention. In a terminal you get a one-line summary (counts by status) and `storybranch review at http://127.0.0.1:4321` when the review UI is available. In CI or other non-TTY runs you get `missing baseline <file.png>`, `pixels <file.png>`, `size <file.png>`, or `stale <file.png>` (one per snapshot). A clean run prints `ok`. The inventory is `.storybranch/report.json`.
 
-The first run exits 1 with `missing baseline` for every shot. That is the baseline set, not a failed install. `approve` copies actuals into `.storybranch/baseline/`. Commit that directory and ignore the rest:
+The first run exits 1 with every shot marked `new` (or `missing baseline` lines in CI). That is the baseline set, not a failed install. `approve` copies actuals into `.storybranch/baseline/`. Commit that directory and ignore the rest:
 
 ```gitignore
 .storybranch/actual/
@@ -122,9 +122,9 @@ Paste this into the Storybook app’s `AGENTS.md`. `@adriangohjw/storybranch` is
 
 `@adriangohjw/storybranch` is a dev dependency. Storybook must already be running at your `--url`. Run `npm run visual` (`pnpm run visual` or `bun run visual`).
 
-- `visual` runs `storybranch test --url <storybook>`. Exit 1 means a visual diff. Lines: `missing baseline`, `pixels`, `size`, `stale`. A clean run prints `ok`.
+- `visual` runs `storybranch test --url <storybook>`. Exit 1 means a visual diff. In a terminal: status summary + `storybranch review at …`. In CI/non-TTY: `missing baseline`, `pixels`, `size`, `stale` per snapshot. A clean run prints `ok`.
 - Read `.storybranch/report.json` (`new`, `changed`, `unchanged`, `stale`, `error`).
-- The first run is `missing baseline` for every shot.
+- The first run marks every shot as `new` in the summary (or `missing baseline` lines in CI).
 - Commit only `.storybranch/baseline/`. Ignore `actual/`, `diff/`, and `report.json`.
 - Run `npm run visual:approve` only when asked to accept the shots. `visual:review` and `--open` are for a person.
 ```
@@ -143,9 +143,7 @@ Nothing in `.storybranch/baseline/` yet, so every snapshot is **new**. The run l
 ```text
 $ npm run visual
 storybranch review at http://127.0.0.1:4321
-missing baseline hero--default__1200x900.png
-missing baseline hero--modes__narrow.png
-…
+4 snapshots need attention · 4 new
 ```
 
 ![Review UI with new snapshots](docs/images/review-missing-baselines.png)
@@ -159,9 +157,7 @@ After you change a component, the next run marks mismatches as **changed** and h
 ```text
 $ npm run visual
 storybranch review at http://127.0.0.1:4321
-pixels hero--default__1200x900.png
-pixels hero--modes__narrow.png
-…
+2 snapshots need attention · 2 changed · 2 unchanged
 ```
 
 ![Review UI comparing baseline and this scan with diff overlay](docs/images/review-pixel-diff.png)

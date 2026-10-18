@@ -92,22 +92,13 @@ export function createCaptureProgress(
       stopSpinner();
       const seconds = (stats.elapsedMs / 1000).toFixed(1);
 
-      const outcome =
-        stats.failed > 0
-          ? pc.red(`${stats.failed} failed`)
-          : pc.green("all matched");
+      let line = `\n${pc.bold("storybranch")} ${pc.dim("·")} ${pc.dim(`${seconds}s`)} ${pc.dim("·")} ${stats.stories} stories ${pc.dim("·")} ${stats.shots} shots`;
 
-      process.stderr.write(
-        `\n${pc.bold("storybranch")} ${pc.dim("·")} ${pc.dim(`${seconds}s`)} ${pc.dim("·")} ${stats.stories} stories ${pc.dim("·")} ${stats.shots} shots ${pc.dim("·")} ${outcome}\n`
-      );
-
-      if (stats.failed > 0) {
-        process.stderr.write(
-          `${pc.dim("see diffs in")} ${pc.cyan(".storybranch/diff/")}\n`
-        );
+      if (stats.failed === 0) {
+        line += ` ${pc.dim("·")} ${pc.green("all matched")}`;
       }
 
-      process.stderr.write("\n");
+      process.stderr.write(`${line}\n\n`);
     },
 
     header(count) {

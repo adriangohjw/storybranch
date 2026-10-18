@@ -89,9 +89,9 @@ export function agentsMarkdown(pm: PackageManager): string {
 
 \`@adriangohjw/storybranch\` is a dev dependency. Storybook must already be running at your \`--url\`. Run \`${run}\`.
 
-- \`visual\` runs \`storybranch test --url <storybook>\`. Exit 1 means a visual diff. Lines: \`missing baseline\`, \`pixels\`, \`size\`, \`stale\`. A clean run prints \`ok\`.
+- \`visual\` runs \`storybranch test --url <storybook>\`. Exit 1 means a visual diff. In a terminal you get a one-line status summary and \`storybranch review at …\`; in CI/non-TTY you get \`missing baseline\`, \`pixels\`, \`size\`, or \`stale\` per snapshot. A clean run prints \`ok\`.
 - Read \`.storybranch/report.json\` (\`new\`, \`changed\`, \`unchanged\`, \`stale\`, \`error\`).
-- The first run is \`missing baseline\` for every shot.
+- The first run lists every shot as \`new\` in the summary (or \`missing baseline\` lines in CI).
 - Commit only \`.storybranch/baseline/\`. Ignore \`actual/\`, \`diff/\`, and \`report.json\`.
 - Run \`${approve}\` only when asked to accept the shots. \`visual:review\` and \`--open\` are for a person.`;
 }
