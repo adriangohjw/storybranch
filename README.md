@@ -18,6 +18,7 @@ storybranch drives Playwright against your Storybook, saves one PNG per story, [
   - [UI change — pixel diff](#ui-change--pixel-diff)
 - [Features](#features)
 - [Chromatic compatibility](#chromatic-compatibility)
+- [CI](docs/ci.md)
 - [Usage](#usage)
   - [Artifacts](#artifacts)
   - [Review UI](#review-ui)
@@ -145,7 +146,7 @@ Paste this into the Storybook app’s `AGENTS.md`. `@adriangohjw/storybranch` is
 
 `@adriangohjw/storybranch` is a dev dependency. Storybook must already be running at your `--url`, or built so `storybranch test --build` can serve `storybook-static/`. Run `npm run visual` from the package that has `.storybook/` (or pass `--cwd`). (`pnpm run visual` or `bun run visual`.)
 
-- `visual` runs `storybranch test --url <storybook>`. CI can run `storybook build && storybranch test --build` instead. Exit 1 means a visual diff. In a terminal: scan time, status summary, and one `->` row per snapshot, plus `storybranch review at …`. In CI/non-TTY: `missing baseline`, `pixels`, `size`, `stale` per snapshot. A clean run prints `ok`.
+- `visual` runs `storybranch test --url <storybook>`. CI can run `storybook build && storybranch test --build --exit-once` instead ([docs/ci.md](docs/ci.md)). Exit 1 means a visual diff. In a terminal: scan time, status summary, and one `->` row per snapshot, plus `storybranch review at …`. In CI/non-TTY: `missing baseline`, `pixels`, `size`, `stale` per snapshot. A clean run prints `ok`.
 - Default browser is `chrome`. Filenames end in `__chrome.png`, `__firefox.png`, `__edge.png`, or `__safari.png`. Extra browsers come from `storybranch.config.json` or `storybranch.config.ts` in that package, or from `--browsers`. `webkit` is an alias for `safari`. Linux WebKit shots do not match macOS; pin the runner OS.
 - Read `.storybranch/report.json` in that package (`new`, `changed`, `unchanged`, `stale`, `error`).
 - The first run marks every shot as `new` in the summary (or `missing baseline` lines in CI).
@@ -211,6 +212,7 @@ The same notes are on the site at [/chromatic](https://storybook.adriangohjw.com
 - 💚 CI on GitHub Actions (single **✅ CI passed** required check):
   - ✅ Lint, format, typecheck, and `turbo` **build** (parallel jobs)
   - ✅ Tests with [Playwright](https://playwright.dev/) via `bun test`
+  - ✅ Visual check of `packages/fixture` (`storybook build` + `storybranch test --build`). See [CI](docs/ci.md)
   - ✅ Workflow linting with [jactionlint](https://github.com/rhysd/actionlint)
 - 📖 [Storybook](https://storybook.js.org/) fixture for development and e2e coverage
 - 🖼️ Local **review UI** (Vite + React) to compare baseline / actual / diff and accept snapshots in the browser
@@ -291,7 +293,7 @@ The sidebar testing widget runs `storybranch test` against that dev server. Stor
 ```
 .github
   └─ workflows
-        ├─ CI (lint, jactionlint, typecheck, format, build, test → ✅ CI passed)
+        ├─ CI (lint, jactionlint, typecheck, format, build, test, visual → ✅ CI passed)
         └─ codeql.yml
   └─ dependabot.yml
 .vscode
