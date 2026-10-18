@@ -77,6 +77,7 @@ review and --open are for a person. Read the report and run approve only when as
 safari (alias webkit) launches Playwright WebKit, not Apple Safari. Install it with playwright install webkit.
 Linux WebKit screenshots do not match macOS: different compositing, fonts, and image format. Pin one OS for those baselines.
 Linux CI is the cheaper WebKit check. A macOS runner is the closer Safari check. Neither is iOS Safari.
+Addon: add "@adriangohjw/storybranch/addon" in .storybook/main. The sidebar runs this test against the dev server and reads report.json. Capture still uses parameters.chromatic.
 `;
 
 if (command === undefined || command === "--help" || command === "-h") {

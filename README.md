@@ -268,6 +268,16 @@ Keep the Storybook URL. storybranch does not upload a build, so drop the project
 
 `--only-changed` diffs against `GITHUB_BASE_REF` when that is set, then `origin/HEAD`, `origin/main`, `origin/master`, `main`, or `master`. `--changed-files` replaces that diff for a GitHub Actions paths filter. `externals` force a full capture. `untraced` paths are left out of the diff. Globs are `*` and `**` only. Baselines for stories that were not captured stay as they are. A captured story can still be stale. `--exit-once-uploaded` is an alias of `--exit-once`.
 
+### Storybook addon
+
+Register the addon on the Storybook app that depends on `@adriangohjw/storybranch`:
+
+```ts
+addons: ["@adriangohjw/storybranch/addon"],
+```
+
+The sidebar testing widget runs `storybranch test` against that dev server. Stories that need attention are highlighted from the last `.storybranch/report.json`. **Open review** links to the local review UI, which is where you accept baselines. Capture still uses `parameters.chromatic` (modes, viewports, disable). The addon does not call chromatic.com.
+
 ## Project structure
 
 ```
@@ -279,7 +289,7 @@ Keep the Storybook URL. storybranch does not upload a build, so drop the project
 .vscode
   └─ Recommended extensions and editor settings
 apps
-  ├─ cli/         # Published `@adriangohjw/storybranch` package (bin, bundled CLI, review assets)
+  ├─ cli/         # Published `@adriangohjw/storybranch` package (bin, bundled CLI, review assets, Storybook addon)
   ├─ review-ui/   # Vite + React review SPA (`@storybranch/review-ui`)
   └─ web/         # Marketing landing page (`@storybranch/web`, Astro)
 packages
