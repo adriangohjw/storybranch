@@ -26,9 +26,10 @@ Preconditions:
 - **Open.** Navigate to `http://127.0.0.1:$REVIEW_PORT`. The heading is `storybranch review`. The snapshot tree shows buttons named `smoke`, `default`, and `1200x900`, and a leaf whose name includes `new` and `chrome`.
 - **Compare.** Choose the leaf that includes `chrome`. The `Baseline` figure says `No baseline`. The `This scan` figure contains an image with alt `this scan`.
 - **Filter attention.** Set the `Filter` combobox to `Needs attention`. The `chrome` leaf remains.
-- **Accept.** Choose the button named `Accept` next to that leaf. The leaf status becomes `unchanged` and the `Accept` button is gone.
+- **Accept.** Choose the button named `Accept` next to that leaf. Filter is still `Needs attention`, so the shot leaves the list. The `unchanged` status shows up in the next step.
 - **Second view.** `curl -sf "http://127.0.0.1:$REVIEW_PORT/api/report"` returns status `unchanged` for `smoke--default__1200x900__chrome.png`. The file `.storybranch/baseline/smoke--default__1200x900__chrome.png` exists under `WORK`.
-- **Filter unchanged.** Set `Filter` to `Unchanged`. The `chrome` leaf remains. Set `Filter` to `Needs attention`. The list text is `No snapshots in this filter.`
+- **Filter unchanged.** Set `Filter` to `Unchanged`. The list keeps a `smoke` row and closes it, because a branch with nothing left to review starts collapsed. Expand `smoke`, then `default`, then `1200x900`. The leaf name includes `unchanged` and `chrome`, and the `Accept` button is gone.
+- **Filter attention empty.** Set `Filter` to `Needs attention`. The list text is `No snapshots in this filter.`
 - **Proof.** Save an accessibility snapshot as `artifacts/$RUN_ID/review/accepted.aria.yml` and a screenshot as `artifacts/$RUN_ID/review/accepted.png` after accept settles. Both show `storybranch review` and `unchanged`.
 
 ## Gotchas
@@ -38,3 +39,4 @@ Preconditions:
 - `Toggle diff overlay` stays disabled on a missing baseline. There is no diff image until a later run disagrees with a baseline. Do not fail this feature for a disabled overlay.
 - `storybranch review` in the foreground exits when `--once` is set and nothing needs attention. After accept, a `--once` server shuts down. The detached server from `test` stays up. Keep using that one for the filter checks.
 - Refreshing the page reloads `report.json`. Accept writes the baseline immediately. A reload that still says `new` means the click did not accept.
+- Branches open on their own only while they contain a shot that needs attention. After accept, Filter `Unchanged` does not show the `chrome` leaf until `smoke`, `default`, and `1200x900` are expanded.
