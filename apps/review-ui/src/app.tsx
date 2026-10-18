@@ -62,15 +62,30 @@ export const App = () => {
   }, [filter, report]);
 
   const selected: ReportEntry | null = useMemo(() => {
-    if (report === null || selectedFilename === null) {
+    if (selectedFilename === null) {
       return null;
     }
 
     return (
-      report.entries.find((entry) => entry.filename === selectedFilename) ??
-      null
+      visible.find((entry) => entry.filename === selectedFilename) ?? null
     );
-  }, [report, selectedFilename]);
+  }, [selectedFilename, visible]);
+
+  useEffect(() => {
+    if (visible.length === 0) {
+      setSelectedFilename(null);
+
+      return;
+    }
+
+    const stillVisible = visible.some(
+      (entry) => entry.filename === selectedFilename
+    );
+
+    if (!stillVisible) {
+      setSelectedFilename(visible[0]?.filename ?? null);
+    }
+  }, [selectedFilename, visible]);
 
   return (
     <div className="min-h-full font-sans leading-normal">
@@ -171,7 +186,13 @@ export const App = () => {
           )}
         </aside>
         <section className="min-w-0 overflow-auto p-4">
-          <ComparisonViewer entry={selected} report={report} />
+          <ComparisonViewer
+            entry={selected}
+            filter={filter}
+            onAccept={refreshReport}
+            report={report}
+            visibleCount={visible.length}
+          />
         </section>
       </main>
     </div>
