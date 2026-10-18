@@ -10,10 +10,7 @@ export const PACKAGE_MANAGER_LABEL: Record<PackageManager, string> = {
 
 const PACKAGE = "@adriangohjw/storybranch";
 
-export type PackageScript =
-  | "visual"
-  | "visual:review"
-  | "visual:approve";
+export type PackageScript = "visual" | "visual:review" | "visual:approve";
 
 export type InstallCommandKind =
   | "addPackage"

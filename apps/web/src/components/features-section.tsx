@@ -24,27 +24,34 @@ export function FeaturesSection() {
   ];
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20" id="features">
+    <section
+      className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20"
+      id="features"
+    >
       <div className="max-w-2xl">
-        <h2 className="font-syne text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+        <h2 className="font-syne text-ink text-3xl font-bold tracking-tight sm:text-4xl">
           What you need before the first capture
         </h2>
-        <p className="mt-3 text-base text-ink-muted sm:text-lg">
-          Storybook on a URL Chromium can open, baselines as files, and a first run that is
-          supposed to fail.
+        <p className="text-ink-muted mt-3 text-base sm:text-lg">
+          Storybook on a URL Chromium can open, baselines as files, and a first
+          run that is supposed to fail.
         </p>
       </div>
       <ol className="mt-12 grid gap-8 md:grid-cols-3 md:gap-6">
         {features.map((feature, index) => (
           <li className="relative min-w-0" key={feature.title}>
-            <p className="font-mono text-xs font-medium tracking-widest text-accent uppercase">
+            <p className="text-accent font-mono text-xs font-medium tracking-widest uppercase">
               {String(index + 1).padStart(2, "0")}
             </p>
-            <h3 className="mt-3 font-syne text-xl font-bold text-ink">{feature.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-ink-muted sm:text-[15px]">
+            <h3 className="font-syne text-ink mt-3 text-xl font-bold">
+              {feature.title}
+            </h3>
+            <p className="text-ink-muted mt-2 text-sm leading-relaxed sm:text-[15px]">
               {feature.body}
             </p>
-            <p className="mt-4 font-mono text-xs break-all text-moss">{feature.command}</p>
+            <p className="text-moss mt-4 font-mono text-xs break-all">
+              {feature.command}
+            </p>
           </li>
         ))}
       </ol>

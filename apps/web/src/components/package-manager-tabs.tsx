@@ -8,7 +8,9 @@ interface PackageManagerTabsProps {
   theme?: "dark" | "light";
 }
 
-export function PackageManagerTabs({ theme = "light" }: PackageManagerTabsProps) {
+export function PackageManagerTabs({
+  theme = "light",
+}: PackageManagerTabsProps) {
   const { pm, setPackageManager } = usePackageManager();
 
   const dark = theme === "dark";

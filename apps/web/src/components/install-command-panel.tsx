@@ -43,7 +43,11 @@ export function InstallCommandPanel({
   return (
     <div className={className}>
       {showTabs ? <PackageManagerTabs theme={theme} /> : null}
-      <div className={showTabs ? "mt-3 flex flex-col gap-3" : "flex flex-col gap-3"}>
+      <div
+        className={
+          showTabs ? "mt-3 flex flex-col gap-3" : "flex flex-col gap-3"
+        }
+      >
         {kinds.map((kind) => {
           const command = installCommand(kind, pm);
 

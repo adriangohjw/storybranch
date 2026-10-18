@@ -1,11 +1,5 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 
 import {
   getPackageManager,
@@ -26,9 +20,7 @@ const PackageManagerContext = createContext<PackageManagerContextValue | null>(
 function usePackageManagerState(): PackageManagerContextValue {
   const [pm, setPm] = useState<PackageManager>(() => getPackageManager());
 
-  useEffect(() => {
-    return subscribePackageManager(setPm);
-  }, []);
+  useEffect(() => subscribePackageManager(setPm), []);
 
   return useMemo(
     () => ({

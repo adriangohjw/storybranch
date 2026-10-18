@@ -14,7 +14,7 @@ export function TerminalDemo() {
 
   return (
     <div
-      className="min-w-0 overflow-hidden rounded-xl border border-ink/15 bg-terminal text-left shadow-[0_24px_60px_-28px_rgb(20_24_31_/_0.55)]"
+      className="border-ink/15 bg-terminal min-w-0 overflow-hidden rounded-xl border text-left shadow-[0_24px_60px_-28px_rgb(20_24_31_/_0.55)]"
       aria-label="Example storybranch test output"
     >
       <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5">

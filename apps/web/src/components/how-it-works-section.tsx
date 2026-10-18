@@ -27,37 +27,42 @@ export function HowItWorksSection() {
   ];
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20" id="how">
+    <section
+      className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20"
+      id="how"
+    >
       <div className="max-w-2xl">
-        <h2 className="font-syne text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+        <h2 className="font-syne text-ink text-3xl font-bold tracking-tight sm:text-4xl">
           Scripts in your app, then ship
         </h2>
-        <p className="mt-3 text-base text-ink-muted sm:text-lg">
+        <p className="text-ink-muted mt-3 text-base sm:text-lg">
           Install with npm, pnpm, or bun (see{" "}
           <a
-            className="text-ink underline decoration-ink/20 underline-offset-2 hover:decoration-ink/50"
+            className="text-ink decoration-ink/20 hover:decoration-ink/50 underline underline-offset-2"
             href="#install"
           >
             #install
           </a>
-          ). No dashboard signup. Baselines are files you already know how to review in a
-          PR.
+          ). No dashboard signup. Baselines are files you already know how to
+          review in a PR.
         </p>
       </div>
 
       <ol className="mt-12 space-y-8">
         {steps.map((step, index) => (
           <li
-            className="grid gap-3 border-t border-ink/10 pt-8 md:grid-cols-[140px_1fr] md:gap-8"
+            className="border-ink/10 grid gap-3 border-t pt-8 md:grid-cols-[140px_1fr] md:gap-8"
             key={step.title}
           >
-            <p className="font-mono text-sm text-accent">Step {index + 1}</p>
+            <p className="text-accent font-mono text-sm">Step {index + 1}</p>
             <div>
-              <h3 className="font-syne text-xl font-bold text-ink">{step.title}</h3>
-              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted sm:text-[15px]">
+              <h3 className="font-syne text-ink text-xl font-bold">
+                {step.title}
+              </h3>
+              <p className="text-ink-muted mt-2 max-w-2xl text-sm leading-relaxed sm:text-[15px]">
                 {step.body}
               </p>
-              <div className="mt-4 rounded-lg border border-ink/10 bg-terminal px-4 py-3 font-mono text-[12px] break-words whitespace-pre-wrap text-white/90 sm:text-[13px]">
+              <div className="border-ink/10 bg-terminal mt-4 rounded-lg border px-4 py-3 font-mono text-[12px] break-words whitespace-pre-wrap text-white/90 sm:text-[13px]">
                 <span className="text-moss">$</span> {step.code}
               </div>
             </div>

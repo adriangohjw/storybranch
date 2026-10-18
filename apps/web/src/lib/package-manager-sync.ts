@@ -45,13 +45,17 @@ export function subscribePackageManager(listener: Listener): () => void {
   };
 }
 
-export function packageManagerFromEvent(event: Event): PackageManager | undefined {
+export function packageManagerFromEvent(
+  event: Event
+): PackageManager | undefined {
   if (!(event instanceof CustomEvent)) {
     return undefined;
   }
 
-  if (event.detail === "npm" || event.detail === "pnpm" || event.detail === "bun") {
-    return event.detail;
+  const detail: unknown = event.detail;
+
+  if (detail === "npm" || detail === "pnpm" || detail === "bun") {
+    return detail;
   }
 
   return undefined;

@@ -26,10 +26,10 @@ export function CopyCommand({
 
   return (
     <div
-      className={`group flex flex-col rounded-lg border border-ink/10 bg-surface shadow-sm sm:flex-row sm:items-start ${className}`}
+      className={`group border-ink/10 bg-surface flex flex-col rounded-lg border shadow-sm sm:flex-row sm:items-start ${className}`}
     >
       <code
-        className={`min-w-0 flex-1 font-mono break-words whitespace-pre-wrap text-ink ${
+        className={`text-ink min-w-0 flex-1 font-mono break-words whitespace-pre-wrap ${
           compact
             ? "px-3 py-2 text-[11px] leading-snug sm:px-4 sm:py-3 sm:text-[13px] sm:leading-relaxed"
             : "px-4 py-3 text-[13px] leading-relaxed sm:text-sm"
@@ -40,10 +40,10 @@ export function CopyCommand({
       </code>
       <button
         aria-label="Copy command"
-        className={`shrink-0 border-ink/10 bg-paper-2/60 font-semibold tracking-wide text-ink-muted transition-colors hover:bg-paper-2 hover:text-ink ${
+        className={`border-ink/10 bg-paper-2/60 text-ink-muted hover:bg-paper-2 hover:text-ink shrink-0 font-semibold tracking-wide transition-colors ${
           compact
-            ? "border-t px-3 py-2 text-[10px] sm:border-t-0 sm:border-l sm:self-stretch sm:px-4 sm:py-3 sm:text-xs"
-            : "border-t px-4 py-2.5 text-xs sm:border-t-0 sm:border-l sm:self-stretch sm:py-3"
+            ? "border-t px-3 py-2 text-[10px] sm:self-stretch sm:border-t-0 sm:border-l sm:px-4 sm:py-3 sm:text-xs"
+            : "border-t px-4 py-2.5 text-xs sm:self-stretch sm:border-t-0 sm:border-l sm:py-3"
         }`}
         onClick={() => {
           void copy();
