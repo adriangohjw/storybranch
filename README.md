@@ -34,7 +34,7 @@ storybranch drives Playwright against your Storybook, saves one PNG per story, [
 | **Where it runs** | Chromatic’s cloud | Your laptop, your CI runners, your servers |
 | **Baselines** | Hosted project | Committed PNGs in `.storybranch/baseline/` |
 | **Review** | chromatic.com | Review UI you serve (`npm run visual:review` on localhost by default) |
-| **Storybook** | Chromatic build pipeline | Any URL you point at — especially `http://127.0.0.1:…` while developing |
+| **Storybook** | Chromatic build pipeline | `storybook build && storybranch test --build` (serves `storybook-static/`), or `--url` while developing |
 | **License / cost** | Commercial product | Open source ([LICENSE](LICENSE)) |
 
 storybranch is an **open-source, self-hosted** take on that workflow: you operate the tool, you own the artifacts, and you can keep the whole loop **local** during development.
@@ -83,7 +83,13 @@ Publish from the repo root with `bun run publish:cli` when you are ready to put 
 
 ## Quick start
 
-Storybook has to be running at your `--url`. Chromatic `modes` or `viewports` on a story become extra snapshots. Setting both on one story is an error.
+Storybook has to be reachable. While developing, point `--url` at a dev server. In CI, build first and let storybranch serve the output:
+
+```bash
+storybook build && storybranch test --build
+```
+
+`--build` serves `<package>/storybook-static`. Another directory: `storybranch test --storybook-build-dir ./storybook-static`. Chromatic `modes` or `viewports` on a story become extra snapshots. Setting both on one story is an error.
 
 Add scripts to the Storybook app:
 
@@ -137,9 +143,9 @@ Paste this into the Storybook app’s `AGENTS.md`. `@adriangohjw/storybranch` is
 ```markdown
 ## storybranch
 
-`@adriangohjw/storybranch` is a dev dependency. Storybook must already be running at your `--url`. Run `npm run visual` from the package that has `.storybook/` (or pass `--cwd`). (`pnpm run visual` or `bun run visual`.)
+`@adriangohjw/storybranch` is a dev dependency. Storybook must already be running at your `--url`, or built so `storybranch test --build` can serve `storybook-static/`. Run `npm run visual` from the package that has `.storybook/` (or pass `--cwd`). (`pnpm run visual` or `bun run visual`.)
 
-- `visual` runs `storybranch test --url <storybook>`. Exit 1 means a visual diff. In a terminal: scan time, status summary, and one `->` row per snapshot, plus `storybranch review at …`. In CI/non-TTY: `missing baseline`, `pixels`, `size`, `stale` per snapshot. A clean run prints `ok`.
+- `visual` runs `storybranch test --url <storybook>`. CI can run `storybook build && storybranch test --build` instead. Exit 1 means a visual diff. In a terminal: scan time, status summary, and one `->` row per snapshot, plus `storybranch review at …`. In CI/non-TTY: `missing baseline`, `pixels`, `size`, `stale` per snapshot. A clean run prints `ok`.
 - Default browser is `chrome`. Filenames end in `__chrome.png`, `__firefox.png`, `__edge.png`, or `__safari.png`. Extra browsers come from `storybranch.config.json` or `storybranch.config.ts` in that package, or from `--browsers`. `webkit` is an alias for `safari`. Linux WebKit shots do not match macOS; pin the runner OS.
 - Read `.storybranch/report.json` in that package (`new`, `changed`, `unchanged`, `stale`, `error`).
 - The first run marks every shot as `new` in the summary (or `missing baseline` lines in CI).
@@ -238,6 +244,8 @@ See [How it works](#how-it-works) for screenshots. On a run with **missing / cha
 | --- | --- |
 | `--browsers chrome,firefox,edge,safari` | Browsers for this run (default `chrome`; overrides `storybranch.config.json` or `storybranch.config.ts` in the package). `webkit` is an alias for `safari` |
 | `--parallel-browsers` | Capture each browser at the same time (default is one browser after another; also `captureParallel` in config) |
+| `--build` | Serve `<package>/storybook-static` (the `storybook build` output) and capture it. Do not combine with `--url` |
+| `--storybook-build-dir <dir>` | Serve this directory instead of `storybook-static/` (resolved from the package) |
 | `--cwd <path>` | Resolve the Storybook package from this path (walks up to `package.json` + `.storybook/`) |
 | `STORYBRANCH_ROOT` | Same as `--cwd` for all commands (env wins over process cwd, loses to `--cwd`) |
 | `npm run visual -- --open` | Open the review URL in your browser when review is offered |
@@ -264,7 +272,7 @@ Keep the Storybook URL. storybranch does not upload a build, so drop the project
 | `chromatic --auto-accept-changes` | `storybranch test --url http://127.0.0.1:6006 --auto-accept-changes` |
 | `chromatic --exit-once-uploaded` | `storybranch test --url http://127.0.0.1:6006 --exit-once` |
 
-`chromatic.config.json` in the Storybook package is read for `onlyChanged`, `externals`, `untraced`, `exitZeroOnChanges`, and `autoAcceptChanges`. `storybookBuildDir` is ignored (pass `--url`). `CHROMATIC_PROJECT_TOKEN` prints a warning and is otherwise ignored.
+`chromatic.config.json` in the Storybook package is read for `onlyChanged`, `externals`, `untraced`, `exitZeroOnChanges`, and `autoAcceptChanges`. `storybookBuildDir` is ignored (pass `--url` or `--storybook-build-dir`). `CHROMATIC_PROJECT_TOKEN` prints a warning and is otherwise ignored.
 
 `--only-changed` diffs against `GITHUB_BASE_REF` when that is set, then `origin/HEAD`, `origin/main`, `origin/master`, `main`, or `master`. `--changed-files` replaces that diff for a GitHub Actions paths filter. `externals` force a full capture. `untraced` paths are left out of the diff. Globs are `*` and `**` only. Baselines for stories that were not captured stay as they are. A captured story can still be stale. `--exit-once-uploaded` is an alias of `--exit-once`.
 

@@ -24,4 +24,6 @@ test("help prints the usage contract", async () => {
   expect(stdout).toContain("--auto-accept-changes");
   expect(stdout).toContain("--exit-once");
   expect(stdout).toContain("CHROMATIC_PROJECT_TOKEN");
+  expect(stdout).toContain("--build");
+  expect(stdout).toContain("--storybook-build-dir");
 });

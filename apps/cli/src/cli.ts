@@ -1,4 +1,6 @@
 #!/usr/bin/env bun
+import path from "node:path";
+
 import { capture } from "@storybranch/core/capture";
 import {
   gitChangeSet,
@@ -25,8 +27,12 @@ import {
   runForegroundReview,
   spawnDetachedReview,
 } from "@/review-spawn.ts";
+import { startStorybookStatic } from "@/static-server.ts";
 
 const [command, ...args] = Bun.argv.slice(2);
+
+const testCommand =
+  "storybranch test (--url <storybook> | --build | --storybook-build-dir <dir>) [--browsers chrome,firefox,edge,safari] [--parallel-browsers] [--only-changed] [--changed-files <list>] [--exit-zero-on-changes] [--auto-accept-changes] [--exit-once] [--cwd <pkg>] [--open] [--review] [--port <n>]";
 
 const usage = `storybranch — local visual diffs for Storybook
 
@@ -35,10 +41,12 @@ Install as a dev dependency. Typical package scripts:
   visual:review   storybranch review
   visual:approve  storybranch approve
 
-  storybranch test --url <storybook> [--browsers chrome,firefox,edge,safari] [--parallel-browsers] [--cwd <pkg>] [--open] [--review] [--port <n>]
-    [--only-changed] [--changed-files <list>] [--exit-zero-on-changes] [--auto-accept-changes] [--exit-once]
+  ${testCommand}
   storybranch review [--cwd <pkg>] [--open] [--once] [--port <n>]
   storybranch approve [--cwd <pkg>]
+
+--build serves storybook-static/ from \`storybook build\`. --storybook-build-dir <dir> serves another directory.
+Pass one of --url, --build, or --storybook-build-dir.
 
 Run from a package that has package.json and .storybook/, or pass --cwd.
 Baselines live in that package's .storybranch/baseline/ (not necessarily the git root).
@@ -130,11 +138,16 @@ async function packageRoot(): Promise<string> {
 }
 
 if (command === "test") {
-  const url = option("--url");
+  const urlFlag = option("--url");
+  const buildDir = option("--storybook-build-dir");
+  const hasUrl = urlFlag !== undefined && urlFlag !== "";
 
-  if (url === undefined || url === "") {
+  const hasBuild =
+    flag("--build") || (buildDir !== undefined && buildDir !== "");
+
+  if (hasUrl === hasBuild) {
     console.error(
-      "usage: storybranch test --url <storybook> [--browsers chrome,firefox,edge,safari] [--parallel-browsers] [--only-changed] [--changed-files <list>] [--exit-zero-on-changes] [--auto-accept-changes] [--exit-once] [--cwd <pkg>] [--open] [--review] [--port <n>]\nrun storybranch --help for exit codes and the files to commit"
+      `usage: ${testCommand}\nrun storybranch --help for exit codes and the files to commit`
     );
     process.exit(1);
   }
@@ -163,7 +176,7 @@ if (command === "test") {
 
   if (chromatic.storybookBuildDir !== undefined) {
     console.error(
-      `chromatic.config.json storybookBuildDir (${chromatic.storybookBuildDir}) is ignored; pass --url`
+      `chromatic.config.json storybookBuildDir (${chromatic.storybookBuildDir}) is ignored; pass --url or --storybook-build-dir`
     );
   }
 
@@ -175,6 +188,20 @@ if (command === "test") {
       browsers = parseBrowserList(
         browsersFlag.split(",").map((name) => name.trim())
       );
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  }
+
+  let url = urlFlag ?? "";
+  let stopStatic: (() => void) | undefined;
+
+  if (!hasUrl) {
+    try {
+      ({ stop: stopStatic, url } = await startStorybookStatic(
+        path.resolve(root, buildDir ?? "storybook-static")
+      ));
     } catch (error) {
       console.error(error instanceof Error ? error.message : String(error));
       process.exit(1);
@@ -212,19 +239,27 @@ if (command === "test") {
     }
   }
 
-  const { failures, report, wroteReport } = await capture(url, root, {
-    browsers,
-    onlyChanged:
-      changed === null
-        ? undefined
-        : {
-            externals: chromatic.externals,
-            packagePrefix: changed.packagePrefix,
-            repoPaths: changed.repoPaths,
-            untraced: chromatic.untraced,
-          },
-    parallelBrowsers: flag("--parallel-browsers") || config.captureParallel,
-  });
+  let failures: string[];
+  let report: Awaited<ReturnType<typeof capture>>["report"];
+  let wroteReport: boolean;
+
+  try {
+    ({ failures, report, wroteReport } = await capture(url, root, {
+      browsers,
+      onlyChanged:
+        changed === null
+          ? undefined
+          : {
+              externals: chromatic.externals,
+              packagePrefix: changed.packagePrefix,
+              repoPaths: changed.repoPaths,
+              untraced: chromatic.untraced,
+            },
+      parallelBrowsers: flag("--parallel-browsers") || config.captureParallel,
+    }));
+  } finally {
+    stopStatic?.();
+  }
 
   const autoAccept =
     flag("--auto-accept-changes") || chromatic.autoAcceptChanges;

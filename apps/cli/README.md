@@ -30,6 +30,14 @@ npm run visual:review
 npm run visual:approve
 ```
 
+In CI, after `storybook build` writes `storybook-static/`:
+
+```bash
+storybranch test --build
+```
+
+Another output directory: `storybranch test --storybook-build-dir ./storybook-static`.
+
 Baselines are written to `.storybranch/baseline/`. Commit that directory.
 
 Chromatic command equivalents (`CHROMATIC_PROJECT_TOKEN` is ignored):
