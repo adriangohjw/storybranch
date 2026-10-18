@@ -87,7 +87,7 @@ export const ComparisonViewer = ({ entry }: ComparisonViewerProps) => {
                 <img
                   alt=""
                   aria-hidden
-                  className="pointer-events-none absolute inset-0 size-full object-contain opacity-85 mix-blend-screen"
+                  className="pointer-events-none absolute inset-0 size-full object-contain opacity-70"
                   src={`/images/diff/${file}`}
                 />
               ) : null}

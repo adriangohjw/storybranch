@@ -1,3 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="300" viewBox="0 0 800 300">
-  <rect x="28" y="78" width="520" height="72" rx="6" fill="#ff2bd6" opacity="0.75"/>
+  <defs>
+    <mask id="changed" maskUnits="userSpaceOnUse">
+      <text x="32" y="100" fill="#fff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="32" font-weight="700">Ship Storybook visuals</text>
+      <text x="32" y="140" fill="#fff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="32" font-weight="700">with confidence</text>
+      <text x="32" y="100" fill="#000" font-family="ui-sans-serif,system-ui,sans-serif" font-size="32" font-weight="700">Catch UI drift</text>
+      <text x="32" y="140" fill="#000" font-family="ui-sans-serif,system-ui,sans-serif" font-size="32" font-weight="700">before it ships</text>
+    </mask>
+  </defs>
+  <rect width="800" height="300" fill="#ff2bd6" mask="url(#changed)"/>
 </svg>
