@@ -1,5 +1,7 @@
-import { stat } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { access, readFile, stat } from "node:fs/promises";
 import path from "node:path";
+import { promisify } from "node:util";
 
 export interface ChromaticConfig {
   autoAcceptChanges: boolean;
@@ -94,11 +96,11 @@ export async function loadChromaticConfig(
 ): Promise<ChromaticConfig> {
   const file = path.join(root, "chromatic.config.json");
 
-  if (!(await Bun.file(file).exists())) {
+  if (!(await fileExists(file))) {
     return EMPTY_CONFIG;
   }
 
-  const parsed: unknown = await Bun.file(file).json();
+  const parsed: unknown = JSON.parse(await readFile(file, "utf-8"));
 
   if (!isChromaticFile(parsed)) {
     throw new Error("chromatic.config.json must be an object");
@@ -169,7 +171,7 @@ async function readChangedList(root: string, raw: string): Promise<string[]> {
       const info = await stat(filePath);
 
       if (info.isFile()) {
-        return splitList(await Bun.file(filePath).text());
+        return splitList(await readFile(filePath, "utf-8"));
       }
     } catch {
       // The argument is a literal path that happens to end in .txt.
@@ -231,22 +233,30 @@ async function changeBase(root: string): Promise<string | null> {
   return null;
 }
 
+// oxlint-disable-next-line typescript/strict-void-return -- promisify adapts execFile's callback
+const execFileAsync = promisify(execFile);
+
 async function git(cwd: string, args: string[]): Promise<string | null> {
-  const proc = Bun.spawn(["git", ...args], {
-    cwd,
-    stderr: "ignore",
-    stdout: "pipe",
-  });
+  try {
+    const { stdout } = await execFileAsync("git", args, {
+      cwd,
+      encoding: "utf-8",
+    });
 
-  const stdout = await new Response(proc.stdout).text();
-
-  const code = await proc.exited;
-
-  if (code !== 0) {
+    return stdout;
+  } catch {
     return null;
   }
+}
 
-  return stdout;
+async function fileExists(file: string): Promise<boolean> {
+  try {
+    await access(file);
+
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function lines(text: string): string[] {

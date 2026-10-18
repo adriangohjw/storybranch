@@ -57,7 +57,7 @@ Related behavior:
 
 ## Install
 
-Install `@adriangohjw/storybranch` as a dev dependency of the Storybook app you want to test. Requires [Bun](https://bun.com) 1.4.3+.
+Install `@adriangohjw/storybranch` as a dev dependency of the Storybook app you want to test. The `storybranch` command runs on [Node.js](https://nodejs.org) 22.18+.
 
 **npm** (default):
 
@@ -206,7 +206,7 @@ The same notes are on the site at [/chromatic](https://storybook.adriangohjw.com
 
 ## Features
 
-- ⚡ [Bun](https://bun.com) workspaces + [Turborepo](https://turbo.build) monorepo; Bun for runtime, tests, and CLI
+- ⚡ [Bun](https://bun.com) workspaces + [Turborepo](https://turbo.build) monorepo; Bun for repo scripts and tests. The published CLI runs on Node
 - 🎨 [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) with [Ultracite](https://www.ultracite.dev/) presets; [Lefthook](https://lefthook.dev/) (`pre-commit` fix, `pre-push` CI checks)
 - 💚 CI on GitHub Actions (single **✅ CI passed** required check):
   - ✅ Lint, format, typecheck, and `turbo` **build** (parallel jobs)

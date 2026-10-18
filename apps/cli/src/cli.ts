@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 import path from "node:path";
 
 import { capture } from "@storybranch/core/capture";
@@ -29,7 +29,7 @@ import {
 } from "@/review-spawn.ts";
 import { startStorybookStatic } from "@/static-server.ts";
 
-const [command, ...args] = Bun.argv.slice(2);
+const [command, ...args] = process.argv.slice(2);
 
 const testCommand =
   "storybranch test (--url <storybook> | --build | --storybook-build-dir <dir>) [--browsers chrome,firefox,edge,safari] [--parallel-browsers] [--only-changed] [--changed-files <list>] [--exit-zero-on-changes] [--auto-accept-changes] [--exit-once] [--cwd <pkg>] [--open] [--review] [--port <n>]";
@@ -292,9 +292,7 @@ if (command === "test") {
         openBrowser(reviewUrl);
       }
     } else {
-      console.error(
-        `${pc.yellow("review UI is not built")}; run ${pc.cyan("bun run build")}`
-      );
+      console.error(pc.yellow("review UI is not built"));
     }
   }
 

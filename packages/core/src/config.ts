@@ -1,4 +1,6 @@
+import { access, readFile } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 export const BROWSER_NAMES = ["chrome", "firefox", "edge", "safari"] as const;
 
@@ -50,8 +52,8 @@ export async function loadConfig(root: string): Promise<StorybranchConfig> {
   const tsPath = path.join(root, TS_NAME);
 
   const [jsonExists, tsExists] = await Promise.all([
-    Bun.file(jsonPath).exists(),
-    Bun.file(tsPath).exists(),
+    fileExists(jsonPath),
+    fileExists(tsPath),
   ]);
 
   if (jsonExists && tsExists) {
@@ -59,7 +61,7 @@ export async function loadConfig(root: string): Promise<StorybranchConfig> {
   }
 
   if (jsonExists) {
-    const parsed: unknown = await Bun.file(jsonPath).json();
+    const parsed: unknown = JSON.parse(await readFile(jsonPath, "utf-8"));
 
     if (!isConfigFile(parsed)) {
       throw new Error("storybranch config must be an object");
@@ -69,7 +71,7 @@ export async function loadConfig(root: string): Promise<StorybranchConfig> {
   }
 
   if (tsExists) {
-    const imported: unknown = await import(tsPath);
+    const imported: unknown = await import(pathToFileURL(tsPath).href);
 
     if (!hasDefaultExport(imported)) {
       throw new Error(`${TS_NAME} must default-export a config object`);
@@ -87,18 +89,28 @@ export async function loadConfig(root: string): Promise<StorybranchConfig> {
 
 export function installHint(browser: BrowserName): string {
   if (browser === "firefox") {
-    return "bunx playwright install firefox";
+    return "npx playwright install firefox";
   }
 
   if (browser === "edge") {
-    return "bunx playwright install msedge";
+    return "npx playwright install msedge";
   }
 
   if (browser === "safari") {
-    return "bunx playwright install webkit";
+    return "npx playwright install webkit";
   }
 
-  return "bunx playwright install chromium";
+  return "npx playwright install chromium";
+}
+
+async function fileExists(file: string): Promise<boolean> {
+  try {
+    await access(file);
+
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function configFromFile(file: ConfigFile): StorybranchConfig {

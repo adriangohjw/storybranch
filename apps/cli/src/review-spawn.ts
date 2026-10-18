@@ -1,3 +1,5 @@
+import { spawn } from "node:child_process";
+
 import { startReviewServer } from "@/review-server.ts";
 
 export const DEFAULT_REVIEW_PORT = 4321;
@@ -33,7 +35,17 @@ function browserOpenCommand(url: string): string[] {
 }
 
 export function openBrowser(url: string): void {
-  Bun.spawn(browserOpenCommand(url), { stderr: "ignore", stdout: "ignore" });
+  const [command, ...args] = browserOpenCommand(url);
+
+  if (command === undefined) {
+    return;
+  }
+
+  const child = spawn(command, args, { detached: true, stdio: "ignore" });
+  child.on("error", () => {
+    console.error(`could not open ${url}`);
+  });
+  child.unref();
 }
 
 export function detachedReviewCommand(port: number, once: boolean): string[] {
@@ -59,15 +71,22 @@ export function spawnDetachedReview(
 ): void {
   const args = detachedReviewCommand(port, once);
 
-  const proc = Bun.spawn(args, {
+  const [command, ...commandArgs] = args;
+
+  if (command === undefined) {
+    throw new Error("storybranch entry path is missing");
+  }
+
+  const proc = spawn(command, commandArgs, {
     cwd: root,
     detached: true,
     env: { ...process.env, STORYBRANCH_ROOT: root },
-    stderr: "ignore",
-    stdin: "ignore",
-    stdout: "ignore",
+    stdio: "ignore",
   });
 
+  proc.on("error", () => {
+    console.error("could not start storybranch review");
+  });
   proc.unref();
 }
 

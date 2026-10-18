@@ -10,6 +10,37 @@ interface CliManifest {
   dependencies: Record<string, string>;
 }
 
+test("published command runs on node", async () => {
+  const pkg = (await Bun.file(
+    new URL("../package.json", import.meta.url)
+  ).json()) as {
+    engines: { node: string };
+    scripts: { build: string; "build:cli": string };
+  };
+  const bin = await Bun.file(
+    new URL("../bin/storybranch.js", import.meta.url)
+  ).text();
+
+  expect(pkg.engines.node).toBe(">=22.18.0");
+  expect(pkg.scripts.build).toContain("build:cli");
+  expect(pkg.scripts["build:cli"]).toContain("--target node");
+  expect(pkg.scripts["build:cli"]).not.toContain("--target bun");
+  expect(bin.startsWith("#!/usr/bin/env node\n")).toBe(true);
+  expect(withoutDirname(bin)).not.toContain("import.meta.dir");
+
+  const dist = await Bun.file(
+    new URL("../dist/cli.js", import.meta.url)
+  ).text();
+
+  expect(dist).not.toContain("Bun.");
+  expect(withoutDirname(dist)).not.toContain("import.meta.dir");
+  expect(dist.startsWith("#!/usr/bin/env node\n")).toBe(true);
+});
+
+function withoutDirname(source: string): string {
+  return source.replaceAll("import.meta.dirname", "");
+}
+
 test("cli runtime dependencies use the root catalog", async () => {
   const root = (await Bun.file(
     new URL("../../../package.json", import.meta.url)

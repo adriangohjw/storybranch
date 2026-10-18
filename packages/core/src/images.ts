@@ -1,4 +1,6 @@
+import { execFile } from "node:child_process";
 import path from "node:path";
+import { promisify } from "node:util";
 
 import pixelmatch from "pixelmatch";
 import { PNG } from "pngjs";
@@ -79,21 +81,26 @@ function paintIgnored(png: PNG, rects: IgnoreRect[]): void {
   }
 }
 
+// oxlint-disable-next-line typescript/strict-void-return -- promisify adapts execFile's callback
+const execFileAsync = promisify(execFile);
+
 export async function actualDirectory(root: string): Promise<string> {
-  const proc = Bun.spawn(["git", "-C", root, "rev-parse", "HEAD"], {
-    stderr: "pipe",
-    stdout: "pipe",
-  });
+  try {
+    const { stdout } = await execFileAsync(
+      "git",
+      ["-C", root, "rev-parse", "HEAD"],
+      {
+        encoding: "utf-8",
+      }
+    );
 
-  const [stdout, stderr, code] = await Promise.all([
-    new Response(proc.stdout).text(),
-    new Response(proc.stderr).text(),
-    proc.exited,
-  ]);
+    return path.join(root, ".storybranch", "actual", stdout.trim());
+  } catch (error) {
+    const stderr =
+      error instanceof Error && "stderr" in error ? String(error.stderr) : "";
 
-  if (code !== 0) {
-    throw new Error(stderr.trim() || "git rev-parse HEAD failed");
+    throw new Error(stderr.trim() || "git rev-parse HEAD failed", {
+      cause: error,
+    });
   }
-
-  return path.join(root, ".storybranch", "actual", stdout.trim());
 }
