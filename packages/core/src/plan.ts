@@ -27,6 +27,10 @@ export interface PlanInput {
       diffThreshold?: number;
       diffIncludeAntiAliasing?: boolean;
       cropToViewport?: boolean;
+      ignoreSelectors?: string[];
+      forcedColors?: string;
+      prefersReducedMotion?: string;
+      media?: string;
       modes?: { [mode: string]: ChromaticMode };
       viewports?: number[];
     };
@@ -45,6 +49,10 @@ export interface Shot {
   threshold: number;
   includeAA: boolean;
   cropToViewport: boolean;
+  ignoreSelectors: string[];
+  forcedColors: "active" | "none" | null;
+  prefersReducedMotion: "reduce" | "no-preference" | null;
+  media: "print" | "screen" | null;
 }
 
 export type Plan = { skip: true } | { error: string } | { shots: Shot[] };
@@ -72,20 +80,112 @@ export function isCapturable(entry: {
   );
 }
 
-function captureFlags(chromatic: PlanInput["parameters"]["chromatic"]) {
+interface CaptureFlags {
+  cropToViewport: boolean;
+  delay: number;
+  includeAA: boolean;
+  pauseAtEnd: boolean;
+  threshold: number;
+  ignoreSelectors: string[];
+  forcedColors: Shot["forcedColors"];
+  prefersReducedMotion: Shot["prefersReducedMotion"];
+  media: Shot["media"];
+}
+
+function captureFlags(
+  chromatic: PlanInput["parameters"]["chromatic"]
+): CaptureFlags | { error: string } {
+  const forcedColors = mediaChoice(
+    chromatic?.forcedColors,
+    ["active", "none"] as const,
+    "invalid chromatic.forcedColors"
+  );
+
+  const prefersReducedMotion = mediaChoice(
+    chromatic?.prefersReducedMotion,
+    ["reduce", "no-preference"] as const,
+    "invalid chromatic.prefersReducedMotion"
+  );
+
+  const media = mediaChoice(
+    chromatic?.media,
+    ["print", "screen"] as const,
+    "invalid chromatic.media"
+  );
+
+  const ignoreSelectors = selectorList(chromatic?.ignoreSelectors);
+
+  if ("error" in forcedColors) {
+    return forcedColors;
+  }
+
+  if ("error" in prefersReducedMotion) {
+    return prefersReducedMotion;
+  }
+
+  if ("error" in media) {
+    return media;
+  }
+
+  if ("error" in ignoreSelectors) {
+    return ignoreSelectors;
+  }
+
   return {
     cropToViewport: chromatic?.cropToViewport ?? false,
     delay: chromatic?.delay ?? 0,
+    forcedColors: forcedColors.ok,
+    ignoreSelectors,
     includeAA: chromatic?.diffIncludeAntiAliasing ?? false,
+    media: media.ok,
     pauseAtEnd: chromatic?.pauseAnimationAtEnd ?? true,
+    prefersReducedMotion: prefersReducedMotion.ok,
     threshold: chromatic?.diffThreshold ?? 0.1,
   };
+}
+
+function mediaChoice<T extends string>(
+  value: string | undefined,
+  allowed: readonly T[],
+  error: string
+): { ok: T | null } | { error: string } {
+  if (value === undefined) {
+    return { ok: null };
+  }
+
+  for (const option of allowed) {
+    if (option === value) {
+      return { ok: option };
+    }
+  }
+
+  return { error };
+}
+
+function selectorList(
+  value: string[] | undefined
+): string[] | { error: string } {
+  if (value === undefined) {
+    return [];
+  }
+
+  if (!Array.isArray(value)) {
+    return { error: "invalid chromatic.ignoreSelectors" };
+  }
+
+  for (const selector of value) {
+    if (selector.length === 0) {
+      return { error: "invalid chromatic.ignoreSelectors" };
+    }
+  }
+
+  return value;
 }
 
 function planModes(
   modes: { [mode: string]: ChromaticMode },
   input: PlanInput,
-  flags: ReturnType<typeof captureFlags>
+  flags: CaptureFlags
 ): Plan {
   const shots: Shot[] = [];
 
@@ -102,10 +202,7 @@ function planModes(
   return { shots };
 }
 
-function planWidths(
-  widths: number[],
-  flags: ReturnType<typeof captureFlags>
-): Plan {
+function planWidths(widths: number[], flags: CaptureFlags): Plan {
   return {
     shots: widths.map((width) => ({
       globals: {},
@@ -117,10 +214,7 @@ function planWidths(
   };
 }
 
-function planSingle(
-  input: PlanInput,
-  flags: ReturnType<typeof captureFlags>
-): Plan {
+function planSingle(input: PlanInput, flags: CaptureFlags): Plan {
   const pinned = input.globals.viewport?.value;
 
   if (pinned !== undefined && pinned.length > 0) {
@@ -166,6 +260,10 @@ export function planShots(input: PlanInput): Plan {
   }
 
   const flags = captureFlags(chromatic);
+
+  if ("error" in flags) {
+    return flags;
+  }
 
   if (chromatic?.modes !== undefined && chromatic.viewports !== undefined) {
     return { error: "chromatic.modes and chromatic.viewports are both set" };

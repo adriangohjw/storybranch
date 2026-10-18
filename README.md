@@ -17,6 +17,7 @@ storybranch drives Playwright against your Storybook, saves one PNG per story, [
   - [First run — missing baselines](#first-run--missing-baselines)
   - [UI change — pixel diff](#ui-change--pixel-diff)
 - [Features](#features)
+- [Chromatic compatibility](#chromatic-compatibility)
 - [Usage](#usage)
   - [Artifacts](#artifacts)
   - [Review UI](#review-ui)
@@ -51,7 +52,7 @@ Related behavior:
 
 - **Baselines in git** — Reference images are normal files; PRs show baseline updates like any other asset change.
 - **Offline-friendly local runs** — After install, capture and review against a local Storybook work without reaching a hosted visual-testing service.
-- **Chromatic modes** — Multiple snapshots per story via [modes](https://www.chromatic.com/docs/modes/) naming, aligned with how Chromatic labels variant viewports/themes.
+- **Chromatic modes** — Multiple snapshots per story via [modes](https://www.chromatic.com/docs/modes/) naming, aligned with how Chromatic labels variant viewports/themes. Supported `parameters.chromatic` keys, ignore regions, and media features are listed under [Chromatic compatibility](#chromatic-compatibility).
 - **Chrome, Firefox, Edge, and Safari** — Each shot is `{storyId}__{label}__{browser}.png`. The default browser is `chrome`. Add `firefox`, `edge`, and `safari` in config or with `--browsers`. `webkit` is an alias for `safari` and writes `__safari.png`.
 
 ## Install
@@ -186,6 +187,16 @@ storybranch review at http://127.0.0.1:4321
 ![Review UI comparing baseline and this scan with diff overlay](docs/images/review-pixel-diff.png)
 
 The fixture story is a sample hero. The screenshot above is that hero after the primary CTA color shifts.
+
+## Chromatic compatibility
+
+storybranch reads `parameters.chromatic` from the merged story context Storybook already built: project (`preview`) parameters, then meta, then the story. Objects deep-merge. Arrays such as `ignoreSelectors` and `viewports` are replaced by the more specific value. The same rules are what `combineParameters` in Storybook 10 applies.
+
+Supported keys: `delay`, `diffIncludeAntiAliasing`, `diffThreshold`, `disable`, `disableSnapshot`, `ignoreSelectors`, `pauseAnimationAtEnd`, `forcedColors` (`active` | `none`), `prefersReducedMotion` (`reduce` | `no-preference`), `media` (`print` | `screen`), `cropToViewport`, `modes`, `viewports`. Any other `chromatic` key is left unused.
+
+Elements with `.chromatic-ignore` or `data-chromatic="ignore"`, plus `ignoreSelectors`, are excluded from the pixel diff. Open shadow roots are included. Iframe documents are not. A size or position change that moves other pixels, or that changes the screenshot size, still fails the diff. `forcedColors`, `prefersReducedMotion`, and `media` apply to every snapshot of that story, including each mode. They are not read from inside a mode object. An invalid value fails that story.
+
+The same notes are on the site at [/chromatic](https://storybook.adriangohjw.com/chromatic).
 
 ## Features
 
