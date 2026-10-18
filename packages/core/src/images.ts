@@ -3,6 +3,9 @@ import path from "node:path";
 import pixelmatch from "pixelmatch";
 import { PNG } from "pngjs";
 
+/** Chromatic Diff Inspector “neon green”; sampled from chromaui/chromatic-docs `diff-inspector.png`. */
+export const DIFF_HIGHLIGHT_RGB: [number, number, number] = [125, 233, 80];
+
 export function comparePng(
   baseline: Buffer,
   actual: Buffer,
@@ -29,6 +32,8 @@ export function comparePng(
     {
       // Mask, not a faded copy of the whole image. An opaque diff screen-blends
       // into a solid block and hides the text the pixels actually differ on.
+      diffColor: DIFF_HIGHLIGHT_RGB,
+      diffColorAlt: DIFF_HIGHLIGHT_RGB,
       diffMask: true,
       includeAA: options.includeAA,
       threshold: options.threshold,
