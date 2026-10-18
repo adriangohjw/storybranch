@@ -1,12 +1,18 @@
 import type { StorybookConfig } from "@storybook/react-vite";
 
-const errors = process.env.STORYBRANCH_FIXTURE === "errors";
+const fixture = process.env.STORYBRANCH_FIXTURE;
+
+let stories = "../stories/*.stories.tsx";
+
+if (fixture === "errors") {
+  stories = "../stories-errors/*.stories.tsx";
+} else if (fixture === "smoke") {
+  stories = "../stories-smoke/*.stories.tsx";
+}
 
 const config: StorybookConfig = {
   framework: "@storybook/react-vite",
-  stories: [
-    errors ? "../stories-errors/*.stories.tsx" : "../stories/*.stories.tsx",
-  ],
+  stories: [stories],
   typescript: {
     reactDocgen: false,
   },
