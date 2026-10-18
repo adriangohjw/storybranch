@@ -15,6 +15,7 @@
     "@storybranch/report": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "react-icons": "catalog:",
     "tailwind-merge": "catalog:"
   },
   "devDependencies": {

@@ -57,7 +57,7 @@ test(
             ".storybranch",
             "actual",
             hash,
-            "button--default__1200x900.png"
+            "hero--default__1200x900.png"
           )
         ).exists()
       ).toBe(true);
@@ -75,11 +75,10 @@ test(
       const baselineNames = await readdir(baselineDir);
       const baselines = baselineNames.toSorted();
       expect(baselines).toEqual([
-        "button--default__1200x900.png",
-        "button--modes__narrow.png",
-        "button--modes__tall.png",
-        "button--modes__wide.png",
-        "button--pinned__mobile1.png",
+        "hero--default__1200x900.png",
+        "hero--modes__narrow.png",
+        "hero--modes__wide.png",
+        "hero--pinned__mobile1.png",
       ]);
     } catch (error) {
       const text = Buffer.concat(logs).toString();
