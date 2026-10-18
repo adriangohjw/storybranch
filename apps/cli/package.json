@@ -26,15 +26,23 @@
   "files": [
     "LICENSE",
     "bin/storybranch.js",
+    "dist/addon",
     "dist/cli.js",
     "review/public"
   ],
   "type": "module",
+  "exports": {
+    "./addon": "./dist/addon/preset.js",
+    "./addon/manager": "./dist/addon/manager.js",
+    "./addon/preset": "./dist/addon/preset.js"
+  },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "bun build ./src/cli.ts --outfile ./dist/cli.js --target bun --external playwright --external picocolors --external pixelmatch --external pngjs --external ora --external log-update",
+    "build": "bun run build:cli && bun run build:addon",
+    "build:addon": "bun build ./src/addon/preset.ts --outfile ./dist/addon/preset.js --target node --packages=external && bun build ./src/addon/manager.tsx --outfile ./dist/addon/manager.js --target browser --packages=external",
+    "build:cli": "bun build ./src/cli.ts --outfile ./dist/cli.js --target bun --external playwright --external picocolors --external pixelmatch --external pngjs --external ora --external log-update",
     "format": "oxfmt --check .",
     "format:fix": "oxfmt .",
     "lint": "oxlint .",

@@ -233,6 +233,16 @@ See [How it works](#how-it-works) for screenshots. On a run with **missing / cha
 | `npm run visual:review -- --once` | Exit when nothing needs attention |
 | `--port` / `STORYBRANCH_PORT` | Override default port `4321` (`npm run visual -- --port 4321`) |
 
+### Storybook addon
+
+Register the addon on the Storybook app that depends on `@adriangohjw/storybranch`:
+
+```ts
+addons: ["@adriangohjw/storybranch/addon"],
+```
+
+The sidebar testing widget runs `storybranch test` against that dev server. Stories that need attention are highlighted from the last `.storybranch/report.json`. **Open review** links to the local review UI, which is where you accept baselines. Capture still uses `parameters.chromatic` (modes, viewports, disable). The addon does not call chromatic.com.
+
 ## Project structure
 
 ```
@@ -244,7 +254,7 @@ See [How it works](#how-it-works) for screenshots. On a run with **missing / cha
 .vscode
   └─ Recommended extensions and editor settings
 apps
-  ├─ cli/         # Published `@adriangohjw/storybranch` package (bin, bundled CLI, review assets)
+  ├─ cli/         # Published `@adriangohjw/storybranch` package (bin, bundled CLI, review assets, Storybook addon)
   ├─ review-ui/   # Vite + React review SPA (`@storybranch/review-ui`)
   └─ web/         # Marketing landing page (`@storybranch/web`, Astro)
 packages

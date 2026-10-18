@@ -11,6 +11,7 @@ if (fixture === "errors") {
 }
 
 const config: StorybookConfig = {
+  addons: ["@adriangohjw/storybranch/addon"],
   framework: "@storybook/react-vite",
   stories: [stories],
   typescript: {

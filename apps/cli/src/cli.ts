@@ -48,6 +48,7 @@ A clean run prints ok (non-TTY stdout). Inventory: .storybranch/report.json unde
 Commit .storybranch/baseline/. Ignore actual/, diff/, and report.json.
 The first run marks every shot as new. approve copies actuals into baseline/.
 review and --open are for a person. Read the report and run approve only when asked to accept.
+Addon: add "@adriangohjw/storybranch/addon" in .storybook/main. The sidebar runs this test against the dev server and reads report.json. Capture still uses parameters.chromatic.
 `;
 
 if (command === undefined || command === "--help" || command === "-h") {
