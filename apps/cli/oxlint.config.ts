@@ -10,7 +10,13 @@ import { defineConfig } from "oxlint";
 export default defineConfig({
   ...base,
   extends: [...extendsList(base), ...reactDoctorExtends],
-  ignorePatterns: [...(base.ignorePatterns ?? []), "review/**"],
+  ignorePatterns: [
+    ...(base.ignorePatterns ?? []),
+    "bin/**",
+    "dist/**",
+    "review/**",
+    "scripts/**",
+  ],
   jsPlugins: reactDoctorJsPlugins,
   overrides: [srcAliasImportsOverride],
 });

@@ -502,10 +502,16 @@ function applyGlobals(globals: ShotGlobals): void {
 
 // ponytail: CSS/WAAPI only. rAF loops need chromatic.delay.
 function pauseAnimations(atEnd: boolean): void {
+  // page.evaluate ships this function alone, so this helper cannot move out.
+  // oxlint-disable-next-line unicorn/consistent-function-scoping
+  function isFiniteDuration(duration: unknown): duration is number {
+    return typeof duration === "number" && Number.isFinite(duration);
+  }
+
   for (const animation of document.getAnimations()) {
     const duration = animation.effect?.getComputedTiming().duration;
 
-    if (atEnd && isFiniteAnimationDuration(duration)) {
+    if (atEnd && isFiniteDuration(duration)) {
       animation.currentTime = duration;
     } else if (!atEnd) {
       animation.currentTime = 0;
@@ -521,10 +527,6 @@ interface StoryFinishedPayload {
 
 interface UpdateGlobalsPayload {
   globals: ShotGlobals;
-}
-
-function isFiniteAnimationDuration(duration: unknown): duration is number {
-  return typeof duration === "number" && Number.isFinite(duration);
 }
 
 interface StoryPreview {

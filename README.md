@@ -4,12 +4,13 @@
 
 **Open-source, self-hosted visual testing for Storybook** — the capture → diff → review loop teams know from [Chromatic](https://www.chromatic.com/), designed to **run on your machine** and **deploy on infrastructure you control**.
 
-storybranch drives Playwright against your Storybook, saves one PNG per story (and per [Chromatic mode](https://www.chromatic.com/docs/modes/)), compares them to baselines you keep in git, and opens a review UI when something needs your attention. Use it locally while you develop, or self-host the same CLI in CI — baselines and diffs live under `.storybranch/` on disk.
+storybranch drives Playwright against your Storybook, saves one PNG per story (and per [Chromatic mode](https://www.chromatic.com/docs/modes/)), compares them to baselines you keep in git, and opens a review UI when something needs your attention. Install it as a dev dependency of the Storybook app and run it from that app’s scripts. Baselines and diffs live under that package’s `.storybranch/` directory (the package with `package.json` and `.storybook/`, not necessarily the git root).
 
 ## Contents
 
 - [Why storybranch](#why-storybranch)
 - [Self-hosted and local](#self-hosted-and-local)
+- [Install](#install)
 - [Quick start](#quick-start)
   - [For agents](#for-agents)
 - [How it works](#how-it-works)
@@ -31,13 +32,13 @@ storybranch drives Playwright against your Storybook, saves one PNG per story (a
 | --- | --- | --- |
 | **Where it runs** | Chromatic’s cloud | Your laptop, your CI runners, your servers |
 | **Baselines** | Hosted project | Committed PNGs in `.storybranch/baseline/` |
-| **Review** | chromatic.com | Review UI you serve (`storybranch review` on localhost by default) |
+| **Review** | chromatic.com | Review UI you serve (`npm run visual:review` on localhost by default) |
 | **Storybook** | Chromatic build pipeline | Any URL you point at — especially `http://127.0.0.1:…` while developing |
 | **License / cost** | Commercial product | Open source ([LICENSE](LICENSE)) |
 
 storybranch is an **open-source, self-hosted** take on that workflow: you operate the tool, you own the artifacts, and you can keep the whole loop **local** during development.
 
-It is not a drop-in Chromatic replacement for every feature (e.g. hosted Storybook builds, TurboSnap, or Chromatic’s GitHub App integrations). It **does** cover the core visual regression workflow for Storybook 10+ using Playwright capture, pixel diffs, and an accept/reject review experience.
+It is not a drop-in Chromatic replacement for every feature (e.g. hosted Storybook builds, TurboSnap, or Chromatic’s GitHub App integrations). It **does** cover the core visual regression workflow for Storybook using Playwright capture, pixel diffs, and an accept/reject review experience.
 
 ## Self-hosted and local
 
@@ -52,25 +53,55 @@ Related behavior:
 - **Offline-friendly local runs** — After install, capture and review against a local Storybook work without reaching a hosted visual-testing service.
 - **Chromatic modes** — Multiple snapshots per story via [modes](https://www.chromatic.com/docs/modes/) naming, aligned with how Chromatic labels variant viewports/themes.
 
-## Quick start
+## Install
 
-Storybook 10 or newer has to be running. Chromatic `modes` or `viewports` on a story become extra snapshots. Setting both on one story is an error.
+Install `@adriangohjw/storybranch` as a dev dependency of the Storybook app you want to test. Requires [Bun](https://bun.com) 1.4.3+.
 
-The npm package is not published yet. Clone this repo, build the review UI, then run the CLI **from your app** so `.storybranch/` is created there:
+**npm** (default):
 
 ```bash
-git clone https://github.com/adriangohjw/storybranch.git
-cd storybranch
-bun install
-bunx playwright install chromium
-bun run build
-cd /path/to/your-app
-bun /path/to/storybranch/apps/cli/src/cli.ts test --url http://127.0.0.1:6006
+npm install -D @adriangohjw/storybranch
 ```
 
-After the package is published, the last line is `bunx storybranch test --url http://127.0.0.1:6006`.
+**pnpm**:
 
-`test` exits 1 when a snapshot needs attention. Failure lines are `missing baseline <file.png>`, `pixels <file.png>`, `size <file.png>`, or `stale <file.png>`. A clean run prints `ok`. The inventory is `.storybranch/report.json`. The CLI also prints `storybranch review at http://127.0.0.1:4321` when something needs a person.
+```bash
+pnpm add -D @adriangohjw/storybranch
+```
+
+**bun**:
+
+```bash
+bun add -d @adriangohjw/storybranch
+```
+
+The published package’s `postinstall` runs `playwright install chromium`. Bun skips that unless `@adriangohjw/storybranch` is in `trustedDependencies`. pnpm skips it unless the package is allowed to build. If the script did not run, install Chromium yourself: `npx playwright install chromium` (`pnpm exec playwright install chromium`, `bunx playwright install chromium`).
+
+Publish from the repo root with `bun run publish:cli` when you are ready to put it on npm (see [Publish](#publish)).
+
+## Quick start
+
+Storybook has to be running at your `--url`. Chromatic `modes` or `viewports` on a story become extra snapshots. Setting both on one story is an error.
+
+Add scripts to the Storybook app:
+
+```json
+{
+  "scripts": {
+    "visual": "storybranch test --url http://127.0.0.1:6006",
+    "visual:review": "storybranch review",
+    "visual:approve": "storybranch approve"
+  }
+}
+```
+
+```bash
+npm run visual
+```
+
+(`pnpm run visual` or `bun run visual` if you use those package managers.)
+
+`visual` exits 1 when a snapshot needs attention. Failure lines are `missing baseline <file.png>`, `pixels <file.png>`, `size <file.png>`, or `stale <file.png>`. A clean run prints `ok`. The inventory is `.storybranch/report.json`. A run that needs a person also prints `storybranch review at http://127.0.0.1:4321`.
 
 The first run exits 1 with `missing baseline` for every shot. That is the baseline set, not a failed install. `approve` copies actuals into `.storybranch/baseline/`. Commit that directory and ignore the rest:
 
@@ -80,44 +111,39 @@ The first run exits 1 with `missing baseline` for every shot. That is the baseli
 .storybranch/report.json
 ```
 
-`review` and `--open` are for a person.
+`visual:review` and `--open` are for a person.
 
-To try the fixture in this repo instead of your app:
-
-```bash
-bunx storybook dev -p 6006 --config-dir packages/fixture/.storybook
-bun apps/cli/src/cli.ts test --url http://127.0.0.1:6006
-```
+In a monorepo with several Storybooks, run the scripts from each app package (or pass `--cwd apps/web`). Each package keeps its own `.storybranch/` tree. The CLI walks up from the current directory until it finds `package.json` and `.storybook/` together.
 
 ### For agents
 
-Paste this into the Storybook app’s `AGENTS.md`. Until the package is on npm, `storybranch` means `bun /path/to/storybranch/apps/cli/src/cli.ts`.
+Paste this into the Storybook app’s `AGENTS.md`. `@adriangohjw/storybranch` is a dev dependency. Run `npm run visual` (`pnpm run visual` or `bun run visual`).
 
 ```markdown
 ## storybranch
 
-Storybook 10+ must already be running.
+`@adriangohjw/storybranch` is a dev dependency. Storybook must already be running at your `--url`. Run `npm run visual` from the package that has `.storybook/` (or pass `--cwd`). (`pnpm run visual` or `bun run visual`.)
 
-- `test --url <storybook>` — exit 1 means a visual diff. Lines: `missing baseline`, `pixels`, `size`, `stale`. A clean run prints `ok`.
-- Read `.storybranch/report.json` (`new`, `changed`, `unchanged`, `stale`, `error`).
+- `visual` runs `storybranch test --url <storybook>`. Exit 1 means a visual diff. Lines: `missing baseline`, `pixels`, `size`, `stale`. A clean run prints `ok`.
+- Read `.storybranch/report.json` in that package (`new`, `changed`, `unchanged`, `stale`, `error`).
 - The first run is `missing baseline` for every shot.
-- Commit only `.storybranch/baseline/`. Ignore `actual/`, `diff/`, and `report.json`.
-- Run `approve` only when asked to accept the shots. `review` and `--open` are for a person.
+- Commit only `.storybranch/baseline/` in that package. Ignore `actual/`, `diff/`, and `report.json`.
+- Run `npm run visual:approve` only when asked to accept the shots. `visual:review` and `--open` are for a person.
 ```
 
 ## How it works
 
-1. **Capture** — `storybranch test --url <storybook>` walks `index.json`, screenshots each story, and writes actuals under `.storybranch/actual/<git-sha>/`.
+1. **Capture** — `npm run visual` (`storybranch test --url <storybook>`) walks `index.json`, screenshots each story, and writes actuals under `.storybranch/actual/<git-sha>/`.
 2. **Compare** — Each PNG is diffed against `.storybranch/baseline/`. New stories, pixel changes, and stale baselines show up in `report.json`.
 3. **Review** — When anything needs attention, a local server serves the review UI so you can compare baseline vs this scan (with an optional diff overlay) and accept updates.
 4. **Commit** — Check updated baselines into git so the next run (and CI) share the same reference images.
 
 ### First run — missing baselines
 
-Nothing in `.storybranch/baseline/` yet, so every snapshot is **new**. The CLI lists them and starts review on `http://127.0.0.1:4321` (by default):
+Nothing in `.storybranch/baseline/` yet, so every snapshot is **new**. The run lists them and starts review on `http://127.0.0.1:4321` (by default):
 
 ```text
-$ bunx storybranch test --url http://127.0.0.1:6006
+$ npm run visual
 storybranch review at http://127.0.0.1:4321
 missing baseline hero--default__1200x900.png
 missing baseline hero--modes__narrow.png
@@ -126,14 +152,14 @@ missing baseline hero--modes__narrow.png
 
 ![Review UI with new snapshots](docs/images/review-missing-baselines.png)
 
-Use **Accept** (or `storybranch approve`) to copy actuals into `baseline/` and clear the failures.
+Use **Accept** (or `npm run visual:approve`) to copy actuals into `baseline/` and clear the failures.
 
 ### UI change — pixel diff
 
 After you change a component, the next run marks mismatches as **changed** and highlights pixels with the diff overlay on **This scan**:
 
 ```text
-$ bunx storybranch test --url http://127.0.0.1:6006
+$ npm run visual
 storybranch review at http://127.0.0.1:4321
 pixels hero--default__1200x900.png
 pixels hero--modes__narrow.png
@@ -159,15 +185,13 @@ The fixture story is a sample hero. The screenshot above is that hero after the 
 
 ## Usage
 
-From your app, after the clone in [Quick start](#quick-start):
-
 ```bash
-bun /path/to/storybranch/apps/cli/src/cli.ts test --url http://127.0.0.1:6006
-bun /path/to/storybranch/apps/cli/src/cli.ts review
-bun /path/to/storybranch/apps/cli/src/cli.ts approve
+npm run visual
+npm run visual:review
+npm run visual:approve
 ```
 
-After publish, those are `bunx storybranch test`, `bunx storybranch review`, and `bunx storybranch approve`.
+Use `pnpm run` or `bun run` with the same script names when you installed with pnpm or bun.
 
 ### Artifacts
 
@@ -180,15 +204,17 @@ After publish, those are `bunx storybranch test`, `bunx storybranch review`, and
 
 ### Review UI
 
-See [How it works](#how-it-works) for screenshots. On a run with **missing / changed / stale** snapshots, `test` starts a background server on `http://127.0.0.1:4321` and prints the URL. Use the UI to filter shots, compare images, and **Accept** per snapshot or **Accept all** (baselines update immediately). `storybranch approve` still promotes every actual and removes stale baselines in one step.
+See [How it works](#how-it-works) for screenshots. On a run with **missing / changed / stale** snapshots, `visual` starts a background server on `http://127.0.0.1:4321` and prints the URL. Use the UI to filter shots, compare images, and **Accept** per snapshot or **Accept all** (baselines update immediately). `npm run visual:approve` still promotes every actual and removes stale baselines in one step.
 
-| Command / flag | Effect |
+| Script | Effect |
 | --- | --- |
-| `test --open` | Open the review URL in your browser when review is offered |
-| `test --review` | Offer review even when the run is fully green |
-| `review [--open]` | Serve the last `report.json` until Ctrl+C |
-| `review --once` | Exit when nothing needs attention |
-| `--port` / `STORYBRANCH_PORT` | Override default port `4321` |
+| `--cwd <path>` | Resolve the Storybook package from this path (walks up to `package.json` + `.storybook/`) |
+| `STORYBRANCH_ROOT` | Same as `--cwd` for all commands (env wins over process cwd, loses to `--cwd`) |
+| `npm run visual -- --open` | Open the review URL in your browser when review is offered |
+| `npm run visual -- --review` | Offer review even when the run is fully green |
+| `npm run visual:review` | Serve the last `report.json` until Ctrl+C. Add `-- --open` to open a browser |
+| `npm run visual:review -- --once` | Exit when nothing needs attention |
+| `--port` / `STORYBRANCH_PORT` | Override default port `4321` (`npm run visual -- --port 4321`) |
 
 ## Project structure
 
@@ -201,7 +227,7 @@ See [How it works](#how-it-works) for screenshots. On a run with **missing / cha
 .vscode
   └─ Recommended extensions and editor settings
 apps
-  ├─ cli/         # Published `storybranch` CLI (bin) + review static assets
+  ├─ cli/         # Published `@adriangohjw/storybranch` package (bin, bundled CLI, review assets)
   ├─ review-ui/   # Vite + React review SPA (`@storybranch/review-ui`)
   └─ web/         # Marketing landing page (`@storybranch/web`, Astro)
 packages
@@ -225,14 +251,42 @@ lefthook.yml
 
 ```bash
 bun install           # runs `lefthook install` via prepare (skipped when CI=true)
+bunx playwright install chromium
+bun run build         # review UI, package bundle (bin loads dist/cli.js), and marketing site
+bunx storybook dev -p 6006 --config-dir packages/fixture/.storybook
+bun run visual          # fixture app runs the built storybranch bin
 bun run lint          # turbo run lint (per-package oxlint)
 bun run lint:fix
 bun run format        # turbo run format (per-package oxfmt)
 bun run format:fix
 bun run typecheck     # turbo run typecheck (per-package `bun check`; requires Bun 1.4.3+)
-bun run build         # review-ui → apps/cli/review/public/, web → apps/web/dist
 bun run test          # unit tests + Playwright e2e (install Chromium first)
 ```
+
+### Publish
+
+The npm package is `@adriangohjw/storybranch` (`apps/cli` only). The `storybranch` command comes from the package `bin`.
+
+- **`prepublishOnly`** — runs fast CLI unit tests before publish (run `bun run test` from the repo root before releasing).
+- **`prepack`** — builds the review UI, bundles the CLI (so `@storybranch/core` and `@storybranch/report` are not separate installs), copies the repo `LICENSE`, drops workspace `devDependencies`, and replaces monorepo `scripts` with `postinstall` (`playwright install chromium`).
+- **`postpack`** — restores `apps/cli/package.json`.
+- **Packing** — Bun resolves `catalog:` dependency ranges from the root catalog when the tarball is created.
+
+`publishConfig.access` is `public`, so you do not need `--access public` on the command line.
+
+From the repo root:
+
+```bash
+bun pm whoami                    # npm login if this fails
+bun run pack:cli                 # optional: write apps/cli/*.tgz locally
+bun publish --dry-run --cwd apps/cli   # optional: pack without uploading
+cd apps/cli && bun pm version patch    # bump version (+ git tag/commit unless --no-git-tag-version)
+bun run publish:cli              # upload to npm
+```
+
+Equivalent from `apps/cli`: `bun pm pack`, `bun publish --dry-run`, `bun pm version patch`, `bun publish`.
+
+Use `bun publish --tolerate-republish` in CI if a job might run twice for the same version. Prereleases should use `bun publish --tag <name>` so they do not become `latest`.
 
 ### Git hooks (Lefthook)
 
@@ -245,11 +299,11 @@ Skip hooks with `git commit --no-verify` / `git push --no-verify`, or `LEFTHOOK=
 
 ### Review UI (HMR)
 
-1. Run a capture so `report.json` exists (or run `storybranch test --url …`).
-2. Terminal A: `bunx storybranch review` (API on port 4321).
+1. Run a capture so `report.json` exists (`bun run visual` after `bun run build`).
+2. Terminal A: `bun run visual:review` (API on port 4321).
 3. Terminal B: `bun run dev:review` (Vite dev server; proxies `/api` and `/images` to 4321).
 
-Review UI assets are **not** committed (`apps/cli/review/public/assets/`, `index.html`). After `bun install`, run `bun run build` before `storybranch review`. CI has a dedicated **build** job (`bun run build`); tests depend on packages building via turbo. `prepack` on the `storybranch` package (`apps/cli`) runs the same monorepo build for npm publish.
+Review UI assets are **not** committed (`apps/cli/review/public/assets/`, `index.html`). After `bun install`, run `bun run build` before `bun run visual` in this repo. CI has a dedicated **build** job (`bun run build`); tests depend on packages building via turbo. A published install already includes the built review UI and `dist/cli.js`.
 
 ### Landing site
 

@@ -3,5 +3,5 @@ import { defineConfig } from "oxfmt";
 
 export default defineConfig({
   ...base,
-  ignorePatterns: ["review/public/**"],
+  ignorePatterns: ["dist/**", "review/public/**", "scripts/**"],
 });
