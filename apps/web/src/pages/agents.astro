@@ -6,11 +6,23 @@ import Nav from "../components/nav.astro";
 ---
 
 <Layout
-  title="storybranch — agent snippets for your app"
+  title="Agent snippets — storybranch"
   description="Copy-paste .gitignore rules and an AGENTS.md note so coding agents know how to run storybranch in your Storybook app."
 >
   <Nav />
-  <main>
+  <main class="mx-auto w-full max-w-3xl px-5 py-12 sm:px-8 sm:py-16">
+    <p class="text-accent text-sm font-semibold tracking-wide uppercase">
+      For coding agents
+    </p>
+    <h1
+      class="font-syne text-ink mt-3 text-4xl font-bold tracking-tight sm:text-5xl"
+    >
+      Agent snippets
+    </h1>
+    <p class="text-ink-muted mt-4 text-lg">
+      Paste the note into that repo’s AGENTS.md, and the ignore rules into the
+      app that owns the baselines.
+    </p>
     <AgentNotesSection client:load />
   </main>
   <Footer />
