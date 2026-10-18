@@ -10,7 +10,32 @@ export const PACKAGE_MANAGER_LABEL: Record<PackageManager, string> = {
 
 const PACKAGE = "@adriangohjw/storybranch";
 
-export type InstallCommandKind = "addPackage" | "run";
+export type PackageScript =
+  | "visual"
+  | "visual:review"
+  | "visual:approve";
+
+export type InstallCommandKind =
+  | "addPackage"
+  | "run"
+  | "runApprove"
+  | "runReview"
+  | "storybookDev";
+
+export function runPackageScript(
+  script: PackageScript,
+  pm: PackageManager
+): string {
+  if (pm === "npm") {
+    return `npm run ${script}`;
+  }
+
+  if (pm === "pnpm") {
+    return `pnpm run ${script}`;
+  }
+
+  return `bun run ${script}`;
+}
 
 export function installCommand(
   kind: InstallCommandKind,
@@ -30,21 +55,48 @@ export function installCommand(
     }
 
     case "run": {
+      return runPackageScript("visual", pm);
+    }
+
+    case "runReview": {
+      return runPackageScript("visual:review", pm);
+    }
+
+    case "runApprove": {
+      return runPackageScript("visual:approve", pm);
+    }
+
+    case "storybookDev": {
       if (pm === "npm") {
-        return "npm run visual";
+        return "npx storybook dev -p 6006";
       }
 
       if (pm === "pnpm") {
-        return "pnpm run visual";
+        return "pnpm exec storybook dev -p 6006";
       }
 
-      return "bun run visual";
+      return "bunx storybook dev -p 6006";
     }
 
     default: {
       return "";
     }
   }
+}
+
+export function agentsMarkdown(pm: PackageManager): string {
+  const run = runPackageScript("visual", pm);
+  const approve = runPackageScript("visual:approve", pm);
+
+  return `## storybranch
+
+\`@adriangohjw/storybranch\` is a dev dependency. Storybook must already be running at your \`--url\`. Run \`${run}\`.
+
+- \`visual\` runs \`storybranch test --url <storybook>\`. Exit 1 means a visual diff. Lines: \`missing baseline\`, \`pixels\`, \`size\`, \`stale\`. A clean run prints \`ok\`.
+- Read \`.storybranch/report.json\` (\`new\`, \`changed\`, \`unchanged\`, \`stale\`, \`error\`).
+- The first run is \`missing baseline\` for every shot.
+- Commit only \`.storybranch/baseline/\`. Ignore \`actual/\`, \`diff/\`, and \`report.json\`.
+- Run \`${approve}\` only when asked to accept the shots. \`visual:review\` and \`--open\` are for a person.`;
 }
 
 export const PACKAGE_MANAGER_STORAGE_KEY = "storybranch-package-manager";

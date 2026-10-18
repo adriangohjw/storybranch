@@ -1,37 +1,16 @@
-import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import {
-  installCommand,
-  PACKAGE_MANAGER_LABEL,
-  PACKAGE_MANAGERS,
-  PACKAGE_MANAGER_STORAGE_KEY,
-  parsePackageManager,
-} from "@/lib/package-managers.ts";
-import type {
-  InstallCommandKind,
-  PackageManager,
-} from "@/lib/package-managers.ts";
+import { usePackageManager } from "@/context/package-manager-context.tsx";
+import { installCommand } from "@/lib/package-managers.ts";
+import type { InstallCommandKind } from "@/lib/package-managers.ts";
 
-const PM_CHANGE_EVENT = "storybranch:package-manager";
+import { PackageManagerTabs } from "./package-manager-tabs.tsx";
 
 interface InstallCommandPanelProps {
   className?: string;
   kinds: InstallCommandKind[];
+  showTabs?: boolean;
   theme?: "dark" | "light";
-}
-
-function readStoredPackageManager(): PackageManager {
-  if (typeof window === "undefined") {
-    return "npm";
-  }
-
-  return parsePackageManager(localStorage.getItem(PACKAGE_MANAGER_STORAGE_KEY));
-}
-
-function writeStoredPackageManager(pm: PackageManager): void {
-  localStorage.setItem(PACKAGE_MANAGER_STORAGE_KEY, pm);
-  window.dispatchEvent(new CustomEvent(PM_CHANGE_EVENT, { detail: pm }));
 }
 
 async function copyCommand(command: string): Promise<void> {
@@ -43,64 +22,15 @@ async function copyCommand(command: string): Promise<void> {
   }
 }
 
-function packageManagerFromEvent(event: Event): PackageManager | undefined {
-  if (!(event instanceof CustomEvent)) {
-    return undefined;
-  }
-
-  if (event.detail === "npm") {
-    return "npm";
-  }
-
-  if (event.detail === "pnpm") {
-    return "pnpm";
-  }
-
-  if (event.detail === "bun") {
-    return "bun";
-  }
-
-  return undefined;
-}
-
 export function InstallCommandPanel({
   className = "",
   kinds,
+  showTabs = true,
   theme = "light",
 }: InstallCommandPanelProps) {
-  const [pm, setPm] = useState<PackageManager>(() =>
-    readStoredPackageManager()
-  );
-
-  useEffect(() => {
-    const onChange = (event: Event) => {
-      const next = packageManagerFromEvent(event);
-
-      if (next !== undefined) {
-        setPm(next);
-      }
-    };
-
-    window.addEventListener(PM_CHANGE_EVENT, onChange);
-
-    return () => {
-      window.removeEventListener(PM_CHANGE_EVENT, onChange);
-    };
-  }, []);
+  const { pm } = usePackageManager();
 
   const dark = theme === "dark";
-
-  const tabListClass = dark
-    ? "border-white/15 bg-white/5"
-    : "border-ink/10 bg-paper-2/60";
-
-  const tabActiveClass = dark
-    ? "bg-terminal text-paper"
-    : "bg-surface text-ink shadow-sm";
-
-  const tabIdleClass = dark
-    ? "text-paper/60 hover:text-paper"
-    : "text-ink-muted hover:text-ink";
 
   const blockClass = dark
     ? "border-white/15 bg-terminal text-paper"
@@ -110,36 +40,10 @@ export function InstallCommandPanel({
     ? "border-white/15 bg-white/10 text-paper/80 hover:bg-white/15 hover:text-paper"
     : "border-ink/10 bg-paper-2/60 text-ink-muted hover:bg-paper-2 hover:text-ink";
 
-  const selectPm = (next: PackageManager) => {
-    setPm(next);
-    writeStoredPackageManager(next);
-  };
-
   return (
     <div className={className}>
-      <div
-        className={`inline-flex rounded-md border p-0.5 ${tabListClass}`}
-        role="tablist"
-        aria-label="Package manager"
-      >
-        {PACKAGE_MANAGERS.map((manager) => (
-          <button
-            aria-selected={pm === manager}
-            className={`rounded px-2.5 py-1 font-mono text-xs font-semibold transition-colors ${
-              pm === manager ? tabActiveClass : tabIdleClass
-            }`}
-            key={manager}
-            onClick={() => {
-              selectPm(manager);
-            }}
-            role="tab"
-            type="button"
-          >
-            {PACKAGE_MANAGER_LABEL[manager]}
-          </button>
-        ))}
-      </div>
-      <div className="mt-3 flex flex-col gap-3">
+      {showTabs ? <PackageManagerTabs theme={theme} /> : null}
+      <div className={showTabs ? "mt-3 flex flex-col gap-3" : "flex flex-col gap-3"}>
         {kinds.map((kind) => {
           const command = installCommand(kind, pm);
 

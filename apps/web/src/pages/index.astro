@@ -1,24 +1,24 @@
 ---
-import AgentNotes from "../components/agent-notes.astro";
-import Features from "../components/features.astro";
+import AgentNotesSection from "../components/agent-notes-section.tsx";
+import FeaturesSection from "../components/features-section.tsx";
 import Footer from "../components/footer.astro";
-import Hero from "../components/hero.astro";
-import HowItWorks from "../components/how-it-works.astro";
-import InstallCta from "../components/install-cta.astro";
+import HeroSection from "../components/hero-section.tsx";
+import HowItWorksSection from "../components/how-it-works-section.tsx";
+import InstallCtaSection from "../components/install-cta-section.tsx";
+import Layout from "../layouts/layout.astro";
 import Nav from "../components/nav.astro";
 import ReviewDemo from "../components/review-demo.astro";
-import Layout from "../layouts/layout.astro";
 ---
 
 <Layout>
   <Nav />
   <main>
-    <Hero />
+    <HeroSection client:load />
     <ReviewDemo />
-    <Features />
-    <HowItWorks />
-    <AgentNotes />
-    <InstallCta />
+    <FeaturesSection client:load />
+    <HowItWorksSection client:load />
+    <AgentNotesSection client:load />
+    <InstallCtaSection client:load />
   </main>
   <Footer />
 </Layout>

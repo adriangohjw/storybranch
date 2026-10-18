@@ -39,10 +39,10 @@
     "format:fix": "oxfmt .",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
-    "prepublishOnly": "bun test src/dependencies.test.ts src/help.test.ts src/review-spawn.test.ts",
+    "prepublishOnly": "bun run build && bun test src/dependencies.test.ts src/help.test.ts src/review-spawn.test.ts",
     "prepack": "bun run --cwd ../review-ui build && bun run build && bun scripts/published-manifest.mjs",
     "postpack": "bun scripts/published-manifest.mjs restore",
-    "test": "bun test",
+    "test": "bun run build && bun test",
     "typecheck": "bun ../../scripts/bun-check.ts"
   },
   "dependencies": {

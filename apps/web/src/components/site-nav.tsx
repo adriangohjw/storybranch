@@ -2,6 +2,8 @@ import { useEffect, useId, useState } from "react";
 import { FaGithub } from "react-icons/fa6";
 import { LuMenu, LuX } from "react-icons/lu";
 
+import { PackageManagerTabs } from "./package-manager-tabs.tsx";
+
 const links = [
   { href: "#review", label: "Review" },
   { href: "#install", label: "Install" },
@@ -54,6 +56,7 @@ export function SiteNav({ github }: SiteNavProps) {
         aria-label="Primary"
         className="text-ink-muted hidden items-center gap-5 text-sm font-medium md:flex"
       >
+        <PackageManagerTabs />
         {links.map((link) => (
           <a
             className="hover:text-ink transition-colors"
@@ -125,6 +128,9 @@ export function SiteNav({ github }: SiteNavProps) {
             aria-label="Mobile"
             className="text-ink flex flex-1 flex-col gap-1 p-3 text-base font-medium"
           >
+            <div className="px-3 py-2">
+              <PackageManagerTabs />
+            </div>
             {links.map((link) => (
               <a
                 className="hover:bg-paper-2 rounded-md px-3 py-2.5 transition-colors"

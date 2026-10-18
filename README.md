@@ -250,7 +250,7 @@ bun install           # runs `lefthook install` via prepare (skipped when CI=tru
 bunx playwright install chromium
 bun run build         # review UI, package bundle (bin loads dist/cli.js), and marketing site
 bunx storybook dev -p 6006 --config-dir packages/fixture/.storybook
-bun run visual          # storybranch test against the fixture URL
+bun run visual          # fixture app runs the built storybranch bin
 bun run lint          # turbo run lint (per-package oxlint)
 bun run lint:fix
 bun run format        # turbo run format (per-package oxfmt)
