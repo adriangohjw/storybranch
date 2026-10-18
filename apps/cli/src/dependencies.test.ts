@@ -19,6 +19,11 @@ test("published runtime versions match the root catalog", async () => {
   ).json()) as CliManifest;
 
   for (const [name, version] of Object.entries(cli.dependencies)) {
+    if (version === "catalog:") {
+      expect(root.catalog[name]).toBeDefined();
+      continue;
+    }
+
     expect(root.catalog[name]).toBe(version);
   }
 });

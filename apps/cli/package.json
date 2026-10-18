@@ -42,12 +42,12 @@
     "typecheck": "bun ../../scripts/bun-check.ts"
   },
   "dependencies": {
-    "log-update": "^8.0.0",
-    "ora": "^9.4.1",
-    "picocolors": "^1.1.1",
-    "pixelmatch": "^8.0.0",
-    "playwright": "^1.64.1",
-    "pngjs": "^7.0.0"
+    "log-update": "catalog:",
+    "ora": "catalog:",
+    "picocolors": "catalog:",
+    "pixelmatch": "catalog:",
+    "playwright": "catalog:",
+    "pngjs": "catalog:"
   },
   "devDependencies": {
     "@storybranch/core": "workspace:*",
