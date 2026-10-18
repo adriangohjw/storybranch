@@ -10,12 +10,12 @@ export function HowItWorksSection() {
 
   const steps = [
     {
-      body: "Start Storybook locally, or anywhere Chromium can reach it.",
+      body: "Start Storybook locally, or anywhere Chrome, Firefox, and Edge can reach it. Install includes Chrome. Firefox and Edge are extra Playwright browsers.",
       code: storybook,
       title: "Run Storybook",
     },
     {
-      body: `${visual} walks the story index, writes PNGs, and compares them to committed baselines. Exit 1 means a shot needs attention.`,
+      body: `${visual} walks the story index and writes one PNG per story, mode, and browser. Names look like hero--default__1200x900__chrome.png. Exit 1 means a shot needs attention.`,
       code: visual,
       title: "Capture & diff",
     },

@@ -9,7 +9,8 @@ export function TerminalDemo() {
     visual,
     "storybranch review at http://127.0.0.1:4321",
     "missing baseline hero--default__1200x900__chrome.png",
-    "pixels hero--modes__narrow__chrome.png",
+    "missing baseline hero--default__1200x900__firefox.png",
+    "pixels hero--modes__narrow__edge.png",
   ];
 
   return (
@@ -34,7 +35,9 @@ export function TerminalDemo() {
         {"\n"}
         <span className="text-warn">{lines[2]}</span>
         {"\n"}
-        <span className="text-bad">{lines[3]}</span>
+        <span className="text-warn">{lines[3]}</span>
+        {"\n"}
+        <span className="text-bad">{lines[4]}</span>
       </pre>
     </div>
   );
