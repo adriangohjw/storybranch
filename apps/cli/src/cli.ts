@@ -1,6 +1,10 @@
 #!/usr/bin/env bun
 import { capture } from "@storybranch/core/capture";
 import { promoteActuals } from "@storybranch/core/images";
+import {
+  resolveProjectRoot,
+  resolveStartDir,
+} from "@storybranch/core/project-root";
 import { reportHasAttention } from "@storybranch/report";
 import pc from "picocolors";
 
@@ -21,16 +25,19 @@ Install as a dev dependency. Typical package scripts:
   visual:review   storybranch review
   visual:approve  storybranch approve
 
-  storybranch test --url <storybook> [--open] [--review] [--port <n>]
-  storybranch review [--open] [--once] [--port <n>]
-  storybranch approve
+  storybranch test --url <storybook> [--cwd <pkg>] [--open] [--review] [--port <n>]
+  storybranch review [--cwd <pkg>] [--open] [--once] [--port <n>]
+  storybranch approve [--cwd <pkg>]
+
+Run from a package that has package.json and .storybook/, or pass --cwd.
+Baselines live in that package's .storybranch/baseline/ (not necessarily the git root).
 
 test exits 1 when a snapshot needs attention:
   missing baseline <file.png>
   pixels <file.png>
   size <file.png>
   stale <file.png>
-A clean run prints ok. Inventory: .storybranch/report.json
+A clean run prints ok. Inventory: .storybranch/report.json under the package.
 Commit .storybranch/baseline/. Ignore actual/, diff/, and report.json.
 The first run is missing baseline for every shot. approve copies actuals into baseline/.
 review and --open are for a person. Read the report and run approve only when asked to accept.
@@ -72,8 +79,17 @@ function portFromArgs(): number {
   return reviewPortFromEnv();
 }
 
-function projectRoot(): string {
-  return process.env.STORYBRANCH_REVIEW_ROOT ?? process.cwd();
+async function packageRoot(): Promise<string> {
+  const start = resolveStartDir({ flagCwd: option("--cwd") });
+
+  try {
+    return await resolveProjectRoot(start);
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+
+    return "";
+  }
 }
 
 if (command === "test") {
@@ -81,19 +97,20 @@ if (command === "test") {
 
   if (url === undefined || url === "") {
     console.error(
-      "usage: storybranch test --url <storybook> [--open] [--review] [--port <n>]\nrun storybranch --help for exit codes and the files to commit"
+      "usage: storybranch test --url <storybook> [--cwd <pkg>] [--open] [--review] [--port <n>]\nrun storybranch --help for exit codes and the files to commit"
     );
     process.exit(1);
   }
 
-  const { failures, report } = await capture(url, process.cwd());
+  const root = await packageRoot();
+  const { failures, report } = await capture(url, root);
   const attention = reportHasAttention(report);
   const offerReview = attention || flag("--review");
   const port = portFromArgs();
 
   if (offerReview) {
     if (await reviewUiBuilt()) {
-      spawnDetachedReview(process.cwd(), port, false);
+      spawnDetachedReview(root, port, false);
       const reviewUrl = `http://127.0.0.1:${port}`;
       console.log(`storybranch review at ${reviewUrl}`);
 
@@ -127,19 +144,23 @@ if (command === "test") {
 }
 
 if (command === "review") {
+  const root = await packageRoot();
+
   const code = await runForegroundReview({
     once: flag("--once"),
     open: flag("--open"),
     port: portFromArgs(),
-    root: projectRoot(),
+    root,
   });
 
   process.exit(code);
 }
 
 if (command === "approve") {
+  const root = await packageRoot();
+
   try {
-    const result = await promoteActuals(process.cwd());
+    const result = await promoteActuals(root);
     console.log(
       `updated ${result.updated.length}, removed ${result.removed.length}`
     );

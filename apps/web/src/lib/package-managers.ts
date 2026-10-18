@@ -87,12 +87,12 @@ export function agentsMarkdown(pm: PackageManager): string {
 
   return `## storybranch
 
-\`@adriangohjw/storybranch\` is a dev dependency. Storybook must already be running at your \`--url\`. Run \`${run}\`.
+\`@adriangohjw/storybranch\` is a dev dependency. Storybook must already be running at your \`--url\`. Run \`${run}\` from the package that has \`.storybook/\` (or pass \`--cwd\`).
 
 - \`visual\` runs \`storybranch test --url <storybook>\`. Exit 1 means a visual diff. Lines: \`missing baseline\`, \`pixels\`, \`size\`, \`stale\`. A clean run prints \`ok\`.
-- Read \`.storybranch/report.json\` (\`new\`, \`changed\`, \`unchanged\`, \`stale\`, \`error\`).
+- Read \`.storybranch/report.json\` in that package (\`new\`, \`changed\`, \`unchanged\`, \`stale\`, \`error\`).
 - The first run is \`missing baseline\` for every shot.
-- Commit only \`.storybranch/baseline/\`. Ignore \`actual/\`, \`diff/\`, and \`report.json\`.
+- Commit only \`.storybranch/baseline/\` in that package. Ignore \`actual/\`, \`diff/\`, and \`report.json\`.
 - Run \`${approve}\` only when asked to accept the shots. \`visual:review\` and \`--open\` are for a person.`;
 }
 

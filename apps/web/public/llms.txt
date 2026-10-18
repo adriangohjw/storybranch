@@ -4,11 +4,11 @@
 
 Storybook must already be running at a URL Chromium can reach. Chromatic `modes` or `viewports` on a story become extra snapshots; both on one story is an error.
 
-Add scripts: `visual` = `storybranch test --url <storybook>`, `visual:review` = `storybranch review`, `visual:approve` = `storybranch approve`. Run `npm run visual` (`pnpm run visual` or `bun run visual`).
+Add scripts: `visual` = `storybranch test --url <storybook>`, `visual:review` = `storybranch review`, `visual:approve` = `storybranch approve`. Run `npm run visual` (`pnpm run visual` or `bun run visual`) from the package that has `package.json` and `.storybook/`, or pass `--cwd`.
 
-`npm run visual` exits **1** when a snapshot needs attention. Failure lines: `missing baseline <file.png>`, `pixels <file.png>`, `size <file.png>`, `stale <file.png>`. A clean run prints `ok`. Inventory: `.storybranch/report.json`. The **first run** exits 1 with `missing baseline` for every shot — that is the baseline set, not a broken install.
+`npm run visual` exits **1** when a snapshot needs attention. Failure lines: `missing baseline <file.png>`, `pixels <file.png>`, `size <file.png>`, `stale <file.png>`. A clean run prints `ok`. Inventory: `.storybranch/report.json` under that package. The **first run** exits 1 with `missing baseline` for every shot — that is the baseline set, not a broken install. Monorepos: one `.storybranch/` per Storybook package.
 
-Commit only `.storybranch/baseline/`. Ignore `.storybranch/actual/`, `.storybranch/diff/`, and `.storybranch/report.json`. Run `npm run visual:approve` only when asked to accept shots. `visual:review` and `--open` are for a person.
+Commit only that package’s `.storybranch/baseline/`. Ignore `actual/`, `diff/`, and `report.json`. Run `npm run visual:approve` only when asked to accept shots. `visual:review` and `--open` are for a person.
 
 Install (npm): `npm install -D @adriangohjw/storybranch`. That runs `playwright install chromium`. If install scripts are skipped (Bun unless trusted, pnpm unless allowed to build), run `npx playwright install chromium`. Requires Bun 1.4.3+.
 

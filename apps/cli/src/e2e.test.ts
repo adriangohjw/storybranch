@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { mkdtemp, readdir } from "node:fs/promises";
+import { cp, mkdtemp, readdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -70,6 +70,7 @@ test(
       expect(story(index, "coverage--disabled")).toBeDefined();
 
       const work = await mkdtemp(path.join(tmpdir(), "storybranch-e2e-"));
+      await storybookPackage(work);
       const hash = await initRepo(work);
       const first = await run(["test", "--url", url], work);
       expect(first.exitCode).toBe(1);
@@ -217,6 +218,7 @@ test(
     const errorUrl = "http://127.0.0.1:6021";
     await withStorybook(6021, { STORYBRANCH_FIXTURE: "errors" }, async () => {
       const work = await mkdtemp(path.join(tmpdir(), "storybranch-e2e-"));
+      await storybookPackage(work);
       await initRepo(work);
       const result = await run(["test", "--url", errorUrl], work);
       expect(result.exitCode).toBe(1);
@@ -396,6 +398,18 @@ async function warmPreview(storybookUrl: string): Promise<void> {
   } finally {
     await browser.close();
   }
+}
+
+async function storybookPackage(work: string): Promise<void> {
+  await cp(
+    path.join(root, "packages/fixture/.storybook"),
+    path.join(work, ".storybook"),
+    { recursive: true }
+  );
+  await writeFile(
+    path.join(work, "package.json"),
+    `${JSON.stringify({ name: "storybranch-e2e", private: true })}\n`
+  );
 }
 
 async function initRepo(cwd: string): Promise<string> {
