@@ -1,0 +1,8 @@
+# storybranch run output (baseline PNGs under .storybranch/baseline/ stay tracked)
+.storybranch/actual/
+.storybranch/diff/
+.storybranch/report.json
+
+# storybook
+debug-storybook.log
+storybook-static/

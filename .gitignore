@@ -1,24 +1,5 @@
 # dependencies
 node_modules/
+
+# turbo
 .turbo/
-
-# Astro / Cloudflare Pages (apps/web)
-apps/web/dist/
-apps/web/.astro/
-# storybook
-debug-storybook.log
-storybook-static/
-
-# storybranch run output (baseline PNGs under .storybranch/baseline/ stay tracked)
-.storybranch/actual/
-.storybranch/diff/
-.storybranch/report.json
-
-# published CLI bundle
-apps/cli/dist/
-apps/cli/LICENSE
-apps/cli/package.json.pack-backup
-
-# review UI (vite build output)
-apps/cli/review/public/*
-!apps/cli/review/public/.gitkeep

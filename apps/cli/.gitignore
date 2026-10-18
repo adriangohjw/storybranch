@@ -1,0 +1,8 @@
+# published CLI bundle
+dist/
+LICENSE
+package.json.pack-backup
+
+# review UI (vite build output)
+review/public/*
+!review/public/.gitkeep
