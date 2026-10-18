@@ -1,22 +1,7 @@
 ---
+import { SiteNav } from "./site-nav.tsx";
+
 const github = "https://github.com/adriangohjw/storybranch";
 ---
 
-<header class="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
-  <a href="/" class="font-syne text-lg font-bold tracking-tight text-ink sm:text-xl">
-    storybranch
-  </a>
-  <nav class="flex flex-wrap items-center justify-end gap-x-5 gap-y-2 text-sm font-medium text-ink-muted">
-    <a href="#review" class="transition-colors hover:text-ink">Review</a>
-    <a href="#how" class="transition-colors hover:text-ink">How it works</a>
-    <a href="#agents" class="transition-colors hover:text-ink">Agents</a>
-    <a
-      href={github}
-      class="rounded-md bg-ink px-3 py-1.5 text-paper transition-colors hover:bg-ink/90"
-      rel="noopener noreferrer"
-      target="_blank"
-    >
-      GitHub
-    </a>
-  </nav>
-</header>
+<SiteNav client:load github={github} />
