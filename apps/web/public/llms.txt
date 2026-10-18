@@ -1,6 +1,6 @@
 # storybranch
 
-> Alpha open-source visual testing for Storybook 10+: capture stories as PNGs, pixel-diff against baselines in git, review locally. Not on npm yet — clone the repo and run the CLI from your app.
+> Alpha open-source visual testing for Storybook 10+: capture stories as PNGs, pixel-diff against baselines in git, review locally. Install with `bun add -d @adriangohjw/storybranch` (publish from `apps/cli` when ready). Until it is on npm, clone the repo and run the CLI from your app.
 
 Storybook must already be running at a URL Chromium can reach. Chromatic `modes` or `viewports` on a story become extra snapshots; both on one story is an error.
 
@@ -8,12 +8,12 @@ Storybook must already be running at a URL Chromium can reach. Chromatic `modes`
 
 Commit only `.storybranch/baseline/`. Ignore `.storybranch/actual/`, `.storybranch/diff/`, and `.storybranch/report.json`. Run `approve` only when asked to accept shots. `review` and `--open` are for a person.
 
-Until publish: `bun /path/to/storybranch/apps/cli/src/cli.ts`. After publish: `bun add -d @adriangohjw/storybranch`, then `bunx storybranch`. Until then, clone [github.com/adriangohjw/storybranch](https://github.com/adriangohjw/storybranch), `bun install`, `bunx playwright install chromium`, `bun run build`.
+Install: `bun add -d @adriangohjw/storybranch`, `bunx playwright install chromium`, then `bunx storybranch test --url <storybook>`. From a clone before publish: `bun /path/to/storybranch/apps/cli/src/cli.ts` with the same subcommands.
 
 ## Docs
 
 - [README](https://github.com/adriangohjw/storybranch#readme): install, usage, CI, monorepo development
-- [Quick start & For agents](https://github.com/adriangohjw/storybranch#quick-start): clone path, exit codes, AGENTS.md snippet
+- [Quick start & From source](https://github.com/adriangohjw/storybranch#quick-start): test command, clone path, exit codes, AGENTS.md snippet
 - [Agent snippet on the site](https://storybook.adriangohjw.com/#agents): copy-paste `.gitignore` and AGENTS.md for your Storybook app
 - [How it works on the site](https://storybook.adriangohjw.com/#how): three-command workflow
 

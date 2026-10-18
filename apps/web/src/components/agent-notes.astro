@@ -7,7 +7,7 @@ const gitignore = `.storybranch/actual/
 
 const agents = `## storybranch
 
-Storybook 10+ must already be running. Until storybranch is on npm, invoke \`bun /path/to/storybranch/apps/cli/src/cli.ts\`. After publish, \`bun add -d @adriangohjw/storybranch\`, then \`bunx storybranch\`.
+Storybook 10+ must already be running. After \`bun add -d @adriangohjw/storybranch\`, use \`bunx storybranch\`. Until the package is on npm, invoke \`bun /path/to/storybranch/apps/cli/src/cli.ts\` instead.
 
 - \`test --url <storybook>\` — exit 1 means a visual diff. Lines: \`missing baseline\`, \`pixels\`, \`size\`, \`stale\`. A clean run prints \`ok\`.
 - Read \`.storybranch/report.json\` (\`new\`, \`changed\`, \`unchanged\`, \`stale\`, \`error\`).

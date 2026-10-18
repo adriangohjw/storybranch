@@ -12,6 +12,7 @@ storybranch drives Playwright against your Storybook, saves one PNG per story (a
 - [Self-hosted and local](#self-hosted-and-local)
 - [Install](#install)
 - [Quick start](#quick-start)
+- [From source](#from-source)
   - [For agents](#for-agents)
 - [How it works](#how-it-works)
   - [First run — missing baselines](#first-run--missing-baselines)
@@ -55,33 +56,22 @@ Related behavior:
 
 ## Install
 
-After `storybranch` is on npm, install the [Bun](https://bun.com) CLI in the project you want to test:
+Install `@adriangohjw/storybranch` in the Storybook app you want to test ([Bun](https://bun.com)):
 
 ```bash
 bun add -d @adriangohjw/storybranch
 bunx playwright install chromium
-bunx storybranch test --url http://127.0.0.1:6006
 ```
 
-Until then, use the clone steps in [Quick start](#quick-start).
+Publish from `apps/cli` when you are ready to put it on npm (`bun publish --access public`). Until it is on the registry, use [From source](#from-source).
 
 ## Quick start
 
 Storybook 10 or newer has to be running. Chromatic `modes` or `viewports` on a story become extra snapshots. Setting both on one story is an error.
 
-The npm package is not published yet. Clone this repo, build the review UI, then run the CLI **from your app** so `.storybranch/` is created there:
-
 ```bash
-git clone https://github.com/adriangohjw/storybranch.git
-cd storybranch
-bun install
-bunx playwright install chromium
-bun run build
-cd /path/to/your-app
-bun /path/to/storybranch/apps/cli/src/cli.ts test --url http://127.0.0.1:6006
+bunx storybranch test --url http://127.0.0.1:6006
 ```
-
-After publish, install with `bun add -d @adriangohjw/storybranch`, then that last line is `bunx storybranch test --url http://127.0.0.1:6006`.
 
 `test` exits 1 when a snapshot needs attention. Failure lines are `missing baseline <file.png>`, `pixels <file.png>`, `size <file.png>`, or `stale <file.png>`. A clean run prints `ok`. The inventory is `.storybranch/report.json`. The CLI also prints `storybranch review at http://127.0.0.1:4321` when something needs a person.
 
@@ -95,6 +85,20 @@ The first run exits 1 with `missing baseline` for every shot. That is the baseli
 
 `review` and `--open` are for a person.
 
+## From source
+
+Clone this repo, build the review UI, then run the CLI **from your app** so `.storybranch/` is created there (for monorepo work or before the package is on npm):
+
+```bash
+git clone https://github.com/adriangohjw/storybranch.git
+cd storybranch
+bun install
+bunx playwright install chromium
+bun run build
+cd /path/to/your-app
+bun /path/to/storybranch/apps/cli/src/cli.ts test --url http://127.0.0.1:6006
+```
+
 To try the fixture in this repo instead of your app:
 
 ```bash
@@ -104,7 +108,7 @@ bun apps/cli/src/cli.ts test --url http://127.0.0.1:6006
 
 ### For agents
 
-Paste this into the Storybook app’s `AGENTS.md`. Until the package is on npm, `storybranch` means `bun /path/to/storybranch/apps/cli/src/cli.ts`. After publish, `bun add -d @adriangohjw/storybranch`, then `bunx storybranch`.
+Paste this into the Storybook app’s `AGENTS.md`. After `bun add -d @adriangohjw/storybranch`, use `bunx storybranch`. Until the package is on npm, `storybranch` means `bun /path/to/storybranch/apps/cli/src/cli.ts`.
 
 ```markdown
 ## storybranch
@@ -172,15 +176,13 @@ The fixture story is a sample hero. The screenshot above is that hero after the 
 
 ## Usage
 
-From your app, after the clone in [Quick start](#quick-start):
-
 ```bash
-bun /path/to/storybranch/apps/cli/src/cli.ts test --url http://127.0.0.1:6006
-bun /path/to/storybranch/apps/cli/src/cli.ts review
-bun /path/to/storybranch/apps/cli/src/cli.ts approve
+bunx storybranch test --url http://127.0.0.1:6006
+bunx storybranch review
+bunx storybranch approve
 ```
 
-After publish, those are `bunx storybranch test`, `bunx storybranch review`, and `bunx storybranch approve`.
+From a clone before npm publish, swap `bunx storybranch` for `bun /path/to/storybranch/apps/cli/src/cli.ts` (see [From source](#from-source)).
 
 ### Artifacts
 
@@ -214,7 +216,7 @@ See [How it works](#how-it-works) for screenshots. On a run with **missing / cha
 .vscode
   └─ Recommended extensions and editor settings
 apps
-  ├─ cli/         # Published `storybranch` package (bin, bundled CLI, review assets)
+  ├─ cli/         # Published `@adriangohjw/storybranch` package (bin, bundled CLI, review assets)
   ├─ review-ui/   # Vite + React review SPA (`@storybranch/review-ui`)
   └─ web/         # Marketing landing page (`@storybranch/web`, Astro)
 packages
@@ -256,7 +258,7 @@ The npm package is `@adriangohjw/storybranch` (`apps/cli` only). The `storybranc
 
 ```bash
 cd apps/cli
-bun publish
+bun publish --access public
 ```
 
 ### Git hooks (Lefthook)
