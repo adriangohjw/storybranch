@@ -46,6 +46,7 @@ export const BuildSummary = ({
   report,
 }: BuildSummaryProps) => {
   const stories = storyCountFor(report);
+  const browsers = browsersFor(report);
   const buildTime = formatBuildTime(report.durationMs);
 
   const commitShort =
@@ -85,20 +86,38 @@ export const BuildSummary = ({
       )}
       <span className="flex items-center gap-1.5">
         <span className="sr-only">Browsers</span>
-        <BrowserIcon browser={CAPTURE_BROWSER} />
+        {browsers.map((browser) => (
+          <BrowserIcon browser={browser} key={browser} />
+        ))}
       </span>
       <span className="font-mono text-sky-400">{commitShort}</span>
     </div>
   );
 };
 
+function browsersFor(report: Report): string[] {
+  const names = new Set<string>();
+
+  for (const entry of report.entries) {
+    if (entry.browser !== undefined && entry.browser.length > 0) {
+      names.add(entry.browser);
+    }
+  }
+
+  if (names.size === 0) {
+    return [CAPTURE_BROWSER];
+  }
+
+  return [...names].toSorted();
+}
+
 const BrowserIcon = ({ browser }: { browser: string }) => {
-  if (browser === CAPTURE_BROWSER) {
+  if (browser === CAPTURE_BROWSER || browser === "chrome") {
     return (
       <LuGlobe
-        aria-label="Chromium"
+        aria-label={browser === "chrome" ? "Chrome" : "Chromium"}
         className="size-4 text-zinc-300"
-        title="Chromium"
+        title={browser === "chrome" ? "Chrome" : "Chromium"}
       />
     );
   }

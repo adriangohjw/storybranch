@@ -181,7 +181,10 @@ const ShotSizeBranch = ({
           {shot.leaves.map((leaf) => (
             <li
               className="flex items-center gap-0.5"
-              key={leaf.entry.filename ?? `${leaf.browser}:error`}
+              key={
+                leaf.entry.filename ??
+                `${leaf.entry.storyId}:${leaf.browser}:error`
+              }
             >
               <SnapshotLeafRow
                 leaf={leaf}

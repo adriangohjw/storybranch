@@ -1,5 +1,9 @@
 import type { ReportEntry } from "@storybranch/report";
-import { CAPTURE_BROWSER, storyPartsFromId } from "@storybranch/report";
+import {
+  browserFromFilename,
+  CAPTURE_BROWSER,
+  storyPartsFromId,
+} from "@storybranch/report";
 
 import { needsAttention } from "@/lib/report-ui.ts";
 
@@ -48,7 +52,12 @@ function pushLeaf(
 ): void {
   const { component, story } = storyPartsFromId(entry.storyId);
   const size = shotLabelFor(entry);
-  const browser = CAPTURE_BROWSER;
+
+  const browser =
+    entry.browser ??
+    (entry.filename === undefined
+      ? CAPTURE_BROWSER
+      : (browserFromFilename(entry.filename) ?? CAPTURE_BROWSER));
 
   let stories = map.get(component);
 

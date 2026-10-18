@@ -6,6 +6,7 @@ export type ShotStatus = "unchanged" | "changed" | "new" | "stale" | "error";
 export interface ReportEntry {
   actualPath?: string;
   baselinePath?: string;
+  browser?: string;
   diffPath?: string;
   filename?: string;
   message?: string;
@@ -58,15 +59,42 @@ export function storyIdFromFilename(filename: string): string {
   return filename.slice(0, index);
 }
 
-export function shotLabelFromFilename(filename: string): string {
+export function browserFromFilename(filename: string): string | undefined {
+  const stem = filename.replace(/\.png$/u, "");
   const marker = "__";
-  const index = filename.indexOf(marker);
+  const index = stem.lastIndexOf(marker);
 
   if (index === -1) {
+    return undefined;
+  }
+
+  const browser = stem.slice(index + marker.length);
+
+  if (browser === "chrome" || browser === "firefox" || browser === "edge") {
+    return browser;
+  }
+
+  return undefined;
+}
+
+export function shotLabelFromFilename(filename: string): string {
+  const stem = filename.replace(/\.png$/u, "");
+  const marker = "__";
+  const start = stem.indexOf(marker);
+
+  if (start === -1) {
     return filename;
   }
 
-  return filename.slice(index + marker.length).replace(/\.png$/u, "");
+  const browser = browserFromFilename(filename);
+
+  if (browser === undefined) {
+    return stem.slice(start + marker.length);
+  }
+
+  const end = stem.lastIndexOf(marker);
+
+  return stem.slice(start + marker.length, end);
 }
 
 export function needsAttention(status: ShotStatus): boolean {

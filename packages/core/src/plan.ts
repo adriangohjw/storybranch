@@ -72,8 +72,12 @@ export function isCapturable(entry: {
   );
 }
 
-export function shotFilename(storyId: string, label: string): string {
-  return `${storyId}__${label.replaceAll(/[\\/]/gu, "_")}.png`;
+export function shotFilename(
+  storyId: string,
+  label: string,
+  browser: string
+): string {
+  return `${storyId}__${label.replaceAll(/[\\/]/gu, "_")}__${browser}.png`;
 }
 
 function captureFlags(chromatic: PlanInput["parameters"]["chromatic"]) {

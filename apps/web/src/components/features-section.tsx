@@ -7,7 +7,7 @@ export function FeaturesSection() {
 
   const features = [
     {
-      body: "Point storybranch at a running Storybook URL. Chromatic modes or viewports on a story become extra snapshots. Setting both on one story is an error.",
+      body: "Point storybranch at a running Storybook URL. The default snapshot is Chrome. Add Firefox or Edge with --browsers or storybranch.config.json next to .storybook/. Chromatic modes or viewports on a story become extra snapshots. Setting both on one story is an error.",
       command: "storybranch test --url …",
       title: "Your Storybook",
     },
@@ -33,8 +33,8 @@ export function FeaturesSection() {
           What you need before the first capture
         </h2>
         <p className="text-ink-muted mt-3 text-base sm:text-lg">
-          Storybook on a URL Chromium can open, baselines as files, and a first
-          run that is supposed to fail.
+          Storybook on a URL the capture browsers can open, baselines as files,
+          and a first run that is supposed to fail.
         </p>
       </div>
       <ol className="mt-12 grid gap-8 md:grid-cols-3 md:gap-6">

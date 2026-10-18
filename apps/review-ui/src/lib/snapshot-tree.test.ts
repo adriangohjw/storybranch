@@ -41,3 +41,19 @@ test("buildSnapshotTree nests component, story, size, and browser", () => {
     "chromium"
   );
 });
+
+test("browser suffix on the filename becomes the leaf", () => {
+  const tree = buildSnapshotTree([
+    {
+      browser: "firefox",
+      filename: "card--primary__1280__firefox.png",
+      shotLabel: "1280",
+      status: "new",
+      storyId: "card--primary",
+    },
+  ]);
+
+  expect(tree.components[0]?.stories[0]?.shots[0]?.leaves[0]?.browser).toBe(
+    "firefox"
+  );
+});
