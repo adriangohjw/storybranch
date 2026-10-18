@@ -4,6 +4,7 @@
   "type": "module",
   "exports": {
     "./capture": "./src/capture.ts",
+    "./config": "./src/config.ts",
     "./images": "./src/images.ts",
     "./plan": "./src/plan.ts",
     "./progress": "./src/progress.ts",

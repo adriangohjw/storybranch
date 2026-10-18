@@ -2,14 +2,17 @@ import { mkdir, readdir } from "node:fs/promises";
 import path from "node:path";
 
 import {
+  browserFromFilename,
   shotLabelFromFilename,
   storyIdFromFilename,
   writeReport,
 } from "@storybranch/report";
 import type { Report, ReportEntry } from "@storybranch/report";
-import { chromium } from "playwright";
-import type { Page } from "playwright";
+import { chromium, firefox } from "playwright";
+import type { Browser, Page } from "playwright";
 
+import { installHint } from "@/config.ts";
+import type { BrowserName } from "@/config.ts";
 import { actualDirectory, comparePng } from "@/images.ts";
 import { isCapturable, planShots, shotFilename } from "@/plan.ts";
 import type { PlanInput, Shot, ShotGlobals } from "@/plan.ts";
@@ -36,6 +39,8 @@ function isStoryIndex(
 }
 
 export interface CaptureOptions {
+  browsers?: BrowserName[];
+  parallelBrowsers?: boolean;
   progress?: boolean;
 }
 
@@ -69,7 +74,7 @@ export async function capture(
     return { failures, report: emptyReport(root, "", "") };
   }
 
-  const stories = [];
+  const stories: (IndexEntry & { id: string })[] = [];
 
   for (const [key, entry] of Object.entries(body.entries)) {
     const story = { ...entry, id: entry.id ?? key };
@@ -100,57 +105,83 @@ export async function capture(
 
   const started = Date.now();
   let shotsCaptured = 0;
-  const browser = await chromium.launch();
+  const browsers = options.browsers ?? ["chrome"];
+  progress.header(stories.length);
 
-  try {
-    const context = await browser.newContext({
-      deviceScaleFactor: 1,
-      viewport: { height: 900, width: 1200 },
-    });
+  const runBrowser = async (browserName: BrowserName): Promise<void> => {
+    const browser = await launchBrowser(browserName);
 
-    const page = await context.newPage();
-    await page.addInitScript(installStoryHook);
+    try {
+      const context = await browser.newContext({
+        deviceScaleFactor: 1,
+        viewport: { height: 900, width: 1200 },
+      });
 
-    progress.header(stories.length);
+      const page = await context.newPage();
+      await page.addInitScript(installStoryHook);
 
-    for (const [index, story] of stories.entries()) {
-      const current = index + 1;
-      const iframe = new URL("iframe.html", base);
-      iframe.searchParams.set("id", story.id);
-      iframe.searchParams.set("viewMode", "story");
-      let storyStats = { failed: 0, shots: 0, skipped: true };
-      progress.storyStart(current, story.id);
+      for (const [index, story] of stories.entries()) {
+        const current = index + 1;
+        const iframe = new URL("iframe.html", base);
+        iframe.searchParams.set("id", story.id);
+        iframe.searchParams.set("viewMode", "story");
 
-      try {
-        storyStats = await shootStory(
-          page,
-          iframe.toString(),
-          story.id,
-          current,
-          actualDir,
-          diffDir,
-          baselineDir,
-          expected,
-          failures,
-          entries,
-          progress
-        );
-        shotsCaptured += storyStats.shots;
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        failures.push(`${story.id} ${message}`);
-        entries.push({
-          message,
-          status: "error",
-          storyId: story.id,
-        });
-        storyStats = { failed: 1, shots: 0, skipped: false };
+        const progressId =
+          browsers.length > 1 ? `${browserName} ${story.id}` : story.id;
+
+        let storyStats = { failed: 0, shots: 0, skipped: true };
+        progress.storyStart(current, progressId);
+
+        try {
+          storyStats = await shootStory(
+            page,
+            iframe.toString(),
+            story.id,
+            current,
+            browserName,
+            progressId,
+            actualDir,
+            diffDir,
+            baselineDir,
+            expected,
+            failures,
+            entries,
+            progress
+          );
+          shotsCaptured += storyStats.shots;
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : String(error);
+
+          failures.push(`${story.id} ${message}`);
+          entries.push({
+            browser: browserName,
+            message,
+            status: "error",
+            storyId: story.id,
+          });
+
+          storyStats = { failed: 1, shots: 0, skipped: false };
+        }
+
+        progress.storyDone(current, progressId, storyStats);
       }
-
-      progress.storyDone(current, story.id, storyStats);
+    } finally {
+      await browser.close();
     }
-  } finally {
-    await browser.close();
+  };
+
+  // ponytail: parallel shares one progress spinner; per-browser lines if that gets unreadable
+  if (options.parallelBrowsers === true && browsers.length > 1) {
+    await Promise.all(
+      browsers.map(async (browserName) => {
+        await runBrowser(browserName);
+      })
+    );
+  } else {
+    for (const browserName of browsers) {
+      await runBrowser(browserName);
+    }
   }
 
   progress.finish({
@@ -175,6 +206,7 @@ export async function capture(
     failures.push(`stale ${baselineFile}`);
     entries.push({
       baselinePath: path.join(baselineDir, baselineFile),
+      browser: browserFromFilename(baselineFile),
       filename: baselineFile,
       shotLabel: shotLabelFromFilename(baselineFile),
       status: "stale",
@@ -213,11 +245,33 @@ function entryKey(entry: ReportEntry): string {
   return entry.storyId;
 }
 
+async function launchBrowser(browserName: BrowserName): Promise<Browser> {
+  try {
+    if (browserName === "firefox") {
+      return await firefox.launch();
+    }
+
+    if (browserName === "edge") {
+      return await chromium.launch({ channel: "msedge" });
+    }
+
+    return await chromium.launch();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `failed to launch ${browserName}; ${installHint(browserName)} (${message})`,
+      { cause: error }
+    );
+  }
+}
+
 async function shootStory(
   page: Page,
   iframeUrl: string,
   storyId: string,
   storyIndex: number,
+  browserName: BrowserName,
+  progressId: string,
   actualDir: string,
   diffDir: string,
   baselineDir: string,
@@ -228,7 +282,7 @@ async function shootStory(
 ): Promise<{ shots: number; failed: number; skipped: boolean }> {
   await page.setViewportSize({ height: 900, width: 1200 });
   await page.goto(iframeUrl, { waitUntil: "load" });
-  progress.storyActive(storyIndex, storyId, null);
+  progress.storyActive(storyIndex, progressId, null);
   await waitForStory(page);
   const input = await page.evaluate(readPlanInput, storyId);
   const plan = planShots(input);
@@ -240,6 +294,7 @@ async function shootStory(
   if ("error" in plan) {
     failures.push(`${storyId} ${plan.error}`);
     entries.push({
+      browser: browserName,
       message: plan.error,
       status: "error",
       storyId,
@@ -251,11 +306,11 @@ async function shootStory(
   let shotFailures = 0;
 
   for (const [shotIndex, shot] of plan.shots.entries()) {
-    progress.storyActive(storyIndex, storyId, {
+    progress.storyActive(storyIndex, progressId, {
       index: shotIndex + 1,
       total: plan.shots.length,
     });
-    const filename = shotFilename(storyId, shot.label);
+    const filename = shotFilename(storyId, shot.label, browserName);
     expected.add(filename);
     await page.setViewportSize({ height: shot.height, width: shot.width });
 
@@ -285,6 +340,7 @@ async function shootStory(
       failures.push(`missing baseline ${filename}`);
       entries.push({
         actualPath,
+        browser: browserName,
         filename,
         shotLabel,
         status: "new",
@@ -303,6 +359,7 @@ async function shootStory(
       entries.push({
         actualPath,
         baselinePath,
+        browser: browserName,
         filename,
         shotLabel,
         status: "unchanged",
@@ -322,6 +379,7 @@ async function shootStory(
     entries.push({
       actualPath,
       baselinePath,
+      browser: browserName,
       diffPath,
       filename,
       message: result.reason === "size" ? "size mismatch" : undefined,

@@ -92,7 +92,7 @@ jobs:
       - name: Setup
         uses: ./tooling/github/setup
       - name: Install Playwright
-        run: bunx playwright install --with-deps chromium
+        run: bunx playwright install --with-deps chromium firefox msedge
       - name: Test
         run: bun run test
 

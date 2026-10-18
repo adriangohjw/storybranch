@@ -145,8 +145,8 @@ Nothing in `.storybranch/baseline/` yet, so every snapshot is **new**. The run l
 ```text
 $ npm run visual
 storybranch review at http://127.0.0.1:4321
-missing baseline hero--default__1200x900.png
-missing baseline hero--modes__narrow.png
+missing baseline hero--default__1200x900__chrome.png
+missing baseline hero--modes__narrow__chrome.png
 …
 ```
 
@@ -161,8 +161,8 @@ After you change a component, the next run marks mismatches as **changed** and h
 ```text
 $ npm run visual
 storybranch review at http://127.0.0.1:4321
-pixels hero--default__1200x900.png
-pixels hero--modes__narrow.png
+pixels hero--default__1200x900__chrome.png
+pixels hero--modes__narrow__chrome.png
 …
 ```
 
@@ -208,6 +208,8 @@ See [How it works](#how-it-works) for screenshots. On a run with **missing / cha
 
 | Script | Effect |
 | --- | --- |
+| `--browsers chrome,firefox,edge` | Browsers for this run (default `chrome`; overrides `storybranch.config.json` or `storybranch.config.ts` in the package) |
+| `--parallel-browsers` | Capture each browser at the same time (default is one browser after another; also `captureParallel` in config) |
 | `--cwd <path>` | Resolve the Storybook package from this path (walks up to `package.json` + `.storybook/`) |
 | `STORYBRANCH_ROOT` | Same as `--cwd` for all commands (env wins over process cwd, loses to `--cwd`) |
 | `npm run visual -- --open` | Open the review URL in your browser when review is offered |
@@ -251,7 +253,7 @@ lefthook.yml
 
 ```bash
 bun install           # runs `lefthook install` via prepare (skipped when CI=true)
-bunx playwright install chromium
+bunx playwright install chromium firefox msedge
 bun run build         # review UI, package bundle (bin loads dist/cli.js), and marketing site
 bunx storybook dev -p 6006 --config-dir packages/fixture/.storybook
 bun run visual          # fixture app runs the built storybranch bin
@@ -260,7 +262,7 @@ bun run lint:fix
 bun run format        # turbo run format (per-package oxfmt)
 bun run format:fix
 bun run typecheck     # turbo run typecheck (per-package `bun check`; requires Bun 1.4.3+)
-bun run test          # unit tests + Playwright e2e (install Chromium first)
+bun run test          # unit tests + Playwright e2e (install Chromium, Firefox, and Edge first)
 ```
 
 ### Publish

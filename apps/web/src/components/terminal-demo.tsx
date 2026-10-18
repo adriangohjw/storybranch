@@ -8,8 +8,8 @@ export function TerminalDemo() {
   const lines = [
     visual,
     "storybranch review at http://127.0.0.1:4321",
-    "missing baseline button--default__1200x900.png",
-    "pixels button--modes__narrow.png",
+    "missing baseline hero--default__1200x900__chrome.png",
+    "pixels hero--modes__narrow__chrome.png",
   ];
 
   return (

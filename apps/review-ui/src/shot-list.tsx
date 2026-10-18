@@ -28,7 +28,10 @@ export const ShotList = ({
           {storyEntries.map((entry) => (
             <li
               className="flex items-center gap-0.5"
-              key={entry.filename ?? `${entry.storyId}:error`}
+              key={
+                entry.filename ??
+                `${entry.storyId}:${entry.browser ?? "error"}`
+              }
             >
               <ShotRow
                 entry={entry}
@@ -43,6 +46,14 @@ export const ShotList = ({
     ))}
   </div>
 );
+
+function shotTitle(entry: ReportEntry): string {
+  if (entry.shotLabel !== undefined && entry.browser !== undefined) {
+    return `${entry.shotLabel} · ${entry.browser}`;
+  }
+
+  return entry.filename ?? entry.message ?? entry.storyId;
+}
 
 interface ShotRowProps {
   entry: ReportEntry;
@@ -71,7 +82,7 @@ const ShotRow = ({ entry, onSelect, selected }: ShotRowProps) => (
       {entry.status}
     </span>
     <span className="text-xs leading-snug break-all text-zinc-200">
-      {entry.filename ?? entry.message ?? entry.storyId}
+      {shotTitle(entry)}
     </span>
   </button>
 );

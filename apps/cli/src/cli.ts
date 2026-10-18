@@ -1,5 +1,6 @@
 #!/usr/bin/env bun
 import { capture } from "@storybranch/core/capture";
+import { loadConfig, parseBrowserList } from "@storybranch/core/config";
 import { promoteActuals } from "@storybranch/core/images";
 import {
   resolveProjectRoot,
@@ -25,7 +26,7 @@ Install as a dev dependency. Typical package scripts:
   visual:review   storybranch review
   visual:approve  storybranch approve
 
-  storybranch test --url <storybook> [--cwd <pkg>] [--open] [--review] [--port <n>]
+  storybranch test --url <storybook> [--browsers chrome,firefox,edge] [--parallel-browsers] [--cwd <pkg>] [--open] [--review] [--port <n>]
   storybranch review [--cwd <pkg>] [--open] [--once] [--port <n>]
   storybranch approve [--cwd <pkg>]
 
@@ -97,13 +98,41 @@ if (command === "test") {
 
   if (url === undefined || url === "") {
     console.error(
-      "usage: storybranch test --url <storybook> [--cwd <pkg>] [--open] [--review] [--port <n>]\nrun storybranch --help for exit codes and the files to commit"
+      "usage: storybranch test --url <storybook> [--browsers chrome,firefox,edge] [--parallel-browsers] [--cwd <pkg>] [--open] [--review] [--port <n>]\nrun storybranch --help for exit codes and the files to commit"
     );
     process.exit(1);
   }
 
   const root = await packageRoot();
-  const { failures, report } = await capture(url, root);
+
+  let config;
+
+  try {
+    config = await loadConfig(root);
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  }
+
+  const browsersFlag = option("--browsers");
+  let { browsers } = config;
+
+  if (browsersFlag !== undefined) {
+    try {
+      browsers = parseBrowserList(
+        browsersFlag.split(",").map((name) => name.trim())
+      );
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  }
+
+  const { failures, report } = await capture(url, root, {
+    browsers,
+    parallelBrowsers: flag("--parallel-browsers") || config.captureParallel,
+  });
+
   const attention = reportHasAttention(report);
   const offerReview = attention || flag("--review");
   const port = portFromArgs();

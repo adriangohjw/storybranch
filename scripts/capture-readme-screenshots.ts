@@ -154,7 +154,7 @@ try {
     browser,
     work,
     "review-missing-baselines.png",
-    "hero--modes__narrow.png",
+    "narrow · chrome",
     false
   );
 
@@ -183,7 +183,7 @@ try {
     browser,
     work,
     "review-pixel-diff.png",
-    "hero--modes__narrow.png",
+    "narrow · chrome",
     true
   );
 
