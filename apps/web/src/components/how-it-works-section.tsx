@@ -24,6 +24,11 @@ export function HowItWorksSection() {
       code: `${review}\n${approve}`,
       title: "Review or approve",
     },
+    {
+      body: "In GitHub Actions, build Storybook and run storybranch with --exit-once so the job does not start the review server. Pull requests can pass --only-changed. See the CI page for a copy-paste workflow.",
+      code: "storybook build && storybranch test --build --exit-once",
+      title: "Ship in CI",
+    },
   ];
 
   return (
@@ -44,7 +49,14 @@ export function HowItWorksSection() {
             #install
           </a>
           ). No dashboard signup. Baselines are files you already know how to
-          review in a PR.
+          review in a PR. For GitHub Actions, see{" "}
+          <a
+            className="text-ink decoration-ink/20 hover:decoration-ink/50 underline underline-offset-2"
+            href="/ci"
+          >
+            CI
+          </a>
+          .
         </p>
       </div>
 

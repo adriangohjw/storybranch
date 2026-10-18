@@ -21,6 +21,11 @@ export function FeaturesSection() {
       command: "snapshots need attention …",
       title: "First run",
     },
+    {
+      body: "Optional Storybook sidebar addon: register @adriangohjw/storybranch/addon to run capture from the UI and highlight stories from the last report.json. Accept baselines in the review UI, not in the addon.",
+      command: 'addons: ["@adriangohjw/storybranch/addon"]',
+      title: "Sidebar addon",
+    },
   ];
 
   return (
@@ -37,7 +42,7 @@ export function FeaturesSection() {
           and a first run that is supposed to fail.
         </p>
       </div>
-      <ol className="mt-12 grid gap-8 md:grid-cols-3 md:gap-6">
+      <ol className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4 md:gap-6">
         {features.map((feature, index) => (
           <li className="relative min-w-0" key={feature.title}>
             <p className="text-accent font-mono text-xs font-medium tracking-widest uppercase">

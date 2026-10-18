@@ -28,6 +28,8 @@ Production deploys use **Cloudflare Pages** connected to this GitHub repo (Worke
 
 Agent-oriented index: [`public/llms.txt`](public/llms.txt) is served at `/llms.txt` (see [llms.txt](https://llmstxt.org/)). The site layout sets `rel="describedby"` to that URL.
 
+Doc pages: [`/ci`](src/pages/ci.astro) (GitHub Actions), [`/agents`](src/pages/agents.astro), [`/chromatic`](src/pages/chromatic.astro).
+
 ### Build settings
 
 | Setting           | Value                            |

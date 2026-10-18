@@ -10,15 +10,20 @@ Add scripts: `visual` = `storybranch test --url <storybook>`, `visual:review` = 
 
 Commit only that package’s `.storybranch/baseline/`. Ignore `actual/`, `diff/`, and `report.json`. Run `npm run visual:approve` only when asked to accept shots. `visual:review` and `--open` are for a person.
 
-Install (npm): `npm install -D @adriangohjw/storybranch`. That runs `playwright install chromium`. If install scripts are skipped (Bun unless trusted, pnpm unless allowed to build), run `npx playwright install chromium`. Requires Bun 1.4.3+.
+Install (npm): `npm install -D @adriangohjw/storybranch`. That runs `playwright install chromium`. If install scripts are skipped (Bun unless trusted, pnpm unless allowed to build), run `npx playwright install chromium`. The published CLI requires Node.js 22.18+.
 
 ## Docs
 
 - [README](https://github.com/adriangohjw/storybranch#readme): install, scripts, CI, monorepo development
 - [Quick start](https://github.com/adriangohjw/storybranch#quick-start): scripts, exit codes, AGENTS.md snippet
+- [CI on the site](https://storybook.adriangohjw.com/ci): GitHub Actions recipe (`--build`, `--exit-once`, `--only-changed`, artifacts)
+- [CI in the repo](https://github.com/adriangohjw/storybranch/blob/main/docs/ci.md): full workflow notes, monorepos, extra browsers
+- [Example workflow](https://github.com/adriangohjw/storybranch/blob/main/examples/github-actions/visual-regression.yml): copy into `.github/workflows/`
 - [Agent snippet on the site](https://storybook.adriangohjw.com/agents): copy-paste `.gitignore` and AGENTS.md for your Storybook app
 - [How it works on the site](https://storybook.adriangohjw.com/#how): scripts in the Storybook app
 - [Chromatic compatibility](https://storybook.adriangohjw.com/chromatic): supported `parameters.chromatic` keys, ignore regions, media features, and parameter inheritance
+
+CI: use `storybook build && storybranch test --build --exit-once`. Pull requests can add `--only-changed`. Do not use `--review` or `--open` in CI.
 
 ## Optional
 

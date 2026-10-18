@@ -18,7 +18,7 @@ storybranch drives Playwright against your Storybook, saves one PNG per story, [
   - [UI change — pixel diff](#ui-change--pixel-diff)
 - [Features](#features)
 - [Chromatic compatibility](#chromatic-compatibility)
-- [CI](docs/ci.md)
+- [CI](#ci)
 - [Usage](#usage)
   - [Artifacts](#artifacts)
   - [Review UI](#review-ui)
@@ -204,6 +204,14 @@ Supported keys: `delay`, `diffIncludeAntiAliasing`, `diffThreshold`, `disable`, 
 Elements with `.chromatic-ignore` or `data-chromatic="ignore"`, plus `ignoreSelectors`, are excluded from the pixel diff. Open shadow roots are included. Iframe documents are not. A size or position change that moves other pixels, or that changes the screenshot size, still fails the diff. `forcedColors`, `prefersReducedMotion`, and `media` apply to every snapshot of that story, including each mode. They are not read from inside a mode object. An invalid value fails that story.
 
 The same notes are on the site at [/chromatic](https://storybook.adriangohjw.com/chromatic).
+
+## CI
+
+Run storybranch in CI as a test: build Storybook, capture, exit **1** when a snapshot needs attention. Use **`--exit-once`** so the job does not start the local review server (without it, a failed run can hang until timeout). Pull requests can pass **`--only-changed`**; pushes to `main` typically capture every story.
+
+Copy [`examples/github-actions/visual-regression.yml`](examples/github-actions/visual-regression.yml) and [`scripts/ci/storybranch-pr-comment.mjs`](scripts/ci/storybranch-pr-comment.mjs). Full notes (monorepos, artifacts, extra browsers, Node 22.18+) are in [docs/ci.md](docs/ci.md). The marketing site summarizes the same recipe at [/ci](https://storybook.adriangohjw.com/ci).
+
+CI does not accept baselines — update `.storybranch/baseline/` locally (`storybranch approve` or the review UI) and commit. On failure, download the workflow artifact and run `storybranch review` in the Storybook package.
 
 ## Features
 
