@@ -8,7 +8,7 @@ Storybook must already be running at a URL Chromium can reach. Chromatic `modes`
 
 Commit only `.storybranch/baseline/`. Ignore `.storybranch/actual/`, `.storybranch/diff/`, and `.storybranch/report.json`. Run `approve` only when asked to accept shots. `review` and `--open` are for a person.
 
-Install: `bun add -d @adriangohjw/storybranch`, `bunx playwright install chromium`, then `bunx storybranch test --url <storybook>`. From a clone before publish: `bun /path/to/storybranch/apps/cli/src/cli.ts` with the same subcommands.
+Install (npm): `npm install -D @adriangohjw/storybranch`, `npx playwright install chromium`, then `npx storybranch test --url <storybook>`. pnpm and bun equivalents on the site install section. CLI runtime requires Bun 1.4.3+. From a clone before publish: `bun /path/to/storybranch/apps/cli/src/cli.ts` with the same subcommands.
 
 ## Docs
 

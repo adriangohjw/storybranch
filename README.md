@@ -56,7 +56,23 @@ Related behavior:
 
 ## Install
 
-Install `@adriangohjw/storybranch` in the Storybook app you want to test ([Bun](https://bun.com)):
+Install `@adriangohjw/storybranch` in the Storybook app you want to test. The CLI runtime still requires [Bun](https://bun.com) 1.4.3+.
+
+**npm** (default):
+
+```bash
+npm install -D @adriangohjw/storybranch
+npx playwright install chromium
+```
+
+**pnpm**:
+
+```bash
+pnpm add -D @adriangohjw/storybranch
+pnpm exec playwright install chromium
+```
+
+**bun**:
 
 ```bash
 bun add -d @adriangohjw/storybranch
@@ -70,8 +86,10 @@ Publish from `apps/cli` when you are ready to put it on npm (`bun publish --acce
 Storybook 10 or newer has to be running. Chromatic `modes` or `viewports` on a story become extra snapshots. Setting both on one story is an error.
 
 ```bash
-bunx storybranch test --url http://127.0.0.1:6006
+npx storybranch test --url http://127.0.0.1:6006
 ```
+
+(`pnpm exec storybranch …` or `bunx storybranch …` if you use those package managers.)
 
 `test` exits 1 when a snapshot needs attention. Failure lines are `missing baseline <file.png>`, `pixels <file.png>`, `size <file.png>`, or `stale <file.png>`. A clean run prints `ok`. The inventory is `.storybranch/report.json`. The CLI also prints `storybranch review at http://127.0.0.1:4321` when something needs a person.
 
@@ -177,12 +195,12 @@ The fixture story is a sample hero. The screenshot above is that hero after the 
 ## Usage
 
 ```bash
-bunx storybranch test --url http://127.0.0.1:6006
-bunx storybranch review
-bunx storybranch approve
+npx storybranch test --url http://127.0.0.1:6006
+npx storybranch review
+npx storybranch approve
 ```
 
-From a clone before npm publish, swap `bunx storybranch` for `bun /path/to/storybranch/apps/cli/src/cli.ts` (see [From source](#from-source)).
+Use `pnpm exec storybranch` or `bunx storybranch` when you installed with pnpm or bun. From a clone before npm publish, swap for `bun /path/to/storybranch/apps/cli/src/cli.ts` (see [From source](#from-source)).
 
 ### Artifacts
 

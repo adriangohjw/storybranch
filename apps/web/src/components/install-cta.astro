@@ -1,15 +1,8 @@
 ---
 import CopyCommand from "./copy-command.astro";
+import { InstallCommandPanel } from "./install-command-panel.tsx";
 
 const github = "https://github.com/adriangohjw/storybranch";
-
-const install =
-  "bun add -d @adriangohjw/storybranch && bunx playwright install chromium";
-
-const test = "bunx storybranch test --url http://127.0.0.1:6006";
-
-const setup =
-  "git clone https://github.com/adriangohjw/storybranch.git && cd storybranch && bun install && bunx playwright install chromium && bun run build";
 
 const run =
   "bun /path/to/storybranch/apps/cli/src/cli.ts test --url http://127.0.0.1:6006";
@@ -23,10 +16,12 @@ const run =
     <p class="mt-3 max-w-xl text-base text-paper/70 sm:text-lg">
       Add the CLI to your Storybook app, install Chromium for Playwright, then point <code class="font-mono text-paper/90">test</code> at a running Storybook 10+ URL.
     </p>
-    <div class="mt-8 flex max-w-2xl flex-col gap-3 [&_code]:text-paper [&_button]:border-white/15 [&_button]:bg-white/10 [&_button]:text-paper/80 [&_button:hover]:bg-white/15 [&_button:hover]:text-paper [&_div]:border-white/15 [&_div]:bg-terminal">
-      <CopyCommand command={install} />
-      <CopyCommand command={test} />
-    </div>
+    <InstallCommandPanel
+      class="mt-8 max-w-2xl"
+      client:load
+      kinds={["installPlaywright", "test"]}
+      theme="dark"
+    />
     <details class="mt-8 max-w-2xl text-sm text-paper/70">
       <summary class="cursor-pointer font-medium text-paper/80 hover:text-paper">
         Not on npm yet? Run from a clone
@@ -34,8 +29,13 @@ const run =
       <p class="mt-3 leading-relaxed">
         Build the monorepo once, then invoke the CLI from your app so <code class="font-mono text-paper/90">.storybranch/</code> is created there.
       </p>
-      <div class="mt-4 flex flex-col gap-3 [&_code]:text-paper [&_button]:border-white/15 [&_button]:bg-white/10 [&_button]:text-paper/80 [&_button:hover]:bg-white/15 [&_button:hover]:text-paper [&_div]:border-white/15 [&_div]:bg-terminal">
-        <CopyCommand command={setup} />
+      <InstallCommandPanel
+        class="mt-4 max-w-2xl"
+        client:load
+        kinds={["monorepoSetup"]}
+        theme="dark"
+      />
+      <div class="mt-3 [&_code]:text-paper [&_button]:border-white/15 [&_button]:bg-white/10 [&_button]:text-paper/80 [&_button:hover]:bg-white/15 [&_button:hover]:text-paper [&_div]:border-white/15 [&_div]:bg-terminal">
         <CopyCommand command={run} />
       </div>
     </details>

@@ -7,16 +7,18 @@ Requires [Bun](https://bun.com).
 ## Install
 
 ```bash
-bun add -d @adriangohjw/storybranch
-bunx playwright install chromium
+npm install -D @adriangohjw/storybranch
+npx playwright install chromium
 ```
+
+(`pnpm add -D` / `pnpm exec`, or `bun add -d` / `bunx`, work too. The CLI still requires Bun 1.4.3+.)
 
 ## Usage
 
 ```bash
-bunx storybranch test --url http://127.0.0.1:6006
-bunx storybranch review
-bunx storybranch approve
+npx storybranch test --url http://127.0.0.1:6006
+npx storybranch review
+npx storybranch approve
 ```
 
 Baselines are written to `.storybranch/baseline/`. Commit that directory.
