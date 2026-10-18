@@ -6,7 +6,10 @@ import {
   resolveProjectRoot,
   resolveStartDir,
 } from "@storybranch/core/project-root";
-import { reportHasAttention, terminalAttentionBlock } from "@storybranch/report";
+import {
+  reportHasAttention,
+  terminalAttentionBlock,
+} from "@storybranch/report";
 import pc from "picocolors";
 
 import { reviewUiBuilt } from "@/review-server.ts";
