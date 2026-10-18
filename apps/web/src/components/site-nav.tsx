@@ -4,6 +4,7 @@ import { LuMenu, LuX } from "react-icons/lu";
 
 const links = [
   { href: "#review", label: "Review" },
+  { href: "#install", label: "Install" },
   { href: "#how", label: "How it works" },
   { href: "#agents", label: "Agents" },
 ] as const;

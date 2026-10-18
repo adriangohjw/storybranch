@@ -3,8 +3,7 @@ import path from "node:path";
 
 test("help prints the usage contract", async () => {
   const proc = Bun.spawn({
-    cmd: ["bun", "src/cli.ts", "--help"],
-    cwd: path.join(import.meta.dir, ".."),
+    cmd: [path.join(import.meta.dir, "../bin/storybranch.js"), "--help"],
     stderr: "pipe",
     stdout: "pipe",
   });
