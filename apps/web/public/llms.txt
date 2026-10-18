@@ -16,7 +16,7 @@ Install (npm): `npm install -D @adriangohjw/storybranch`. That runs `playwright 
 
 - [README](https://github.com/adriangohjw/storybranch#readme): install, scripts, CI, monorepo development
 - [Quick start](https://github.com/adriangohjw/storybranch#quick-start): scripts, exit codes, AGENTS.md snippet
-- [Agent snippet on the site](https://storybook.adriangohjw.com/#agents): copy-paste `.gitignore` and AGENTS.md for your Storybook app
+- [Agent snippet on the site](https://storybook.adriangohjw.com/agents): copy-paste `.gitignore` and AGENTS.md for your Storybook app
 - [How it works on the site](https://storybook.adriangohjw.com/#how): scripts in the Storybook app
 
 ## Optional

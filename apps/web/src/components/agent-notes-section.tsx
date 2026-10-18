@@ -11,10 +11,7 @@ export function AgentNotesSection() {
   const { pm } = usePackageManager();
 
   return (
-    <section
-      className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20"
-      id="agents"
-    >
+    <section className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
       <div className="max-w-2xl">
         <h2 className="font-syne text-ink text-3xl font-bold tracking-tight sm:text-4xl">
           For agents in your app
