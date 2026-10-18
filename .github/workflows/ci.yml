@@ -164,7 +164,7 @@ jobs:
         run: bunx storybook build --config-dir packages/fixture/.storybook --output-dir packages/fixture/storybook-static
       - name: Test
         run: |
-          args=(test --build --cwd packages/fixture --browsers chrome,firefox,edge,safari --exit-once)
+          args=(test --build --cwd packages/fixture --browsers "chrome,firefox,edge,safari" --exit-once)
           if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
             args+=(--only-changed)
           fi
