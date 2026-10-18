@@ -1,0 +1,17 @@
+---
+import { AgentNotesSection } from "../components/agent-notes-section.tsx";
+import Footer from "../components/footer.astro";
+import Layout from "../layouts/layout.astro";
+import Nav from "../components/nav.astro";
+---
+
+<Layout
+  title="storybranch — agent snippets for your app"
+  description="Copy-paste .gitignore rules and an AGENTS.md note so coding agents know how to run storybranch in your Storybook app."
+>
+  <Nav />
+  <main>
+    <AgentNotesSection client:load />
+  </main>
+  <Footer />
+</Layout>

@@ -39,7 +39,7 @@ export function InstallCtaSection() {
           </a>
           <a
             className="text-paper/70 decoration-paper/20 hover:text-paper hover:decoration-paper/50 underline underline-offset-4 transition-colors"
-            href="#agents"
+            href="/agents"
           >
             Agent snippet
           </a>
