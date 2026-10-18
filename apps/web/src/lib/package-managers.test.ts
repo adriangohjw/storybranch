@@ -8,11 +8,10 @@ test("npm is the default install wording", () => {
   );
 });
 
-test("each package manager gets matching playwright and test runners", () => {
+test("each package manager gets matching playwright and script runners", () => {
   expect(installCommand("playwright", "pnpm")).toBe(
     "pnpm exec playwright install chromium"
   );
-  expect(installCommand("test", "bun")).toBe(
-    "bunx storybranch test --url http://127.0.0.1:6006"
-  );
+  expect(installCommand("run", "npm")).toBe("npm run visual");
+  expect(installCommand("run", "bun")).toBe("bun run visual");
 });

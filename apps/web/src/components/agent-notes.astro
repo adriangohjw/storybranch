@@ -7,13 +7,13 @@ const gitignore = `.storybranch/actual/
 
 const agents = `## storybranch
 
-Storybook 10+ must already be running. After \`bun add -d @adriangohjw/storybranch\`, use \`bunx storybranch\`. Until the package is on npm, invoke \`bun /path/to/storybranch/apps/cli/src/cli.ts\` instead.
+\`@adriangohjw/storybranch\` is a dev dependency. Storybook 10+ must already be running. Run \`npm run visual\` (\`pnpm run visual\` or \`bun run visual\`).
 
-- \`test --url <storybook>\` — exit 1 means a visual diff. Lines: \`missing baseline\`, \`pixels\`, \`size\`, \`stale\`. A clean run prints \`ok\`.
+- \`visual\` runs \`storybranch test --url <storybook>\`. Exit 1 means a visual diff. Lines: \`missing baseline\`, \`pixels\`, \`size\`, \`stale\`. A clean run prints \`ok\`.
 - Read \`.storybranch/report.json\` (\`new\`, \`changed\`, \`unchanged\`, \`stale\`, \`error\`).
 - The first run is \`missing baseline\` for every shot.
 - Commit only \`.storybranch/baseline/\`. Ignore \`actual/\`, \`diff/\`, and \`report.json\`.
-- Run \`approve\` only when asked to accept the shots. \`review\` and \`--open\` are for a person.`;
+- Run \`npm run visual:approve\` only when asked to accept the shots. \`visual:review\` and \`--open\` are for a person.`;
 ---
 
 <section class="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20" id="agents">

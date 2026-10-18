@@ -6,13 +6,13 @@ const steps = [
     title: "Run Storybook",
   },
   {
-    body: "storybranch walks the story index, writes PNGs, and compares them to committed baselines. Exit 1 means a shot needs attention.",
-    code: "storybranch test --url http://127.0.0.1:6006",
+    body: "npm run visual walks the story index, writes PNGs, and compares them to committed baselines. Exit 1 means a shot needs attention.",
+    code: "npm run visual",
     title: "Capture & diff",
   },
   {
-    body: "Reopen the review UI, or promote every actual into baseline/ from the CLI.",
-    code: "storybranch review\nstorybranch approve",
+    body: "Reopen the review UI, or promote every actual into baseline/.",
+    code: "npm run visual:review\nnpm run visual:approve",
     title: "Review or approve",
   },
 ] as const;
@@ -21,7 +21,7 @@ const steps = [
 <section class="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20" id="how">
   <div class="max-w-2xl">
     <h2 class="font-syne text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-      Three commands, then ship
+      Scripts in your app, then ship
     </h2>
     <p class="mt-3 text-base text-ink-muted sm:text-lg">
       Install with npm, pnpm, or bun (see <a class="text-ink underline decoration-ink/20 underline-offset-2 hover:decoration-ink/50" href="#install">#install</a>). No dashboard signup.

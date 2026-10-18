@@ -9,14 +9,12 @@ export const PACKAGE_MANAGER_LABEL: Record<PackageManager, string> = {
 };
 
 const PACKAGE = "@adriangohjw/storybranch";
-const STORYBOOK_URL = "http://127.0.0.1:6006";
 
 export type InstallCommandKind =
   | "addPackage"
   | "installPlaywright"
-  | "monorepoSetup"
   | "playwright"
-  | "test";
+  | "run";
 
 export function installCommand(
   kind: InstallCommandKind,
@@ -47,36 +45,20 @@ export function installCommand(
       return "bunx playwright install chromium";
     }
 
-    case "test": {
+    case "run": {
       if (pm === "npm") {
-        return `npx storybranch test --url ${STORYBOOK_URL}`;
+        return "npm run visual";
       }
 
       if (pm === "pnpm") {
-        return `pnpm exec storybranch test --url ${STORYBOOK_URL}`;
+        return "pnpm run visual";
       }
 
-      return `bunx storybranch test --url ${STORYBOOK_URL}`;
+      return "bun run visual";
     }
 
     case "installPlaywright": {
       return `${installCommand("addPackage", pm)} && ${installCommand("playwright", pm)}`;
-    }
-
-    case "monorepoSetup": {
-      if (pm === "npm") {
-        return `git clone https://github.com/adriangohjw/storybranch.git && cd storybranch && npm install && npx playwright install chromium && npm run build`;
-      }
-
-      if (pm === "pnpm") {
-        return `git clone https://github.com/adriangohjw/storybranch.git && cd storybranch && pnpm install && pnpm exec playwright install chromium && pnpm run build`;
-      }
-
-      return `git clone https://github.com/adriangohjw/storybranch.git && cd storybranch && bun install && bunx playwright install chromium && bun run build`;
-    }
-
-    default: {
-      return "";
     }
   }
 }

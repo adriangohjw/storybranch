@@ -2,7 +2,7 @@
 
 Local visual diffs for Storybook. Captures stories with Playwright, pixel-diffs them against baselines in git, and opens a review UI on localhost.
 
-Requires [Bun](https://bun.com).
+Install it as a dev dependency of the Storybook app. Requires [Bun](https://bun.com) 1.4.3+.
 
 ## Install
 
@@ -11,16 +11,26 @@ npm install -D @adriangohjw/storybranch
 npx playwright install chromium
 ```
 
-(`pnpm add -D` / `pnpm exec`, or `bun add -d` / `bunx`, work too. The CLI still requires Bun 1.4.3+.)
+(`pnpm add -D` / `pnpm run`, or `bun add -d` / `bun run`, work too.)
 
-## Usage
+## Scripts
+
+```json
+{
+  "scripts": {
+    "visual": "storybranch test --url http://127.0.0.1:6006",
+    "visual:review": "storybranch review",
+    "visual:approve": "storybranch approve"
+  }
+}
+```
 
 ```bash
-npx storybranch test --url http://127.0.0.1:6006
-npx storybranch review
-npx storybranch approve
+npm run visual
+npm run visual:review
+npm run visual:approve
 ```
 
 Baselines are written to `.storybranch/baseline/`. Commit that directory.
 
-When a run needs attention, the CLI serves the review UI at `http://127.0.0.1:4321` (`--port` or `STORYBRANCH_PORT` overrides it).
+When a run needs attention, review is served at `http://127.0.0.1:4321` (`--port` or `STORYBRANCH_PORT` overrides it).
