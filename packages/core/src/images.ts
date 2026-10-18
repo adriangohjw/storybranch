@@ -1,4 +1,3 @@
-import { copyFile, mkdir, readdir, rm } from "node:fs/promises";
 import path from "node:path";
 
 import pixelmatch from "pixelmatch";
@@ -64,41 +63,4 @@ export async function actualDirectory(root: string): Promise<string> {
   }
 
   return path.join(root, ".storybranch", "actual", stdout.trim());
-}
-
-export async function promoteActuals(
-  root: string
-): Promise<{ updated: string[]; removed: string[] }> {
-  const actualDir = await actualDirectory(root);
-  const baselineDir = path.join(root, ".storybranch", "baseline");
-  const actualNames = await readdir(actualDir);
-
-  const actuals = actualNames
-    .filter((file) => file.endsWith(".png"))
-    .toSorted();
-
-  await mkdir(baselineDir, { recursive: true });
-  let baselines: string[] = [];
-
-  try {
-    const baselineNames = await readdir(baselineDir);
-    baselines = baselineNames.filter((file) => file.endsWith(".png"));
-  } catch {
-    baselines = [];
-  }
-
-  const kept = new Set(actuals);
-  const removed = baselines.filter((file) => !kept.has(file)).toSorted();
-  await Promise.all(
-    actuals.map(async (file) => {
-      await copyFile(path.join(actualDir, file), path.join(baselineDir, file));
-    })
-  );
-  await Promise.all(
-    removed.map(async (file) => {
-      await rm(path.join(baselineDir, file));
-    })
-  );
-
-  return { removed, updated: actuals };
 }

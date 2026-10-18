@@ -3,6 +3,7 @@ import path from "node:path";
 
 import {
   browserFromFilename,
+  shotFilename,
   shotLabelFromFilename,
   storyIdFromFilename,
   writeReport,
@@ -14,7 +15,7 @@ import type { Browser, Page } from "playwright";
 import { installHint } from "@/config.ts";
 import type { BrowserName } from "@/config.ts";
 import { actualDirectory, comparePng } from "@/images.ts";
-import { isCapturable, planShots, shotFilename } from "@/plan.ts";
+import { isCapturable, planShots } from "@/plan.ts";
 import type { PlanInput, Shot, ShotGlobals } from "@/plan.ts";
 import type { CaptureProgress } from "@/progress.ts";
 import { captureProgressEnabled, createCaptureProgress } from "@/progress.ts";

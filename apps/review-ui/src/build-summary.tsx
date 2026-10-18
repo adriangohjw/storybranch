@@ -112,12 +112,12 @@ function browsersFor(report: Report): string[] {
 }
 
 const BrowserIcon = ({ browser }: { browser: string }) => {
-  if (browser === CAPTURE_BROWSER || browser === "chrome") {
+  if (browser === "chrome") {
     return (
       <LuGlobe
-        aria-label={browser === "chrome" ? "Chrome" : "Chromium"}
+        aria-label="Chrome"
         className="size-4 text-zinc-300"
-        title={browser === "chrome" ? "Chrome" : "Chromium"}
+        title="Chrome"
       />
     );
   }

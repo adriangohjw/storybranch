@@ -11,7 +11,7 @@ import { chromium } from "playwright";
 
 import { startReviewServer } from "../apps/cli/src/review-server.ts";
 import { capture } from "../packages/core/src/capture.ts";
-import { promoteActuals } from "../packages/core/src/images.ts";
+import { acceptAllAttention } from "../packages/core/src/store.ts";
 
 const root = path.join(import.meta.dir, "..");
 const outDir = path.join(root, "docs", "images");
@@ -158,7 +158,7 @@ try {
     false
   );
 
-  await promoteActuals(work);
+  await acceptAllAttention(work);
 
   const green = await capture(url, work);
 
