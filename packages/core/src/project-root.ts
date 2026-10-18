@@ -58,6 +58,7 @@ async function isStorybookPackageRoot(dir: string): Promise<boolean> {
 async function pathExists(file: string): Promise<boolean> {
   try {
     await access(file);
+
     return true;
   } catch {
     return false;
@@ -92,13 +93,14 @@ async function findStorybookConfigDirs(root: string): Promise<string[]> {
 
   async function walk(dir: string): Promise<void> {
     const entries = await readdir(dir, { withFileTypes: true });
+    const nested: Promise<void>[] = [];
 
     for (const entry of entries) {
       if (!entry.isDirectory()) {
         continue;
       }
 
-      const name = entry.name;
+      const { name } = entry;
 
       if (name === "node_modules" || name === ".git") {
         continue;
@@ -111,8 +113,10 @@ async function findStorybookConfigDirs(root: string): Promise<string[]> {
         continue;
       }
 
-      await walk(full);
+      nested.push(walk(full));
     }
+
+    await Promise.all(nested);
   }
 
   await walk(root);
