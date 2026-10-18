@@ -186,11 +186,11 @@ test("index entries skip docs and !test", () => {
   expect(isCapturable({ tags: [], type: "docs" })).toBe(false);
 });
 
-test("shot filenames keep the label", () => {
-  expect(shotFilename("button--default", "1200x900")).toBe(
-    "button--default__1200x900.png"
+test("shot filenames keep the label and browser", () => {
+  expect(shotFilename("button--default", "1200x900", "firefox")).toBe(
+    "button--default__1200x900__firefox.png"
   );
-  expect(shotFilename("button--modes", "dark/mobile")).toBe(
-    "button--modes__dark_mobile.png"
+  expect(shotFilename("button--modes", "dark/mobile", "chrome")).toBe(
+    "button--modes__dark_mobile__chrome.png"
   );
 });

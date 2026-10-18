@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalPassThroughEnv": ["BUN_CHECK_BIN"],
+  "globalPassThroughEnv": ["BUN_CHECK_BIN", "STORYBRANCH_E2E_BROWSERS"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

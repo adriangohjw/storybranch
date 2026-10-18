@@ -4,12 +4,13 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 
 import { readReport } from "@storybranch/report";
-import { chromium } from "playwright";
+import { chromium, firefox } from "playwright";
+import type { Browser } from "playwright";
 import { PNG } from "pngjs";
 
 const root = path.join(import.meta.dir, "../../..");
 
-const captured = [
+const shots = [
   "coverage--blank__1200x900.png",
   "coverage--cropped__1200x900.png",
   "coverage--default__1200x900.png",
@@ -48,6 +49,23 @@ const captured = [
   "hero--pinned__mobile1.png",
 ];
 
+const e2eBrowsers = (
+  process.env.STORYBRANCH_E2E_BROWSERS ?? "chrome,firefox,edge"
+)
+  .split(",")
+  .map((name) => name.trim())
+  .filter((name) => name !== "" && name !== "skip");
+
+const checksChrome = e2eBrowsers.includes("chrome");
+
+const shotNames = checksChrome ? shots : ["smoke--default__1200x900.png"];
+
+const captured = e2eBrowsers
+  .flatMap((browser) =>
+    shotNames.map((name) => name.replace(/\.png$/u, `__${browser}.png`))
+  )
+  .toSorted();
+
 const absent = [
   "coverage--disabled",
   "coverage--disabled-snapshot",
@@ -57,170 +75,291 @@ const absent = [
   "hero--skipped",
 ];
 
-test(
+test.skipIf(process.env.STORYBRANCH_E2E_BROWSERS === "skip")(
   "fixture stories capture, approve, and match",
   async () => {
     const url = "http://127.0.0.1:6019";
-    await withStorybook(6019, {}, async () => {
-      const index = await readIndex(url);
-      expect(story(index, "hero--skipped")?.tags ?? []).not.toContain("test");
-      const tags = story(index, "coverage--default")?.tags ?? [];
-      expect(tags).toContain("test");
-      expect(tags).toContain("manifest");
-      expect(story(index, "coverage--disabled")).toBeDefined();
+    await withStorybook(
+      6019,
+      checksChrome ? {} : { STORYBRANCH_FIXTURE: "smoke" },
+      async () => {
+        const index = await readIndex(url);
 
-      const work = await mkdtemp(path.join(tmpdir(), "storybranch-e2e-"));
-      await storybookPackage(work);
-      const hash = await initRepo(work);
-      const first = await run(["test", "--url", url], work);
-      expect(first.exitCode).toBe(1);
+        if (checksChrome) {
+          expect(story(index, "hero--skipped")?.tags ?? []).not.toContain(
+            "test"
+          );
+          const tags = story(index, "coverage--default")?.tags ?? [];
+          expect(tags).toContain("test");
+          expect(tags).toContain("manifest");
+          expect(story(index, "coverage--disabled")).toBeDefined();
+        }
 
-      for (const line of failureLines(first.stderr)) {
-        expect(line.startsWith("missing baseline ") ? true : line).toBe(true);
+        const work = await mkdtemp(path.join(tmpdir(), "storybranch-e2e-"));
+        await storybookPackage(work);
+        const hash = await initRepo(work);
+        const first = await run(
+          ["test", "--url", url, "--browsers", e2eBrowsers.join(",")],
+          work
+        );
+        expect(first.exitCode).toBe(1);
+
+        for (const line of failureLines(first.stderr)) {
+          expect(line.startsWith("missing baseline ") ? true : line).toBe(true);
+        }
+
+        const approved = await run(["approve"], work);
+        expect(approved.exitCode).toBe(0);
+
+        const second = await run(
+          ["test", "--url", url, "--browsers", e2eBrowsers.join(",")],
+          work
+        );
+        expect(second.stderr).toBe("");
+        expect(second.exitCode).toBe(0);
+
+        const baselines = await readdir(
+          path.join(work, ".storybranch", "baseline")
+        );
+        expect(baselines.toSorted()).toEqual(captured);
+
+        for (const name of absent) {
+          expect(baselines.some((file) => file.startsWith(name))).toBe(false);
+        }
+
+        const report = await readReport(work);
+        expect(
+          report.entries.every((entry) => entry.status === "unchanged")
+        ).toBe(true);
+        expect(report.commit).toBe(hash);
+
+        if (!e2eBrowsers.includes("chrome")) {
+          return;
+        }
+
+        await expectShot(
+          work,
+          hash,
+          "coverage--default__1200x900__chrome.png",
+          {
+            color: [226, 232, 240],
+            height: 900,
+            width: 1200,
+          }
+        );
+        await expectShot(
+          work,
+          hash,
+          "coverage--pinned-mobile-1__mobile1__chrome.png",
+          {
+            height: 568,
+            width: 320,
+          }
+        );
+        await expectShot(
+          work,
+          hash,
+          "coverage--pinned-rotated__mobile1__chrome.png",
+          {
+            height: 320,
+            width: 568,
+          }
+        );
+        await expectShot(
+          work,
+          hash,
+          "coverage--pinned-desktop__desktop__chrome.png",
+          {
+            height: 1024,
+            width: 1280,
+          }
+        );
+        await expectShot(
+          work,
+          hash,
+          "coverage--pinned-mobile-2__mobile2__chrome.png",
+          {
+            height: 896,
+            width: 414,
+          }
+        );
+        await expectShot(
+          work,
+          hash,
+          "coverage--pinned-tablet__tablet__chrome.png",
+          {
+            height: 1112,
+            width: 834,
+          }
+        );
+        await expectShot(
+          work,
+          hash,
+          "coverage--pinned-wide__wide__chrome.png",
+          {
+            height: 700,
+            width: 1440,
+          }
+        );
+        await expectShot(work, hash, "coverage--pinned-odd__odd__chrome.png", {
+          height: 100,
+          width: 321,
+        });
+        await expectShot(work, hash, "coverage--widths__320__chrome.png", {
+          height: 900,
+          width: 320,
+        });
+        await expectShot(work, hash, "coverage--widths__1200__chrome.png", {
+          height: 900,
+          width: 1200,
+        });
+        await expectShot(
+          work,
+          hash,
+          "coverage--mode-widths__narrow__chrome.png",
+          {
+            height: 900,
+            width: 320,
+          }
+        );
+        await expectShot(
+          work,
+          hash,
+          "coverage--mode-widths__wide__chrome.png",
+          {
+            height: 900,
+            width: 800,
+          }
+        );
+        await expectShot(work, hash, "coverage--mode-theme__dark__chrome.png", {
+          color: [17, 24, 39],
+          height: 900,
+          width: 1200,
+        });
+        await expectShot(
+          work,
+          hash,
+          "coverage--mode-theme__light__chrome.png",
+          {
+            color: [226, 232, 240],
+            height: 900,
+            width: 1200,
+          }
+        );
+        await expectShot(
+          work,
+          hash,
+          "coverage--mode-named__phone__chrome.png",
+          {
+            color: [17, 24, 39],
+            height: 568,
+            width: 320,
+          }
+        );
+        await expectShot(work, hash, "coverage--mode-box__card__chrome.png", {
+          height: 200,
+          width: 400,
+        });
+        await expectShot(
+          work,
+          hash,
+          "coverage--mode-width-only__half__chrome.png",
+          {
+            height: 900,
+            width: 500,
+          }
+        );
+        await expectShot(
+          work,
+          hash,
+          "coverage--mode-slash__dark_mobile__chrome.png",
+          {
+            color: [17, 24, 39],
+            height: 900,
+            width: 360,
+          }
+        );
+        await expectShot(
+          work,
+          hash,
+          "coverage--mode-several__mid__chrome.png",
+          {
+            height: 900,
+            width: 640,
+          }
+        );
+        await expectShot(
+          work,
+          hash,
+          "coverage--delayed__1200x900__chrome.png",
+          {
+            color: [0, 0, 255],
+            height: 900,
+            width: 1200,
+          }
+        );
+        await expectShot(
+          work,
+          hash,
+          "coverage--pause-at-end__1200x900__chrome.png",
+          {
+            color: [255, 0, 0],
+            height: 900,
+            width: 1200,
+          }
+        );
+        await expectShot(
+          work,
+          hash,
+          "coverage--pause-at-start__1200x900__chrome.png",
+          {
+            color: [0, 255, 0],
+            height: 900,
+            width: 1200,
+          }
+        );
+        await expectShot(
+          work,
+          hash,
+          "coverage--cropped__1200x900__chrome.png",
+          {
+            color: [18, 52, 86],
+            height: 900,
+            width: 1200,
+          }
+        );
+        await expectShot(
+          work,
+          hash,
+          "coverage--uncropped__1200x900__chrome.png",
+          {
+            color: [18, 52, 86],
+            height: 2000,
+            width: 2000,
+          }
+        );
+        await expectShot(work, hash, "coverage--blank__1200x900__chrome.png", {
+          color: [255, 255, 255],
+          height: 4,
+          width: 4,
+        });
+        await expectShot(work, hash, "hero--default__1200x900__chrome.png", {});
       }
+    );
 
-      const approved = await run(["approve"], work);
-      expect(approved.exitCode).toBe(0);
-
-      const second = await run(["test", "--url", url], work);
-      expect(second.stderr).toBe("");
-      expect(second.exitCode).toBe(0);
-
-      const baselines = await readdir(
-        path.join(work, ".storybranch", "baseline")
-      );
-      expect(baselines.toSorted()).toEqual(captured);
-
-      for (const name of absent) {
-        expect(baselines.some((file) => file.startsWith(name))).toBe(false);
-      }
-
-      const report = await readReport(work);
-      expect(
-        report.entries.every((entry) => entry.status === "unchanged")
-      ).toBe(true);
-      expect(report.commit).toBe(hash);
-
-      await expectShot(work, hash, "coverage--default__1200x900.png", {
-        color: [226, 232, 240],
-        height: 900,
-        width: 1200,
-      });
-      await expectShot(work, hash, "coverage--pinned-mobile-1__mobile1.png", {
-        height: 568,
-        width: 320,
-      });
-      await expectShot(work, hash, "coverage--pinned-rotated__mobile1.png", {
-        height: 320,
-        width: 568,
-      });
-      await expectShot(work, hash, "coverage--pinned-desktop__desktop.png", {
-        height: 1024,
-        width: 1280,
-      });
-      await expectShot(work, hash, "coverage--pinned-mobile-2__mobile2.png", {
-        height: 896,
-        width: 414,
-      });
-      await expectShot(work, hash, "coverage--pinned-tablet__tablet.png", {
-        height: 1112,
-        width: 834,
-      });
-      await expectShot(work, hash, "coverage--pinned-wide__wide.png", {
-        height: 700,
-        width: 1440,
-      });
-      await expectShot(work, hash, "coverage--pinned-odd__odd.png", {
-        height: 100,
-        width: 321,
-      });
-      await expectShot(work, hash, "coverage--widths__320.png", {
-        height: 900,
-        width: 320,
-      });
-      await expectShot(work, hash, "coverage--widths__1200.png", {
-        height: 900,
-        width: 1200,
-      });
-      await expectShot(work, hash, "coverage--mode-widths__narrow.png", {
-        height: 900,
-        width: 320,
-      });
-      await expectShot(work, hash, "coverage--mode-widths__wide.png", {
-        height: 900,
-        width: 800,
-      });
-      await expectShot(work, hash, "coverage--mode-theme__dark.png", {
-        color: [17, 24, 39],
-        height: 900,
-        width: 1200,
-      });
-      await expectShot(work, hash, "coverage--mode-theme__light.png", {
-        color: [226, 232, 240],
-        height: 900,
-        width: 1200,
-      });
-      await expectShot(work, hash, "coverage--mode-named__phone.png", {
-        color: [17, 24, 39],
-        height: 568,
-        width: 320,
-      });
-      await expectShot(work, hash, "coverage--mode-box__card.png", {
-        height: 200,
-        width: 400,
-      });
-      await expectShot(work, hash, "coverage--mode-width-only__half.png", {
-        height: 900,
-        width: 500,
-      });
-      await expectShot(work, hash, "coverage--mode-slash__dark_mobile.png", {
-        color: [17, 24, 39],
-        height: 900,
-        width: 360,
-      });
-      await expectShot(work, hash, "coverage--mode-several__mid.png", {
-        height: 900,
-        width: 640,
-      });
-      await expectShot(work, hash, "coverage--delayed__1200x900.png", {
-        color: [0, 0, 255],
-        height: 900,
-        width: 1200,
-      });
-      await expectShot(work, hash, "coverage--pause-at-end__1200x900.png", {
-        color: [255, 0, 0],
-        height: 900,
-        width: 1200,
-      });
-      await expectShot(work, hash, "coverage--pause-at-start__1200x900.png", {
-        color: [0, 255, 0],
-        height: 900,
-        width: 1200,
-      });
-      await expectShot(work, hash, "coverage--cropped__1200x900.png", {
-        color: [18, 52, 86],
-        height: 900,
-        width: 1200,
-      });
-      await expectShot(work, hash, "coverage--uncropped__1200x900.png", {
-        color: [18, 52, 86],
-        height: 2000,
-        width: 2000,
-      });
-      await expectShot(work, hash, "coverage--blank__1200x900.png", {
-        color: [255, 255, 255],
-        height: 4,
-        width: 4,
-      });
-      await expectShot(work, hash, "hero--default__1200x900.png", {});
-    });
+    if (!checksChrome) {
+      return;
+    }
 
     const errorUrl = "http://127.0.0.1:6021";
     await withStorybook(6021, { STORYBRANCH_FIXTURE: "errors" }, async () => {
       const work = await mkdtemp(path.join(tmpdir(), "storybranch-e2e-"));
       await storybookPackage(work);
       await initRepo(work);
-      const result = await run(["test", "--url", errorUrl], work);
+      const result = await run(
+        ["test", "--url", errorUrl, "--browsers", e2eBrowsers.join(",")],
+        work
+      );
       expect(result.exitCode).toBe(1);
       const stderr = result.stderr;
       expect(stderr).toContain(
@@ -234,7 +373,7 @@ test(
       expect(stderr).toContain("screenshot did not stabilize");
     });
   },
-  { timeout: 300_000 }
+  { timeout: 480_000 }
 );
 
 interface IndexEntry {
@@ -367,6 +506,20 @@ async function withStorybook(
   }
 }
 
+async function launchE2eBrowser(): Promise<Browser> {
+  const name = e2eBrowsers[0] ?? "chrome";
+
+  if (name === "firefox") {
+    return await firefox.launch();
+  }
+
+  if (name === "edge") {
+    return await chromium.launch({ channel: "msedge" });
+  }
+
+  return await chromium.launch();
+}
+
 async function warmPreview(storybookUrl: string): Promise<void> {
   const entries = await readIndex(storybookUrl);
   const id = entries.find((entry) => entry.type === "story")?.id;
@@ -375,7 +528,7 @@ async function warmPreview(storybookUrl: string): Promise<void> {
     return;
   }
 
-  const browser = await chromium.launch();
+  const browser = await launchE2eBrowser();
 
   try {
     const page = await browser.newPage();

@@ -6,6 +6,7 @@ import path from "node:path";
 import {
   acceptAllAttention,
   acceptEntry,
+  browserFromFilename,
   needsAttention,
   readReport,
   shotLabelFromFilename,
@@ -26,12 +27,13 @@ test("story parts split on first double dash", () => {
   });
 });
 
-test("story id and label parse from filename", () => {
-  expect(storyIdFromFilename("button--default__1200x900.png")).toBe(
-    "button--default"
-  );
-  expect(shotLabelFromFilename("button--default__1200x900.png")).toBe(
-    "1200x900"
+test("story id, label, and browser parse from filename", () => {
+  const filename = "button--default__1200x900__firefox.png";
+  expect(storyIdFromFilename(filename)).toBe("button--default");
+  expect(shotLabelFromFilename(filename)).toBe("1200x900");
+  expect(browserFromFilename(filename)).toBe("firefox");
+  expect(browserFromFilename("button--modes__dark_mobile__edge.png")).toBe(
+    "edge"
   );
 });
 

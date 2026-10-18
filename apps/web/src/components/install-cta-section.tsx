@@ -17,8 +17,9 @@ export function InstallCtaSection() {
           <code className="text-paper/90 font-mono text-[0.9em] break-all">
             @adriangohjw/storybranch
           </code>{" "}
-          as a dev dependency. Chromium downloads in that install, then add a
-          script and run it against your running Storybook URL.
+          as a dev dependency. That install downloads Chrome. Add Firefox or
+          Edge with Playwright when a config or --browsers asks for them, then
+          run the script against your Storybook URL.
         </p>
         <pre className="bg-terminal text-paper mt-6 max-w-2xl rounded-lg border border-white/15 px-4 py-3 font-mono text-[13px] leading-relaxed break-all whitespace-pre-wrap">
           <code>{`"visual": "storybranch test --url http://127.0.0.1:6006"`}</code>

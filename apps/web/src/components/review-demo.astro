@@ -7,8 +7,8 @@ const shots = [
     aspect: "800 / 300",
     baseline: "/images/demo/baseline.svg",
     diff: "/images/demo/diff-copy.svg",
-    id: "hero--default__1200x900.png",
-    label: "hero--default__1200x900.png",
+    id: "hero--default__1200x900__chrome.png",
+    label: "1200x900 · chrome",
     status: "changed" as const,
     storyId: "hero--default",
   },
@@ -17,8 +17,8 @@ const shots = [
     aspect: "320 / 420",
     baseline: "/images/demo/baseline-narrow.svg",
     diff: "/images/demo/diff-narrow-added.svg",
-    id: "hero--modes__narrow.png",
-    label: "hero--modes__narrow.png",
+    id: "hero--modes__narrow__firefox.png",
+    label: "narrow · firefox",
     status: "changed" as const,
     storyId: "hero--modes",
   },
@@ -27,8 +27,8 @@ const shots = [
     aspect: "800 / 300",
     baseline: "/images/demo/baseline-wide.svg",
     diff: "/images/demo/diff-wide.svg",
-    id: "hero--modes__wide.png",
-    label: "hero--modes__wide.png",
+    id: "hero--modes__wide__edge.png",
+    label: "wide · edge",
     status: "changed" as const,
     storyId: "hero--modes",
   },
@@ -37,8 +37,8 @@ const shots = [
     aspect: "320 / 420",
     baseline: null,
     diff: null,
-    id: "hero--pinned__mobile1.png",
-    label: "hero--pinned__mobile1.png",
+    id: "hero--pinned__mobile1__chrome.png",
+    label: "mobile1 · chrome",
     status: "new" as const,
     storyId: "hero--pinned",
   },
@@ -47,8 +47,8 @@ const shots = [
     aspect: "800 / 300",
     baseline: "/images/demo/baseline.svg",
     diff: null,
-    id: "hero--skipped__1200x900.png",
-    label: "hero--skipped__1200x900.png",
+    id: "hero--skipped__1200x900__chrome.png",
+    label: "1200x900 · chrome",
     status: "unchanged" as const,
     storyId: "hero--skipped",
   },
@@ -63,7 +63,7 @@ const badgeClass = {
   unchanged: "bg-emerald-500/20 text-emerald-300",
 } as const;
 
-const initialId = "hero--default__1200x900.png";
+const initialId = "hero--default__1200x900__chrome.png";
 ---
 
 <section class="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20" id="review">
