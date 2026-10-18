@@ -1,21 +1,23 @@
 # storybranch
 
-> Alpha open-source visual testing for Storybook 10+: capture stories as PNGs, pixel-diff against baselines in git, review locally. Install with `bun add -d @adriangohjw/storybranch` (publish from `apps/cli` when ready). Until it is on npm, clone the repo and run the CLI from your app.
+> Alpha open-source visual testing for Storybook 10+: capture stories as PNGs, pixel-diff against baselines in git, review locally. Install `@adriangohjw/storybranch` as a dev dependency of the Storybook app.
 
 Storybook must already be running at a URL Chromium can reach. Chromatic `modes` or `viewports` on a story become extra snapshots; both on one story is an error.
 
-`storybranch test --url <storybook>` exits **1** when a snapshot needs attention. Failure lines: `missing baseline <file.png>`, `pixels <file.png>`, `size <file.png>`, `stale <file.png>`. A clean run prints `ok`. Inventory: `.storybranch/report.json`. The **first run** exits 1 with `missing baseline` for every shot — that is the baseline set, not a broken install.
+Add scripts: `visual` = `storybranch test --url <storybook>`, `visual:review` = `storybranch review`, `visual:approve` = `storybranch approve`. Run `npm run visual` (`pnpm run visual` or `bun run visual`).
 
-Commit only `.storybranch/baseline/`. Ignore `.storybranch/actual/`, `.storybranch/diff/`, and `.storybranch/report.json`. Run `approve` only when asked to accept shots. `review` and `--open` are for a person.
+`npm run visual` exits **1** when a snapshot needs attention. Failure lines: `missing baseline <file.png>`, `pixels <file.png>`, `size <file.png>`, `stale <file.png>`. A clean run prints `ok`. Inventory: `.storybranch/report.json`. The **first run** exits 1 with `missing baseline` for every shot — that is the baseline set, not a broken install.
 
-Install (npm): `npm install -D @adriangohjw/storybranch`, `npx playwright install chromium`, then `npx storybranch test --url <storybook>`. pnpm and bun equivalents on the site install section. CLI runtime requires Bun 1.4.3+. From a clone before publish: `bun /path/to/storybranch/apps/cli/src/cli.ts` with the same subcommands.
+Commit only `.storybranch/baseline/`. Ignore `.storybranch/actual/`, `.storybranch/diff/`, and `.storybranch/report.json`. Run `npm run visual:approve` only when asked to accept shots. `visual:review` and `--open` are for a person.
+
+Install (npm): `npm install -D @adriangohjw/storybranch`, then `npx playwright install chromium`. pnpm and bun equivalents are on the site install section. Requires Bun 1.4.3+.
 
 ## Docs
 
-- [README](https://github.com/adriangohjw/storybranch#readme): install, usage, CI, monorepo development
-- [Quick start & From source](https://github.com/adriangohjw/storybranch#quick-start): test command, clone path, exit codes, AGENTS.md snippet
+- [README](https://github.com/adriangohjw/storybranch#readme): install, scripts, CI, monorepo development
+- [Quick start](https://github.com/adriangohjw/storybranch#quick-start): scripts, exit codes, AGENTS.md snippet
 - [Agent snippet on the site](https://storybook.adriangohjw.com/#agents): copy-paste `.gitignore` and AGENTS.md for your Storybook app
-- [How it works on the site](https://storybook.adriangohjw.com/#how): three-command workflow
+- [How it works on the site](https://storybook.adriangohjw.com/#how): scripts in the Storybook app
 
 ## Optional
 

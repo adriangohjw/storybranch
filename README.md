@@ -251,7 +251,7 @@ bun install           # runs `lefthook install` via prepare (skipped when CI=tru
 bunx playwright install chromium
 bun run build         # review UI, package bundle (bin loads dist/cli.js), and marketing site
 bunx storybook dev -p 6006 --config-dir packages/fixture/.storybook
-bunx storybranch test --url http://127.0.0.1:6006
+bun run visual          # storybranch test against the fixture URL
 bun run lint          # turbo run lint (per-package oxlint)
 bun run lint:fix
 bun run format        # turbo run format (per-package oxfmt)
@@ -296,11 +296,11 @@ Skip hooks with `git commit --no-verify` / `git push --no-verify`, or `LEFTHOOK=
 
 ### Review UI (HMR)
 
-1. Run a capture so `report.json` exists (or run `bunx storybranch test --url …` after `bun run build`).
-2. Terminal A: `bunx storybranch review` (API on port 4321).
+1. Run a capture so `report.json` exists (`bun run visual` after `bun run build`).
+2. Terminal A: `bun run visual:review` (API on port 4321).
 3. Terminal B: `bun run dev:review` (Vite dev server; proxies `/api` and `/images` to 4321).
 
-Review UI assets are **not** committed (`apps/cli/review/public/assets/`, `index.html`). After `bun install`, run `bun run build` before `bunx storybranch` in this repo. CI has a dedicated **build** job (`bun run build`); tests depend on packages building via turbo. A published install already includes the built review UI and `dist/cli.js`.
+Review UI assets are **not** committed (`apps/cli/review/public/assets/`, `index.html`). After `bun install`, run `bun run build` before `bun run visual` in this repo. CI has a dedicated **build** job (`bun run build`); tests depend on packages building via turbo. A published install already includes the built review UI and `dist/cli.js`.
 
 ### Landing site
 
