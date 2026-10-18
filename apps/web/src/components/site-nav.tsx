@@ -3,10 +3,11 @@ import { FaGithub } from "react-icons/fa6";
 import { LuMenu, LuX } from "react-icons/lu";
 
 const links = [
-  { href: "#review", label: "Review" },
-  { href: "#install", label: "Install" },
-  { href: "#how", label: "How it works" },
-  { href: "#agents", label: "Agents" },
+  { href: "/#review", label: "Review" },
+  { href: "/#install", label: "Install" },
+  { href: "/#how", label: "How it works" },
+  { href: "/#agents", label: "Agents" },
+  { href: "/chromatic", label: "Chromatic" },
 ] as const;
 
 interface SiteNavProps {

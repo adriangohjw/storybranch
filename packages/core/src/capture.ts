@@ -9,12 +9,16 @@ import {
   writeReport,
 } from "@storybranch/report";
 import type { Report, ReportEntry } from "@storybranch/report";
-import { chromium, firefox } from "playwright";
+import { chromium, firefox, webkit } from "playwright";
 import type { Browser, Page } from "playwright";
 
+import { pickStories } from "@/chromatic.ts";
+import type { OnlyChangedFilter } from "@/chromatic.ts";
 import { installHint } from "@/config.ts";
 import type { BrowserName } from "@/config.ts";
+import { collectIgnoreRects } from "@/ignore.ts";
 import { actualDirectory, comparePng } from "@/images.ts";
+import type { IgnoreRect } from "@/images.ts";
 import { isCapturable, planShots } from "@/plan.ts";
 import type { PlanInput, Shot, ShotGlobals } from "@/plan.ts";
 import type { CaptureProgress } from "@/progress.ts";
@@ -22,6 +26,7 @@ import { captureProgressEnabled, createCaptureProgress } from "@/progress.ts";
 
 interface IndexEntry {
   id?: string;
+  importPath?: string;
   type: string;
   tags?: string[];
 }
@@ -41,6 +46,7 @@ function isStoryIndex(
 
 export interface CaptureOptions {
   browsers?: BrowserName[];
+  onlyChanged?: OnlyChangedFilter;
   parallelBrowsers?: boolean;
   progress?: boolean;
 }
@@ -48,6 +54,7 @@ export interface CaptureOptions {
 export interface CaptureResult {
   failures: string[];
   report: Report;
+  wroteReport: boolean;
 }
 
 export async function capture(
@@ -64,7 +71,7 @@ export async function capture(
       `index.json returned ${response.status} from ${indexUrl}`,
     ];
 
-    return { failures, report: emptyReport(root, "", "") };
+    return { failures, report: emptyReport(root, "", ""), wroteReport: false };
   }
 
   const body: unknown = await response.json();
@@ -72,7 +79,7 @@ export async function capture(
   if (!isStoryIndex(body)) {
     const failures = [`index.json from ${indexUrl} was not a story index`];
 
-    return { failures, report: emptyReport(root, "", "") };
+    return { failures, report: emptyReport(root, "", ""), wroteReport: false };
   }
 
   const stories: (IndexEntry & { id: string })[] = [];
@@ -86,6 +93,19 @@ export async function capture(
   }
 
   stories.sort((a, b) => a.id.localeCompare(b.id));
+
+  // Stories left out of --only-changed keep their baselines. Captured stories still go stale.
+  let capturedIds: ReadonlySet<string> | undefined;
+
+  if (options.onlyChanged !== undefined) {
+    const picked = pickStories(stories, options.onlyChanged);
+
+    if (!picked.full) {
+      capturedIds = new Set(picked.stories.map((story) => story.id));
+    }
+
+    stories.splice(0, stories.length, ...picked.stories);
+  }
 
   const actualDir = await actualDirectory(root);
   const commit = path.basename(actualDir);
@@ -121,6 +141,12 @@ export async function capture(
       const page = await context.newPage();
       await page.addInitScript(installStoryHook);
 
+      const media: MediaEmulation = {
+        forcedColors: null,
+        media: null,
+        reducedMotion: null,
+      };
+
       for (const [index, story] of stories.entries()) {
         const current = index + 1;
         const iframe = new URL("iframe.html", base);
@@ -147,7 +173,8 @@ export async function capture(
             expected,
             failures,
             entries,
-            progress
+            progress,
+            media
           );
           shotsCaptured += storyStats.shots;
         } catch (error) {
@@ -201,9 +228,17 @@ export async function capture(
     baselines = [];
   }
 
-  for (const baselineFile of baselines
-    .filter((entry) => !expected.has(entry))
-    .toSorted()) {
+  const staleNames = baselines.filter((entry) => {
+    if (expected.has(entry)) {
+      return false;
+    }
+
+    return (
+      capturedIds === undefined || capturedIds.has(storyIdFromFilename(entry))
+    );
+  });
+
+  for (const baselineFile of staleNames.toSorted()) {
     failures.push(`stale ${baselineFile}`);
     entries.push({
       baselinePath: path.join(baselineDir, baselineFile),
@@ -227,7 +262,7 @@ export async function capture(
 
   await writeReport(root, report);
 
-  return { failures, report };
+  return { failures, report, wroteReport: true };
 }
 
 function emptyReport(root: string, commit: string, actualDir: string): Report {
@@ -260,6 +295,10 @@ async function launchBrowser(browserName: BrowserName): Promise<Browser> {
       return await chromium.launch({ channel: "msedge" });
     }
 
+    if (browserName === "safari") {
+      return await webkit.launch();
+    }
+
     return await chromium.launch();
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -283,7 +322,8 @@ async function shootStory(
   expected: Set<string>,
   failures: string[],
   entries: ReportEntry[],
-  progress: CaptureProgress
+  progress: CaptureProgress,
+  media: MediaEmulation
 ): Promise<{ shots: number; failed: number; skipped: boolean }> {
   await page.setViewportSize({ height: 900, width: 1200 });
   await page.goto(iframeUrl, { waitUntil: "load" });
@@ -309,6 +349,24 @@ async function shootStory(
   }
 
   let shotFailures = 0;
+  const [first] = plan.shots;
+
+  if (first !== undefined) {
+    const nextMedia = mediaOf(first);
+
+    if (!sameMedia(media, nextMedia)) {
+      await page.emulateMedia({
+        forcedColors: nextMedia.forcedColors,
+        media: nextMedia.media,
+        reducedMotion: nextMedia.reducedMotion,
+      });
+      media.forcedColors = nextMedia.forcedColors;
+      media.media = nextMedia.media;
+      media.reducedMotion = nextMedia.reducedMotion;
+      await page.goto(iframeUrl, { waitUntil: "load" });
+      await waitForStory(page);
+    }
+  }
 
   for (const [shotIndex, shot] of plan.shots.entries()) {
     progress.storyActive(storyIndex, progressId, {
@@ -333,7 +391,7 @@ async function shootStory(
       await document.fonts.ready;
     });
     await page.evaluate(pauseAnimations, shot.pauseAtEnd);
-    const png = await stablePng(page, shot);
+    const { ignore, png } = await stablePng(page, shot);
     const actualPath = path.join(actualDir, filename);
     await Bun.write(actualPath, png);
 
@@ -356,6 +414,7 @@ async function shootStory(
     }
 
     const result = comparePng(Buffer.from(await baseline.bytes()), png, {
+      ignore,
       includeAA: shot.includeAA,
       threshold: shot.threshold,
     });
@@ -436,15 +495,20 @@ async function waitForStory(page: Page): Promise<void> {
   }
 }
 
-async function stablePng(page: Page, shot: Shot): Promise<Buffer> {
+async function stablePng(
+  page: Page,
+  shot: Shot
+): Promise<{ png: Buffer; ignore: IgnoreRect[] }> {
   const root = page.locator("#storybook-root");
   let previous: Buffer | null = null;
+  let ignore: IgnoreRect[] = [];
 
   for (let attempt = 0; attempt < STABLE_FRAMES; attempt += 1) {
+    ignore = await page.evaluate(collectIgnoreRects, shot.ignoreSelectors);
     const png = await takePng(page, root, shot);
 
     if (previous !== null && previous.equals(png)) {
-      return png;
+      return { ignore, png };
     }
 
     previous = png;
@@ -544,13 +608,39 @@ async function readPlanInput(storyId: string): Promise<PlanInput> {
         diffThreshold: chromatic.diffThreshold,
         disable: chromatic.disable,
         disableSnapshot: chromatic.disableSnapshot,
+        forcedColors: chromatic.forcedColors,
+        ignoreSelectors: chromatic.ignoreSelectors,
+        media: chromatic.media,
         modes: chromatic.modes,
         pauseAnimationAtEnd: chromatic.pauseAnimationAtEnd,
+        prefersReducedMotion: chromatic.prefersReducedMotion,
         viewports: chromatic.viewports,
       },
       viewport: { options: viewport.options },
     },
   };
+}
+
+interface MediaEmulation {
+  forcedColors: Shot["forcedColors"];
+  media: Shot["media"];
+  reducedMotion: Shot["prefersReducedMotion"];
+}
+
+function mediaOf(shot: Shot): MediaEmulation {
+  return {
+    forcedColors: shot.forcedColors,
+    media: shot.media,
+    reducedMotion: shot.prefersReducedMotion,
+  };
+}
+
+function sameMedia(left: MediaEmulation, right: MediaEmulation): boolean {
+  return (
+    left.forcedColors === right.forcedColors &&
+    left.media === right.media &&
+    left.reducedMotion === right.reducedMotion
+  );
 }
 
 function applyGlobals(globals: ShotGlobals): void {

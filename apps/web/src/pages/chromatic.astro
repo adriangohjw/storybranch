@@ -1,0 +1,194 @@
+---
+import Footer from "../components/footer.astro";
+import Layout from "../layouts/layout.astro";
+import Nav from "../components/nav.astro";
+
+const keys = [
+  ["chromatic.delay", "number (ms)", "Wait before the screenshot. Default 0."],
+  [
+    "chromatic.diffIncludeAntiAliasing",
+    "boolean",
+    "Count anti-aliasing as a diff. Default false.",
+  ],
+  [
+    "chromatic.diffThreshold",
+    "number from 0 to 1",
+    "Pixel sensitivity. Default 0.1.",
+  ],
+  ["chromatic.disable", "boolean", "Skip the story when true."],
+  ["chromatic.disableSnapshot", "boolean", "Skip the story when true."],
+  [
+    "chromatic.ignoreSelectors",
+    "string[]",
+    "CSS selectors whose boxes are excluded from the diff.",
+  ],
+  [
+    "chromatic.pauseAnimationAtEnd",
+    "boolean",
+    "Pause CSS and Web Animations at the end. Default true. false pauses at the start.",
+  ],
+  [
+    "chromatic.forcedColors",
+    "active | none",
+    "Emulate the forced-colors media feature.",
+  ],
+  [
+    "chromatic.prefersReducedMotion",
+    "reduce | no-preference",
+    "Emulate prefers-reduced-motion.",
+  ],
+  [
+    "chromatic.media",
+    "print | screen",
+    "Emulate the print or screen media type.",
+  ],
+  [
+    "chromatic.cropToViewport",
+    "boolean",
+    "Clip the screenshot to the viewport. Default false.",
+  ],
+  [
+    "chromatic.modes",
+    "object",
+    "One snapshot per mode. A named viewport is looked up; a number is a width.",
+  ],
+  [
+    "chromatic.viewports",
+    "number[]",
+    "One snapshot per width, at height 900. Cannot be combined with modes.",
+  ],
+];
+---
+
+<Layout
+  title="Chromatic compatibility — storybranch"
+  description="Supported parameters.chromatic keys: ignore regions, forced colors, reduced motion, print media, and how Storybook merges project, meta, and story parameters."
+>
+  <Nav />
+  <main class="mx-auto w-full max-w-3xl px-5 py-12 sm:px-8 sm:py-16">
+    <p class="text-accent text-sm font-semibold tracking-wide uppercase">
+      Compatibility
+    </p>
+    <h1
+      class="font-syne text-ink mt-3 text-4xl font-bold tracking-tight sm:text-5xl"
+    >
+      Chromatic compatibility
+    </h1>
+    <p class="text-ink-muted mt-4 text-lg">
+      storybranch reads <code class="text-ink">parameters.chromatic</code> from
+      the story context Storybook has already merged. Keys below are applied.
+      Any other <code class="text-ink">chromatic</code> key is left
+      unused, so a block copied from Chromatic keeps the behavior below and
+      does not silently change it.
+    </p>
+
+    <h2 class="font-syne text-ink mt-12 text-2xl font-bold tracking-tight">
+      Supported keys
+    </h2>
+    <ul class="mt-4 space-y-3 md:hidden">
+      {
+        keys.map(([name, value, effect]) => (
+          <li class="border-ink/10 rounded-lg border p-4">
+            <p class="text-ink font-mono text-xs font-medium">{name}</p>
+            <p class="text-ink mt-2 text-sm">{value}</p>
+            <p class="text-ink-muted mt-1 text-sm">{effect}</p>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="border-ink/10 mt-4 hidden overflow-x-auto rounded-lg border md:block">
+      <table class="w-full min-w-[36rem] text-left text-sm">
+        <thead class="bg-paper-2 text-ink">
+          <tr>
+            <th class="px-4 py-3 font-semibold" scope="col">Parameter</th>
+            <th class="px-4 py-3 font-semibold" scope="col">Value</th>
+            <th class="px-4 py-3 font-semibold" scope="col">What storybranch does</th>
+          </tr>
+        </thead>
+        <tbody class="text-ink-muted">
+          {
+            keys.map(([name, value, effect]) => (
+              <tr class="border-ink/10 border-t">
+                <th
+                  class="text-ink px-4 py-3 align-top font-mono text-xs font-medium"
+                  scope="row"
+                >
+                  {name}
+                </th>
+                <td class="px-4 py-3 align-top">{value}</td>
+                <td class="px-4 py-3 align-top">{effect}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="font-syne text-ink mt-12 text-2xl font-bold tracking-tight">
+      Parameter inheritance
+    </h2>
+    <p class="text-ink-muted mt-4">
+      Capture calls <code class="text-ink">getStoryContext</code> once per
+      story. That context already follows Storybook’s merge: project parameters
+      from <code class="text-ink">.storybook/preview</code>, then the meta
+      (component) parameters, then the story. Objects deep-merge. Arrays,
+      including <code class="text-ink">ignoreSelectors</code> and
+      <code class="text-ink">viewports</code>, are replaced by the more
+      specific value rather than concatenated.
+    </p>
+    <pre
+      class="border-ink/10 bg-paper-2 mt-4 overflow-x-auto rounded-lg border p-4 font-mono text-xs leading-relaxed"><code>// preview: chromatic.delay 0, ignoreSelectors [".from-preview"], diffThreshold 0.2
+// meta:    chromatic.ignoreSelectors [".from-meta"], forcedColors "none"
+// story:   chromatic.delay 15, media "print"
+// result:  delay 15, diffThreshold 0.2, ignoreSelectors [".from-meta"],
+//          forcedColors "none", media "print"</code></pre>
+
+    <h2 class="font-syne text-ink mt-12 text-2xl font-bold tracking-tight">
+      Ignored elements
+    </h2>
+    <p class="text-ink-muted mt-4">
+      Three marks exclude pixels from the diff. The screenshot you review still
+      shows the real element.
+    </p>
+    <ul class="text-ink-muted mt-4 list-disc space-y-2 pl-5">
+      <li>
+        Class <code class="text-ink">chromatic-ignore</code>
+      </li>
+      <li>
+        Attribute <code class="text-ink">data-chromatic="ignore"</code>
+      </li>
+      <li>
+        Each selector in <code class="text-ink">chromatic.ignoreSelectors</code>
+      </li>
+    </ul>
+    <p class="text-ink-muted mt-4">
+      storybranch finds those elements in the light DOM and in open shadow
+      roots. A selector does not cross a shadow boundary. Elements inside an
+      iframe are not searched; put the mark on the iframe element to exclude
+      its box. Pixels inside the boxes are left out of the comparison. If an
+      ignored element changes size or position and that moves other pixels, or
+      the screenshot itself changes size, the diff still fails.
+    </p>
+    <pre
+      class="border-ink/10 bg-paper-2 mt-4 overflow-x-auto rounded-lg border p-4 font-mono text-xs leading-relaxed"><code>{`parameters: {
+  chromatic: { ignoreSelectors: [".price"] },
+}`}</code></pre>
+
+    <h2 class="font-syne text-ink mt-12 text-2xl font-bold tracking-tight">
+      Media features
+    </h2>
+    <p class="text-ink-muted mt-4">
+      <code class="text-ink">forcedColors</code>,
+      <code class="text-ink">prefersReducedMotion</code>, and
+      <code class="text-ink">media</code> are story parameters. They apply to
+      every snapshot of that story, including each mode. Putting them inside a
+      mode object does not emulate them. An invalid value fails the story
+      (<code class="text-ink">invalid chromatic.forcedColors</code>,
+      <code class="text-ink">invalid chromatic.prefersReducedMotion</code>,
+      <code class="text-ink">invalid chromatic.media</code>, or
+      <code class="text-ink">invalid chromatic.ignoreSelectors</code>) instead
+      of capturing the wrong variant.
+    </p>
+  </main>
+  <Footer />
+</Layout>

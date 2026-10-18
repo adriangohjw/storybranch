@@ -14,7 +14,7 @@ const headerBadgeClass = {
     "rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase bg-emerald-500/20 text-emerald-300",
 } as const;
 
-const shotBrowserPattern = /__(?<browser>chrome|firefox|edge)\.png$/iu;
+const shotBrowserPattern = /__(?<browser>chrome|firefox|edge|safari)\.png$/iu;
 
 function statusBadgeClassFor(status: string): string {
   if (status === "new") {
