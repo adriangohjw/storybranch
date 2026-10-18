@@ -136,7 +136,7 @@ jobs:
       - name: Install Playwright
         run: bunx playwright install --with-deps ${{ matrix.playwright }}
       - name: Test
-        run: bunx turbo run test --filter=@adriangohjw/storybranch
+        run: bunx turbo run test --filter=@adriangohjw/storybranch ${{ matrix.capture == 'chrome' && '--filter=@storybranch/core' || '' }}
         env:
           STORYBRANCH_E2E_BROWSERS: ${{ matrix.capture }}
 
