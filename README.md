@@ -4,7 +4,7 @@
 
 **Open-source, self-hosted visual testing for Storybook** — the capture → diff → review loop teams know from [Chromatic](https://www.chromatic.com/), designed to **run on your machine** and **deploy on infrastructure you control**.
 
-storybranch drives Playwright against your Storybook, saves one PNG per story (and per [Chromatic mode](https://www.chromatic.com/docs/modes/)), compares them to baselines you keep in git, and opens a review UI when something needs your attention. Install it as a dev dependency of the Storybook app and run it from that app’s scripts. Baselines and diffs live under `.storybranch/` on disk.
+storybranch drives Playwright against your Storybook, saves one PNG per story (and per [Chromatic mode](https://www.chromatic.com/docs/modes/)), compares them to baselines you keep in git, and opens a review UI when something needs your attention. Install it as a dev dependency of the Storybook app and run it from that app’s scripts. Baselines and diffs live under that package’s `.storybranch/` directory (the package with `package.json` and `.storybook/`, not necessarily the git root).
 
 ## Contents
 
@@ -113,6 +113,8 @@ The first run exits 1 with every shot marked `new` (or `missing baseline` lines 
 
 `visual:review` and `--open` are for a person.
 
+In a monorepo with several Storybooks, run the scripts from each app package (or pass `--cwd apps/web`). Each package keeps its own `.storybranch/` tree. The CLI walks up from the current directory until it finds `package.json` and `.storybook/` together.
+
 ### For agents
 
 Paste this into the Storybook app’s `AGENTS.md`. `@adriangohjw/storybranch` is a dev dependency. Run `npm run visual` (`pnpm run visual` or `bun run visual`).
@@ -120,12 +122,12 @@ Paste this into the Storybook app’s `AGENTS.md`. `@adriangohjw/storybranch` is
 ```markdown
 ## storybranch
 
-`@adriangohjw/storybranch` is a dev dependency. Storybook must already be running at your `--url`. Run `npm run visual` (`pnpm run visual` or `bun run visual`).
+`@adriangohjw/storybranch` is a dev dependency. Storybook must already be running at your `--url`. Run `npm run visual` from the package that has `.storybook/` (or pass `--cwd`). (`pnpm run visual` or `bun run visual`.)
 
 - `visual` runs `storybranch test --url <storybook>`. Exit 1 means a visual diff. In a terminal: status summary + `storybranch review at …`. In CI/non-TTY: `missing baseline`, `pixels`, `size`, `stale` per snapshot. A clean run prints `ok`.
-- Read `.storybranch/report.json` (`new`, `changed`, `unchanged`, `stale`, `error`).
+- Read `.storybranch/report.json` in that package (`new`, `changed`, `unchanged`, `stale`, `error`).
 - The first run marks every shot as `new` in the summary (or `missing baseline` lines in CI).
-- Commit only `.storybranch/baseline/`. Ignore `actual/`, `diff/`, and `report.json`.
+- Commit only `.storybranch/baseline/` in that package. Ignore `actual/`, `diff/`, and `report.json`.
 - Run `npm run visual:approve` only when asked to accept the shots. `visual:review` and `--open` are for a person.
 ```
 
@@ -202,6 +204,8 @@ See [How it works](#how-it-works) for screenshots. On a run with **missing / cha
 
 | Script | Effect |
 | --- | --- |
+| `--cwd <path>` | Resolve the Storybook package from this path (walks up to `package.json` + `.storybook/`) |
+| `STORYBRANCH_ROOT` | Same as `--cwd` for all commands (env wins over process cwd, loses to `--cwd`) |
 | `npm run visual -- --open` | Open the review URL in your browser when review is offered |
 | `npm run visual -- --review` | Offer review even when the run is fully green |
 | `npm run visual:review` | Serve the last `report.json` until Ctrl+C. Add `-- --open` to open a browser |

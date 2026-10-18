@@ -20,20 +20,6 @@ export function matchesFilter(entry: ReportEntry, filter: string): boolean {
   return entry.status === filter;
 }
 
-export function groupEntries(
-  entries: ReportEntry[]
-): [string, ReportEntry[]][] {
-  const groups = new Map<string, ReportEntry[]>();
-
-  for (const entry of entries) {
-    const list = groups.get(entry.storyId) ?? [];
-    list.push(entry);
-    groups.set(entry.storyId, list);
-  }
-
-  return [...groups.entries()].toSorted(([a], [b]) => a.localeCompare(b));
-}
-
 export const badgeTone: Record<ShotStatus, string> = {
   changed: "bg-amber-500/20 text-amber-300",
   error: "bg-red-500/20 text-red-300",

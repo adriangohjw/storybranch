@@ -18,8 +18,31 @@ export interface Report {
   actualDir: string;
   commit: string;
   createdAt: string;
+  durationMs?: number;
   entries: ReportEntry[];
   root: string;
+  storyCount?: number;
+}
+
+export const CAPTURE_BROWSER = "chromium";
+
+export interface StoryParts {
+  component: string;
+  story: string;
+}
+
+export function storyPartsFromId(storyId: string): StoryParts {
+  const marker = "--";
+  const index = storyId.indexOf(marker);
+
+  if (index === -1) {
+    return { component: storyId, story: "default" };
+  }
+
+  return {
+    component: storyId.slice(0, index),
+    story: storyId.slice(index + marker.length),
+  };
 }
 
 export const REPORT_PATH = ".storybranch/report.json";
@@ -55,35 +78,21 @@ export function reportHasAttention(report: Report): boolean {
 }
 
 export function attentionSummary(report: Report): string | null {
-  let newCount = 0;
-  let changed = 0;
-  let stale = 0;
-  let error = 0;
-  let unchanged = 0;
+  const counts = {
+    changed: 0,
+    error: 0,
+    new: 0,
+    stale: 0,
+    unchanged: 0,
+  };
 
   for (const entry of report.entries) {
-    switch (entry.status) {
-      case "new":
-        newCount += 1;
-        break;
-      case "changed":
-        changed += 1;
-        break;
-      case "stale":
-        stale += 1;
-        break;
-      case "error":
-        error += 1;
-        break;
-      case "unchanged":
-        unchanged += 1;
-        break;
-      default:
-        break;
+    if (entry.status in counts) {
+      counts[entry.status] += 1;
     }
   }
 
-  const attention = newCount + changed + stale + error;
+  const attention = counts.new + counts.changed + counts.stale + counts.error;
 
   if (attention === 0) {
     return null;
@@ -93,24 +102,24 @@ export function attentionSummary(report: Report): string | null {
     `${attention} snapshot${attention === 1 ? "" : "s"} need attention`,
   ];
 
-  if (newCount > 0) {
-    parts.push(`${newCount} new`);
+  if (counts.new > 0) {
+    parts.push(`${counts.new} new`);
   }
 
-  if (changed > 0) {
-    parts.push(`${changed} changed`);
+  if (counts.changed > 0) {
+    parts.push(`${counts.changed} changed`);
   }
 
-  if (stale > 0) {
-    parts.push(`${stale} stale`);
+  if (counts.stale > 0) {
+    parts.push(`${counts.stale} stale`);
   }
 
-  if (error > 0) {
-    parts.push(`${error} error`);
+  if (counts.error > 0) {
+    parts.push(`${counts.error} error`);
   }
 
-  if (unchanged > 0) {
-    parts.push(`${unchanged} unchanged`);
+  if (counts.unchanged > 0) {
+    parts.push(`${counts.unchanged} unchanged`);
   }
 
   return parts.join(" · ");
@@ -222,6 +231,22 @@ function isReport(value: unknown): value is Report {
   }
 
   if (!("root" in value) || typeof value.root !== "string") {
+    return false;
+  }
+
+  if (
+    "durationMs" in value &&
+    value.durationMs !== undefined &&
+    typeof value.durationMs !== "number"
+  ) {
+    return false;
+  }
+
+  if (
+    "storyCount" in value &&
+    value.storyCount !== undefined &&
+    typeof value.storyCount !== "number"
+  ) {
     return false;
   }
 

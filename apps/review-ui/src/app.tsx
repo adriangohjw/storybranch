@@ -2,6 +2,7 @@ import type { Report, ReportEntry } from "@storybranch/report";
 import { useEffect, useMemo, useState } from "react";
 
 import { acceptAll, fetchReport } from "@/api.ts";
+import { BuildSummary } from "@/build-summary.tsx";
 import { ComparisonViewer } from "@/comparison-viewer.tsx";
 import { cn } from "@/lib/cn.ts";
 import { matchesFilter } from "@/lib/report-ui.ts";
@@ -78,10 +79,7 @@ export const App = () => {
           storybranch review
         </h1>
         {report === null ? null : (
-          <p className="mt-1 text-sm text-zinc-400">
-            commit {report.commit.slice(0, 7)} · {report.entries.length}{" "}
-            snapshots
-          </p>
+          <BuildSummary className="mt-2" report={report} />
         )}
         {error === null ? null : (
           <p className="mt-2 text-sm text-red-400">{error}</p>
@@ -140,7 +138,7 @@ export const App = () => {
           >
             {shotListCollapsed ? null : (
               <span className="truncate text-xs font-medium text-zinc-400">
-                Needs approval
+                Snapshots
               </span>
             )}
             <button
@@ -173,7 +171,7 @@ export const App = () => {
           )}
         </aside>
         <section className="min-w-0 overflow-auto p-4">
-          <ComparisonViewer entry={selected} />
+          <ComparisonViewer entry={selected} report={report} />
         </section>
       </main>
     </div>

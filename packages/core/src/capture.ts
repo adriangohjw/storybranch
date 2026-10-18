@@ -186,8 +186,10 @@ export async function capture(
     actualDir,
     commit,
     createdAt: new Date().toISOString(),
+    durationMs: Date.now() - started,
     entries: entries.toSorted((a, b) => entryKey(a).localeCompare(entryKey(b))),
     root,
+    storyCount: stories.length,
   };
 
   await writeReport(root, report);
@@ -200,8 +202,10 @@ function emptyReport(root: string, commit: string, actualDir: string): Report {
     actualDir,
     commit,
     createdAt: new Date().toISOString(),
+    durationMs: 0,
     entries: [],
     root,
+    storyCount: 0,
   };
 }
 
@@ -498,10 +502,16 @@ function applyGlobals(globals: ShotGlobals): void {
 
 // ponytail: CSS/WAAPI only. rAF loops need chromatic.delay.
 function pauseAnimations(atEnd: boolean): void {
+  // page.evaluate ships this function alone, so this helper cannot move out.
+  // oxlint-disable-next-line unicorn/consistent-function-scoping
+  function isFiniteDuration(duration: unknown): duration is number {
+    return typeof duration === "number" && Number.isFinite(duration);
+  }
+
   for (const animation of document.getAnimations()) {
     const duration = animation.effect?.getComputedTiming().duration;
 
-    if (atEnd && isFiniteAnimationDuration(duration)) {
+    if (atEnd && isFiniteDuration(duration)) {
       animation.currentTime = duration;
     } else if (!atEnd) {
       animation.currentTime = 0;
@@ -517,10 +527,6 @@ interface StoryFinishedPayload {
 
 interface UpdateGlobalsPayload {
   globals: ShotGlobals;
-}
-
-function isFiniteAnimationDuration(duration: unknown): duration is number {
-  return typeof duration === "number" && Number.isFinite(duration);
 }
 
 interface StoryPreview {
