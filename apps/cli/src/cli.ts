@@ -6,7 +6,7 @@ import {
   resolveProjectRoot,
   resolveStartDir,
 } from "@storybranch/core/project-root";
-import { attentionSummary, reportHasAttention } from "@storybranch/report";
+import { reportHasAttention, terminalAttentionBlock } from "@storybranch/report";
 import pc from "picocolors";
 
 import { reviewUiBuilt } from "@/review-server.ts";
@@ -34,7 +34,12 @@ Run from a package that has package.json and .storybook/, or pass --cwd.
 Baselines live in that package's .storybranch/baseline/ (not necessarily the git root).
 
 test exits 1 when a snapshot needs attention.
-In a terminal: a one-line summary (counts by status) and storybranch review at … when the review UI is available.
+In a terminal:
+  N snapshots scanned · Ns build time
+  N snapshots need attention · N new · N changed
+  -> new: <snapshot>
+  -> changed: <snapshot>
+  storybranch review at … when the review UI is available.
 In CI / non-TTY: missing baseline <file.png>, pixels <file.png>, size <file.png>, stale <file.png> (one per snapshot).
 A clean run prints ok (non-TTY stdout). Inventory: .storybranch/report.json under the package.
 Commit .storybranch/baseline/. Ignore actual/, diff/, and report.json.
@@ -134,14 +139,12 @@ if (command === "test") {
   const attention = reportHasAttention(report);
   const offerReview = attention || flag("--review");
   const port = portFromArgs();
-  let reviewAvailable = false;
 
   if (offerReview) {
     if (await reviewUiBuilt()) {
       spawnDetachedReview(root, port, false);
       const reviewUrl = `http://127.0.0.1:${port}`;
       console.log(`storybranch review at ${reviewUrl}`);
-      reviewAvailable = true;
 
       if (flag("--open")) {
         openBrowser(reviewUrl);
@@ -154,16 +157,17 @@ if (command === "test") {
   }
 
   if (failures.length > 0) {
-    const tty = process.stderr.isTTY;
-    const summary = attentionSummary(report);
+    const block = process.stderr.isTTY ? terminalAttentionBlock(report) : null;
 
-    if (tty && summary !== null) {
-      console.error(`\n${summary}`);
-    }
-
-    if (!tty || !reviewAvailable) {
+    if (block === null) {
       for (const failure of failures) {
         console.error(failure);
+      }
+    } else {
+      console.error("");
+
+      for (const line of block) {
+        console.error(line);
       }
     }
 

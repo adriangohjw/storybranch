@@ -146,11 +146,40 @@ export function attentionSummary(report: Report): string | null {
     parts.push(`${counts.error} error`);
   }
 
-  if (counts.unchanged > 0) {
-    parts.push(`${counts.unchanged} unchanged`);
+  return parts.join(" · ");
+}
+
+export function terminalAttentionBlock(report: Report): string[] | null {
+  const summary = attentionSummary(report);
+
+  if (summary === null) {
+    return null;
   }
 
-  return parts.join(" · ");
+  const scanned = report.entries.filter(
+    (entry) =>
+      entry.status === "new" ||
+      entry.status === "changed" ||
+      entry.status === "unchanged"
+  ).length;
+
+  const seconds = ((report.durationMs ?? 0) / 1000).toFixed(1);
+
+  const lines = [
+    `${scanned} snapshot${scanned === 1 ? "" : "s"} scanned · ${seconds}s build time`,
+    summary,
+  ];
+
+  for (const entry of report.entries) {
+    if (!needsAttention(entry.status)) {
+      continue;
+    }
+
+    const name = entry.filename?.replace(/\.png$/u, "") ?? entry.storyId;
+    lines.push(`-> ${entry.status}: ${name}`);
+  }
+
+  return lines;
 }
 
 export function reportPath(root: string): string {

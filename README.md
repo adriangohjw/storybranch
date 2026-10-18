@@ -113,7 +113,7 @@ That script captures **Chrome** only. To capture more browsers, add `storybranch
 
 A TypeScript file default-exports the same fields. `captureParallel: true` runs the selected browsers at the same time; the default is one browser after another. One run can override the file: `npm run visual -- --browsers chrome,firefox` and `npm run visual -- --parallel-browsers`.
 
-`visual` exits 1 when a snapshot needs attention. In a terminal you get a one-line summary (counts by status) and `storybranch review at http://127.0.0.1:4321` when the review UI is available. In CI or other non-TTY runs you get `missing baseline <file.png>`, `pixels <file.png>`, `size <file.png>`, or `stale <file.png>` (one per snapshot). A clean run prints `ok`. The inventory is `.storybranch/report.json`.
+`visual` exits 1 when a snapshot needs attention. In a terminal you get the scan line, the attention summary, one `->` row per snapshot, and `storybranch review at http://127.0.0.1:4321` when the review UI is available. In CI or other non-TTY runs you get `missing baseline <file.png>`, `pixels <file.png>`, `size <file.png>`, or `stale <file.png>` (one per snapshot). A clean run prints `ok`. The inventory is `.storybranch/report.json`.
 
 The first run exits 1 with every shot marked `new` (or `missing baseline` lines in CI). That is the baseline set, not a failed install. `approve` copies actuals into `.storybranch/baseline/`. Commit that directory and ignore the rest:
 
@@ -136,7 +136,7 @@ Paste this into the Storybook app’s `AGENTS.md`. `@adriangohjw/storybranch` is
 
 `@adriangohjw/storybranch` is a dev dependency. Storybook must already be running at your `--url`. Run `npm run visual` from the package that has `.storybook/` (or pass `--cwd`). (`pnpm run visual` or `bun run visual`.)
 
-- `visual` runs `storybranch test --url <storybook>`. Exit 1 means a visual diff. In a terminal: status summary + `storybranch review at …`. In CI/non-TTY: `missing baseline`, `pixels`, `size`, `stale` per snapshot. A clean run prints `ok`.
+- `visual` runs `storybranch test --url <storybook>`. Exit 1 means a visual diff. In a terminal: scan time, status summary, and one `->` row per snapshot, plus `storybranch review at …`. In CI/non-TTY: `missing baseline`, `pixels`, `size`, `stale` per snapshot. A clean run prints `ok`.
 - Default browser is `chrome`. Filenames end in `__chrome.png`, `__firefox.png`, or `__edge.png`. Extra browsers come from `storybranch.config.json` or `storybranch.config.ts` in that package, or from `--browsers`.
 - Read `.storybranch/report.json` in that package (`new`, `changed`, `unchanged`, `stale`, `error`).
 - The first run marks every shot as `new` in the summary (or `missing baseline` lines in CI).
@@ -158,7 +158,10 @@ Nothing in `.storybranch/baseline/` yet, so every snapshot is **new**. The run l
 ```text
 $ npm run visual
 storybranch review at http://127.0.0.1:4321
+4 snapshots scanned · 3.1s build time
 4 snapshots need attention · 4 new
+-> new: hero--default__1200x900__chrome
+-> new: hero--modes__narrow__chrome
 ```
 
 ![Review UI with new snapshots](docs/images/review-missing-baselines.png)
@@ -172,7 +175,10 @@ After you change a component, the next run marks mismatches as **changed** and h
 ```text
 $ npm run visual
 storybranch review at http://127.0.0.1:4321
-2 snapshots need attention · 2 changed · 2 unchanged
+4 snapshots scanned · 3.4s build time
+2 snapshots need attention · 2 changed
+-> changed: hero--default__1200x900__chrome
+-> changed: hero--modes__narrow__chrome
 ```
 
 ![Review UI comparing baseline and this scan with diff overlay](docs/images/review-pixel-diff.png)
