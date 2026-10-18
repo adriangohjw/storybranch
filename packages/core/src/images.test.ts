@@ -48,6 +48,87 @@ test("different pixels mismatch and return a diff", () => {
   expect(result.diff.byteLength).toBeGreaterThan(0);
 });
 
+test("diff highlights changed pixels and leaves matching text clear", () => {
+  const width = 4;
+  const height = 2;
+  const baseline = new PNG({ height, width });
+  const actual = new PNG({ height, width });
+
+  for (let i = 0; i < width * height * 4; i += 4) {
+    baseline.data[i] = 194;
+    baseline.data[i + 1] = 65;
+    baseline.data[i + 2] = 12;
+    baseline.data[i + 3] = 255;
+    actual.data[i] = 194;
+    actual.data[i + 1] = 65;
+    actual.data[i + 2] = 12;
+    actual.data[i + 3] = 255;
+  }
+
+  // Shared background, one glyph pixel that changed.
+  const text = (1 * width + 1) * 4;
+  baseline.data[text] = 255;
+  baseline.data[text + 1] = 255;
+  baseline.data[text + 2] = 255;
+  actual.data[text] = 0;
+  actual.data[text + 1] = 0;
+  actual.data[text + 2] = 0;
+
+  const result = comparePng(PNG.sync.write(baseline), PNG.sync.write(actual), {
+    includeAA: false,
+    threshold: 0.1,
+  });
+
+  if (result.match || result.reason !== "pixels") {
+    throw new Error("expected a pixel diff");
+  }
+
+  const diff = PNG.sync.read(result.diff);
+
+  expect(diff.data[3]).toBe(0);
+  expect(diff.data[text + 3]).toBeGreaterThan(0);
+});
+
+test("diff leaves unchanged text clear when the surrounding block changes", () => {
+  const width = 4;
+  const height = 2;
+  const baseline = new PNG({ height, width });
+  const actual = new PNG({ height, width });
+
+  for (let i = 0; i < width * height * 4; i += 4) {
+    baseline.data[i] = 194;
+    baseline.data[i + 1] = 65;
+    baseline.data[i + 2] = 12;
+    baseline.data[i + 3] = 255;
+    actual.data[i] = 29;
+    actual.data[i + 1] = 78;
+    actual.data[i + 2] = 216;
+    actual.data[i + 3] = 255;
+  }
+
+  const text = (1 * width + 1) * 4;
+  baseline.data[text] = 255;
+  baseline.data[text + 1] = 255;
+  baseline.data[text + 2] = 255;
+  actual.data[text] = 255;
+  actual.data[text + 1] = 255;
+  actual.data[text + 2] = 255;
+
+  const result = comparePng(PNG.sync.write(baseline), PNG.sync.write(actual), {
+    includeAA: false,
+    threshold: 0.1,
+  });
+
+  if (result.match || result.reason !== "pixels") {
+    throw new Error("expected a pixel diff");
+  }
+
+  const diff = PNG.sync.read(result.diff);
+
+  expect(diff.data[3]).toBeGreaterThan(0);
+  expect(diff.data[text + 3]).toBe(0);
+});
+
 test("different sizes mismatch without a diff image", () => {
   const wide = solid(3, 2, [255, 0, 0, 255]);
   expect(comparePng(red, wide, { includeAA: false, threshold: 0.1 })).toEqual({

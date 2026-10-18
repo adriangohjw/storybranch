@@ -28,6 +28,9 @@ export function comparePng(
     left.width,
     left.height,
     {
+      // Mask, not a faded copy of the whole image. An opaque diff screen-blends
+      // into a solid block and hides the text the pixels actually differ on.
+      diffMask: true,
       includeAA: options.includeAA,
       threshold: options.threshold,
     }
