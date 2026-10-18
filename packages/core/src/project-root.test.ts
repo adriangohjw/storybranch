@@ -10,9 +10,9 @@ test("resolveStartDir prefers --cwd over env and process cwd", () => {
   process.env.STORYBRANCH_ROOT = "/env";
 
   try {
-    expect(
-      resolveStartDir({ cwd: "/proc", flagCwd: "/flag" })
-    ).toBe(path.resolve("/flag"));
+    expect(resolveStartDir({ cwd: "/proc", flagCwd: "/flag" })).toBe(
+      path.resolve("/flag")
+    );
     expect(resolveStartDir({ cwd: "/proc" })).toBe(path.resolve("/env"));
   } finally {
     if (previous === undefined) {
@@ -30,7 +30,9 @@ test("resolveProjectRoot walks up from a subdirectory", async () => {
   await mkdir(path.join(pkg, ".storybook"), { recursive: true });
   await writeFile(path.join(pkg, "package.json"), "{}\n");
 
-  const resolved = await resolveProjectRoot(path.join(pkg, "src", "components"));
+  const resolved = await resolveProjectRoot(
+    path.join(pkg, "src", "components")
+  );
 
   expect(resolved).toBe(pkg);
 });

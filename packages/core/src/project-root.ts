@@ -78,7 +78,9 @@ async function assertSingleStorybookConfig(packageRoot: string): Promise<void> {
     );
   }
 
-  const listed = configs.map((dir) => path.relative(packageRoot, dir)).join(", ");
+  const listed = configs
+    .map((dir) => path.relative(packageRoot, dir))
+    .join(", ");
 
   throw new Error(
     `package at ${packageRoot} must have exactly one ${STORYBOOK_DIR}/ at the package root; found: ${listed}`

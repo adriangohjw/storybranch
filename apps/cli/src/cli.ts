@@ -87,6 +87,8 @@ async function packageRoot(): Promise<string> {
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);
+
+    return "";
   }
 }
 
@@ -143,6 +145,7 @@ if (command === "test") {
 
 if (command === "review") {
   const root = await packageRoot();
+
   const code = await runForegroundReview({
     once: flag("--once"),
     open: flag("--open"),
