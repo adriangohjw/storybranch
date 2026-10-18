@@ -12,7 +12,8 @@ const {
   description = "Capture Storybook stories as PNGs, diff them locally, and accept baselines in a browser review UI.",
 } = Astro.props;
 
-const siteUrl = Astro.site?.href ?? "https://storybranch.pages.dev";
+const siteUrl = Astro.site?.href ?? "https://storybook.adriangohjw.com/";
+const ogImage = new URL("/images/review-pixel-diff.png", siteUrl).href;
 ---
 
 <!doctype html>
@@ -26,11 +27,17 @@ const siteUrl = Astro.site?.href ?? "https://storybranch.pages.dev";
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={siteUrl} />
+    <meta property="og:image" content={ogImage} />
+    <meta
+      property="og:image:alt"
+      content="storybranch review comparing a baseline and a pixel diff"
+    />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="describedby" type="text/plain" href="/llms.txt" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;700;800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
     <title>{title}</title>

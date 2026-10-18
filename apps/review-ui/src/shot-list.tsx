@@ -1,4 +1,5 @@
 import type { ReportEntry } from "@storybranch/report";
+import { LuCheck } from "react-icons/lu";
 
 import { acceptShot } from "@/api.ts";
 import { cn } from "@/lib/cn.ts";
@@ -26,7 +27,7 @@ export const ShotList = ({
         <ul className="space-y-1">
           {storyEntries.map((entry) => (
             <li
-              className="flex items-center gap-1"
+              className="flex items-center gap-0.5"
               key={entry.filename ?? `${entry.storyId}:error`}
             >
               <ShotRow
@@ -52,7 +53,7 @@ interface ShotRowProps {
 const ShotRow = ({ entry, onSelect, selected }: ShotRowProps) => (
   <button
     className={cn(
-      "flex min-w-0 flex-1 items-center gap-2 rounded-md border px-2 py-1.5 text-left text-sm transition-colors",
+      "flex min-w-0 flex-1 flex-col items-start gap-1 rounded-md border px-2 py-1.5 text-left transition-colors",
       "hover:border-zinc-600 hover:bg-zinc-800/80",
       selected ? "border-zinc-500 bg-zinc-800" : "border-transparent"
     )}
@@ -63,13 +64,13 @@ const ShotRow = ({ entry, onSelect, selected }: ShotRowProps) => (
   >
     <span
       className={cn(
-        "shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase",
+        "rounded-full px-1.5 py-px text-[9px] leading-none font-semibold tracking-wide uppercase",
         badgeTone[entry.status]
       )}
     >
       {entry.status}
     </span>
-    <span className="min-w-0 flex-1 truncate text-zinc-200">
+    <span className="text-xs leading-snug break-all text-zinc-200">
       {entry.filename ?? entry.message ?? entry.storyId}
     </span>
   </button>
@@ -94,7 +95,8 @@ const AcceptButton = ({ entry, onAccept }: AcceptButtonProps) => {
 
   return (
     <button
-      className="shrink-0 rounded border border-zinc-600 px-2 py-0.5 text-xs text-zinc-200 hover:bg-zinc-700"
+      aria-label="Accept"
+      className="shrink-0 rounded p-1 text-zinc-300 hover:bg-zinc-800 hover:text-white"
       onClick={() => {
         void (async () => {
           await acceptShot(filename);
@@ -103,7 +105,7 @@ const AcceptButton = ({ entry, onAccept }: AcceptButtonProps) => {
       }}
       type="button"
     >
-      Accept
+      <LuCheck aria-hidden className="size-3.5" />
     </button>
   );
 };

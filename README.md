@@ -11,6 +11,7 @@ storybranch drives Playwright against your Storybook, saves one PNG per story (a
 - [Why storybranch](#why-storybranch)
 - [Self-hosted and local](#self-hosted-and-local)
 - [Quick start](#quick-start)
+  - [For agents](#for-agents)
 - [How it works](#how-it-works)
   - [First run — missing baselines](#first-run--missing-baselines)
   - [UI change — pixel diff](#ui-change--pixel-diff)
@@ -53,14 +54,56 @@ Related behavior:
 
 ## Quick start
 
+Storybook 10 or newer has to be running. Chromatic `modes` or `viewports` on a story become extra snapshots. Setting both on one story is an error.
+
+The npm package is not published yet. Clone this repo, build the review UI, then run the CLI **from your app** so `.storybranch/` is created there:
+
 ```bash
+git clone https://github.com/adriangohjw/storybranch.git
+cd storybranch
 bun install
 bunx playwright install chromium
-bunx storybook dev -p 6006 --config-dir packages/fixture/.storybook
-bunx storybranch test --url http://127.0.0.1:6006
+bun run build
+cd /path/to/your-app
+bun /path/to/storybranch/apps/cli/src/cli.ts test --url http://127.0.0.1:6006
 ```
 
-On failures, the CLI prints a review URL (default `http://127.0.0.1:4321`). Accept snapshots in the UI or run `storybranch approve`, then commit `.storybranch/baseline/`.
+After the package is published, the last line is `bunx storybranch test --url http://127.0.0.1:6006`.
+
+`test` exits 1 when a snapshot needs attention. Failure lines are `missing baseline <file.png>`, `pixels <file.png>`, `size <file.png>`, or `stale <file.png>`. A clean run prints `ok`. The inventory is `.storybranch/report.json`. The CLI also prints `storybranch review at http://127.0.0.1:4321` when something needs a person.
+
+The first run exits 1 with `missing baseline` for every shot. That is the baseline set, not a failed install. `approve` copies actuals into `.storybranch/baseline/`. Commit that directory and ignore the rest:
+
+```gitignore
+.storybranch/actual/
+.storybranch/diff/
+.storybranch/report.json
+```
+
+`review` and `--open` are for a person.
+
+To try the fixture in this repo instead of your app:
+
+```bash
+bunx storybook dev -p 6006 --config-dir packages/fixture/.storybook
+bun apps/cli/src/cli.ts test --url http://127.0.0.1:6006
+```
+
+### For agents
+
+Paste this into the Storybook app’s `AGENTS.md`. Until the package is on npm, `storybranch` means `bun /path/to/storybranch/apps/cli/src/cli.ts`.
+
+```markdown
+## storybranch
+
+Storybook 10+ must already be running.
+
+- `test --url <storybook>` — exit 1 means a visual diff. Lines: `missing baseline`, `pixels`, `size`, `stale`. A clean run prints `ok`.
+- Read `.storybranch/report.json` (`new`, `changed`, `unchanged`, `stale`, `error`).
+- The first run is `missing baseline` for every shot.
+- Commit only `.storybranch/baseline/`. Ignore `actual/`, `diff/`, and `report.json`.
+- Run `approve` only when asked to accept the shots. `review` and `--open` are for a person.
+```
 
 ## How it works
 
@@ -76,8 +119,8 @@ Nothing in `.storybranch/baseline/` yet, so every snapshot is **new**. The CLI l
 ```text
 $ bunx storybranch test --url http://127.0.0.1:6006
 storybranch review at http://127.0.0.1:4321
-missing baseline button--default__1200x900.png
-missing baseline button--modes__narrow.png
+missing baseline hero--default__1200x900.png
+missing baseline hero--modes__narrow.png
 …
 ```
 
@@ -92,14 +135,14 @@ After you change a component, the next run marks mismatches as **changed** and h
 ```text
 $ bunx storybranch test --url http://127.0.0.1:6006
 storybranch review at http://127.0.0.1:4321
-pixels button--default__1200x900.png
-pixels button--modes__narrow.png
+pixels hero--default__1200x900.png
+pixels hero--modes__narrow.png
 …
 ```
 
 ![Review UI comparing baseline and this scan with diff overlay](docs/images/review-pixel-diff.png)
 
-The fixture in this repo uses a tiny orange “button” story; the screenshot above is from temporarily shifting it to blue to demonstrate the diff view.
+The fixture story is a sample hero. The screenshot above is that hero after the primary CTA color shifts.
 
 ## Features
 
@@ -116,11 +159,15 @@ The fixture in this repo uses a tiny orange “button” story; the screenshot a
 
 ## Usage
 
+From your app, after the clone in [Quick start](#quick-start):
+
 ```bash
-bunx storybranch test --url http://127.0.0.1:6006
-bunx storybranch review   # reopen the last run in the browser UI
-bunx storybranch approve  # promote all actuals from the CLI (no UI)
+bun /path/to/storybranch/apps/cli/src/cli.ts test --url http://127.0.0.1:6006
+bun /path/to/storybranch/apps/cli/src/cli.ts review
+bun /path/to/storybranch/apps/cli/src/cli.ts approve
 ```
+
+After publish, those are `bunx storybranch test`, `bunx storybranch review`, and `bunx storybranch approve`.
 
 ### Artifacts
 
@@ -212,7 +259,7 @@ From `apps/web` (or `bun run --filter @storybranch/web dev` at the repo root):
 cd apps/web && bun run dev
 ```
 
-Production hosting is **Cloudflare Pages** (Git integration, build watch paths on `apps/web/*`). See [`apps/web/README.md`](apps/web/README.md).
+Production hosting is **Cloudflare Pages** at [storybook.adriangohjw.com](https://storybook.adriangohjw.com) (Git integration, build watch paths on `apps/web/*`). See [`apps/web/README.md`](apps/web/README.md).
 
 To refresh README screenshots after UI changes: `bun scripts/capture-readme-screenshots.ts` (requires Chromium from Playwright and a free port `6020` / `4322`).
 

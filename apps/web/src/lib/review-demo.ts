@@ -1,9 +1,90 @@
-function matchesFilter(status: string, value: string): boolean {
-  if (value === "all" || value === "attention") {
+const statusBadgeClass = {
+  changed:
+    "rounded-full px-1.5 py-px text-[9px] leading-none font-semibold tracking-wide uppercase bg-amber-500/20 text-amber-300",
+  new: "rounded-full px-1.5 py-px text-[9px] leading-none font-semibold tracking-wide uppercase bg-sky-500/20 text-sky-300",
+} as const;
+
+function statusBadgeClassFor(status: string): string {
+  if (status === "new") {
+    return statusBadgeClass.new;
+  }
+
+  return statusBadgeClass.changed;
+}
+
+const approvedBadgeClass =
+  "rounded-full px-1.5 py-px text-[9px] leading-none font-semibold tracking-wide uppercase bg-violet-500/20 text-violet-300";
+
+function pendingApproval(status: string): boolean {
+  return status === "new" || status === "changed";
+}
+
+function matchesFilter(
+  status: string,
+  value: string,
+  approved: boolean
+): boolean {
+  if (value === "all") {
     return true;
   }
 
-  return status === value;
+  if (value === "attention") {
+    return !approved && pendingApproval(status);
+  }
+
+  if (value === "approved") {
+    return approved;
+  }
+
+  if (value === "unchanged") {
+    return status === "unchanged";
+  }
+
+  return false;
+}
+
+function rowApproved(row: HTMLElement): boolean {
+  return row.dataset.approved === "1";
+}
+
+function setRowActionButtons(row: HTMLElement, approved: boolean): void {
+  const acceptButton = row.querySelector<HTMLButtonElement>("[data-accept]");
+  const resetButton = row.querySelector<HTMLButtonElement>("[data-reset]");
+
+  if (approved) {
+    acceptButton?.classList.add("hidden");
+    resetButton?.classList.remove("hidden");
+  } else {
+    acceptButton?.classList.remove("hidden");
+    resetButton?.classList.add("hidden");
+  }
+}
+
+function markRowApproved(row: HTMLElement): void {
+  row.dataset.approved = "1";
+
+  const badge = row.querySelector<HTMLElement>("[data-shot-badge]");
+
+  if (badge !== null) {
+    badge.textContent = "approved";
+    badge.className = approvedBadgeClass;
+  }
+
+  setRowActionButtons(row, true);
+}
+
+function unmarkRowApproved(row: HTMLElement): void {
+  delete row.dataset.approved;
+
+  const status = row.dataset.status ?? "changed";
+  const badge = row.querySelector<HTMLElement>("[data-shot-badge]");
+
+  if (badge !== null) {
+    badge.textContent = status;
+    badge.className = statusBadgeClassFor(status);
+  }
+
+  setRowActionButtons(row, false);
 }
 
 function initReviewDemo(root: HTMLElement): void {
@@ -35,13 +116,26 @@ function initReviewDemo(root: HTMLElement): void {
     root.querySelector<HTMLButtonElement>("[data-diff-toggle]");
 
   const diffKnob = root.querySelector<HTMLElement>("[data-diff-knob]");
-  const acceptedMsg = root.querySelector<HTMLElement>("[data-accepted-msg]");
-  const shotCount = root.querySelector<HTMLElement>("[data-shot-count]");
+  const comparison = root.querySelector<HTMLElement>("[data-comparison]");
+  const emptyState = root.querySelector<HTMLElement>("[data-empty-state]");
+  const emptyEmoji = root.querySelector<HTMLElement>("[data-empty-emoji]");
+  const emptyTitle = root.querySelector<HTMLElement>("[data-empty-title]");
+
+  const emptySubtitle = root.querySelector<HTMLElement>(
+    "[data-empty-subtitle]"
+  );
+
   const aside = root.querySelector<HTMLElement>("[data-aside]");
   const asideLabel = root.querySelector<HTMLElement>("[data-aside-label]");
   const shotList = root.querySelector<HTMLElement>("[data-shot-list]");
   const collapseBtn = root.querySelector<HTMLButtonElement>("[data-collapse]");
   const main = root.querySelector<HTMLElement>("[data-main]");
+
+  const baselineFrame = root.querySelector<HTMLElement>(
+    "[data-baseline-frame]"
+  );
+
+  const previewFrame = root.querySelector<HTMLElement>("[data-preview-frame]");
 
   let overlayOn = true;
   let collapsed = false;
@@ -52,19 +146,15 @@ function initReviewDemo(root: HTMLElement): void {
     selectButtons[0]?.dataset.id ??
     null;
 
-  function remainingRows(): HTMLElement[] {
-    return rows.filter((row) => row.dataset.accepted !== "1");
-  }
-
   function visibleRows(): HTMLElement[] {
-    const value = filter?.value ?? "attention";
+    const value = filter?.value ?? "all";
 
-    return remainingRows().filter((row) => {
+    return rows.filter((row) => {
       if (row.hidden === true) {
         return false;
       }
 
-      return matchesFilter(row.dataset.status ?? "", value);
+      return matchesFilter(row.dataset.status ?? "", value, rowApproved(row));
     });
   }
 
@@ -80,6 +170,43 @@ function initReviewDemo(root: HTMLElement): void {
     }
   }
 
+  function setFrameAspect(aspect: string): void {
+    if (baselineFrame !== null) {
+      baselineFrame.style.aspectRatio = aspect;
+    }
+
+    if (previewFrame !== null) {
+      previewFrame.style.aspectRatio = aspect;
+    }
+  }
+
+  function setBaselinePanel(baseline: string): void {
+    if (baseline === "") {
+      if (baselineImg !== null) {
+        baselineImg.hidden = true;
+      }
+
+      if (baselineFrame !== null) {
+        baselineFrame.hidden = true;
+      }
+
+      noBaseline?.classList.remove("hidden");
+
+      return;
+    }
+
+    if (baselineImg !== null) {
+      baselineImg.hidden = false;
+      baselineImg.src = baseline;
+    }
+
+    if (baselineFrame !== null) {
+      baselineFrame.hidden = false;
+    }
+
+    noBaseline?.classList.add("hidden");
+  }
+
   function selectShot(button: HTMLButtonElement): void {
     selectedId = button.dataset.id ?? null;
 
@@ -93,73 +220,141 @@ function initReviewDemo(root: HTMLElement): void {
     const baseline = button.dataset.baseline ?? "";
     const actual = button.dataset.actual ?? "";
     const diff = button.dataset.diff ?? "";
+    const aspect = button.dataset.aspect ?? "800 / 300";
 
-    if (actualImg !== null) {
+    setFrameAspect(aspect);
+
+    if (actualImg !== null && actual.length > 0) {
+      actualImg.hidden = false;
       actualImg.src = actual;
     }
 
-    if (baseline === "") {
-      if (baselineImg !== null) {
-        baselineImg.hidden = true;
-      }
-
-      noBaseline?.classList.remove("hidden");
-    } else {
-      if (baselineImg !== null) {
-        baselineImg.hidden = false;
-        baselineImg.src = baseline;
-      }
-
-      noBaseline?.classList.add("hidden");
-    }
+    setBaselinePanel(baseline);
 
     const hasDiff = diff.length > 0;
 
     if (diffControls !== null) {
-      diffControls.classList.toggle("hidden", !hasDiff);
+      diffControls.classList.toggle("invisible", !hasDiff);
+      diffControls.classList.toggle("pointer-events-none", !hasDiff);
     }
 
     if (diffImg !== null) {
       diffImg.src = diff;
       diffImg.classList.toggle("hidden", !hasDiff || !overlayOn);
     }
+  }
 
-    if (acceptedMsg !== null) {
-      acceptedMsg.classList.add("hidden");
-      acceptedMsg.textContent = "";
+  function clearSelectionHighlight(): void {
+    selectedId = null;
+
+    for (const selectButton of selectButtons) {
+      selectButton.classList.remove("border-zinc-500", "bg-zinc-800");
+      selectButton.classList.add("border-transparent");
     }
   }
 
-  function applyFilter(): void {
-    const value = filter?.value ?? "attention";
+  function pendingAttentionRows(): HTMLElement[] {
+    return rows.filter(
+      (row) => !rowApproved(row) && pendingApproval(row.dataset.status ?? "")
+    );
+  }
 
-    for (const row of rows) {
-      if (row.dataset.accepted === "1") {
-        row.hidden = true;
-        continue;
+  function isAttentionClearState(): boolean {
+    const value = filter?.value ?? "all";
+
+    return value === "attention" && pendingAttentionRows().length === 0;
+  }
+
+  function replayEmptyEmojiPop(): void {
+    if (emptyEmoji === null) {
+      return;
+    }
+
+    emptyEmoji.classList.remove("review-demo-empty-pop");
+    // Force reflow so the pop animation can run again.
+    void emptyEmoji.offsetWidth;
+    emptyEmoji.classList.add("review-demo-empty-pop");
+  }
+
+  function showEmptyViewer(): void {
+    comparison?.classList.add("hidden");
+    emptyState?.classList.remove("hidden");
+    emptyState?.classList.add("flex");
+    clearSelectionHighlight();
+
+    if (isAttentionClearState()) {
+      if (emptyEmoji !== null) {
+        emptyEmoji.textContent = "🎉";
       }
 
-      row.hidden = !matchesFilter(row.dataset.status ?? "", value);
+      if (emptyTitle !== null) {
+        emptyTitle.textContent = "No snapshots need attention.";
+      }
+
+      if (emptySubtitle !== null) {
+        emptySubtitle.textContent =
+          "Everything in this demo is approved. Nice work.";
+        emptySubtitle.hidden = false;
+      }
+
+      replayEmptyEmojiPop();
+
+      return;
+    }
+
+    if (emptyEmoji !== null) {
+      emptyEmoji.textContent = "🔍";
+    }
+
+    if (emptyTitle !== null) {
+      emptyTitle.textContent = "No snapshots match this filter.";
+    }
+
+    if (emptySubtitle !== null) {
+      emptySubtitle.textContent = "Try another filter to see more shots.";
+      emptySubtitle.hidden = false;
+    }
+
+    replayEmptyEmojiPop();
+  }
+
+  function hideEmptyViewer(): void {
+    comparison?.classList.remove("hidden");
+    emptyState?.classList.add("hidden");
+    emptyState?.classList.remove("flex");
+  }
+
+  function applyFilter(): void {
+    const value = filter?.value ?? "all";
+
+    for (const row of rows) {
+      row.hidden = !matchesFilter(
+        row.dataset.status ?? "",
+        value,
+        rowApproved(row)
+      );
     }
 
     syncGroups();
 
-    const stillSelected = visibleRows().some(
-      (row) => row.dataset.id === selectedId
-    );
+    const visible = visibleRows();
+
+    if (visible.length === 0) {
+      showEmptyViewer();
+
+      return;
+    }
+
+    hideEmptyViewer();
+
+    const stillSelected = visible.some((row) => row.dataset.id === selectedId);
 
     if (!stillSelected) {
       const first =
-        visibleRows()[0]?.querySelector<HTMLButtonElement>("[data-select]");
+        visible[0]?.querySelector<HTMLButtonElement>("[data-select]");
 
       if (first !== undefined && first !== null) {
         selectShot(first);
-      } else if (acceptedMsg !== null) {
-        acceptedMsg.textContent =
-          remainingRows().length === 0
-            ? "All demo snapshots accepted."
-            : "No snapshots match this filter.";
-        acceptedMsg.classList.remove("hidden");
       }
     }
   }
@@ -167,30 +362,31 @@ function initReviewDemo(root: HTMLElement): void {
   function acceptId(id: string): void {
     const row = rows.find((candidate) => candidate.dataset.id === id);
 
-    if (row === undefined || row.dataset.accepted === "1") {
+    if (row === undefined || rowApproved(row)) {
       return;
     }
 
-    row.dataset.accepted = "1";
-    row.hidden = true;
-
-    if (shotCount !== null) {
-      shotCount.textContent = String(remainingRows().length);
+    if (!pendingApproval(row.dataset.status ?? "")) {
+      return;
     }
 
-    syncGroups();
+    markRowApproved(row);
+    applyFilter();
+  }
 
-    if (selectedId === id) {
-      const next =
-        visibleRows()[0]?.querySelector<HTMLButtonElement>("[data-select]");
+  function resetId(id: string): void {
+    const row = rows.find((candidate) => candidate.dataset.id === id);
 
-      if (next !== undefined && next !== null) {
-        selectShot(next);
-      } else if (acceptedMsg !== null) {
-        acceptedMsg.textContent = "All demo snapshots accepted.";
-        acceptedMsg.classList.remove("hidden");
-      }
+    if (row === undefined || !rowApproved(row)) {
+      return;
     }
+
+    if (!pendingApproval(row.dataset.status ?? "")) {
+      return;
+    }
+
+    unmarkRowApproved(row);
+    applyFilter();
   }
 
   filter?.addEventListener("change", applyFilter);
@@ -213,13 +409,29 @@ function initReviewDemo(root: HTMLElement): void {
     });
   }
 
+  for (const button of root.querySelectorAll<HTMLButtonElement>(
+    "[data-reset]"
+  )) {
+    button.addEventListener("click", () => {
+      const { id } = button.dataset;
+
+      if (id !== undefined && id !== "") {
+        resetId(id);
+      }
+    });
+  }
+
   root.querySelector("[data-accept-all]")?.addEventListener("click", () => {
     for (const row of rows) {
-      if (row.dataset.accepted !== "1") {
-        acceptId(row.dataset.id ?? "");
+      if (!rowApproved(row) && pendingApproval(row.dataset.status ?? "")) {
+        markRowApproved(row);
       }
     }
+
+    applyFilter();
   });
+
+  applyFilter();
 
   diffToggle?.addEventListener("click", () => {
     overlayOn = !overlayOn;
@@ -254,10 +466,10 @@ function initReviewDemo(root: HTMLElement): void {
       collapsed ? "Expand snapshot list" : "Collapse snapshot list"
     );
     aside?.classList.toggle("lg:w-9", collapsed);
-    aside?.classList.toggle("lg:max-w-56", !collapsed);
+    aside?.classList.toggle("lg:max-w-72", !collapsed);
     main?.classList.toggle("lg:grid-cols-[auto_1fr]", collapsed);
     main?.classList.toggle(
-      "lg:grid-cols-[minmax(11rem,14rem)_1fr]",
+      "lg:grid-cols-[minmax(14rem,18rem)_1fr]",
       !collapsed
     );
   });

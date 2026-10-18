@@ -14,6 +14,28 @@ import {
 
 const [command, ...args] = Bun.argv.slice(2);
 
+const usage = `storybranch — local visual diffs for Storybook 10+
+
+  storybranch test --url <storybook> [--open] [--review] [--port <n>]
+  storybranch review [--open] [--once] [--port <n>]
+  storybranch approve
+
+test exits 1 when a snapshot needs attention:
+  missing baseline <file.png>
+  pixels <file.png>
+  size <file.png>
+  stale <file.png>
+A clean run prints ok. Inventory: .storybranch/report.json
+Commit .storybranch/baseline/. Ignore actual/, diff/, and report.json.
+The first run is missing baseline for every shot. approve copies actuals into baseline/.
+review and --open are for a person. Read the report and run approve only when asked to accept.
+`;
+
+if (command === undefined || command === "--help" || command === "-h") {
+  console.log(usage);
+  process.exit(0);
+}
+
 function flag(name: string): boolean {
   return args.includes(name);
 }
@@ -54,7 +76,7 @@ if (command === "test") {
 
   if (url === undefined || url === "") {
     console.error(
-      "usage: storybranch test --url <storybook> [--open] [--review]"
+      "usage: storybranch test --url <storybook> [--open] [--review] [--port <n>]\nrun storybranch --help for exit codes and the files to commit"
     );
     process.exit(1);
   }
@@ -124,8 +146,6 @@ if (command === "approve") {
   process.exit(0);
 }
 
-console.error(
-  "usage: storybranch test --url <storybook> [--open] [--review] | storybranch review [--open] [--once] [--port <n>] | storybranch approve"
-);
+console.error(usage);
 
 process.exit(1);
