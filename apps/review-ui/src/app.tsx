@@ -61,16 +61,28 @@ export const App = () => {
     return report.entries.filter((entry) => matchesFilter(entry, filter));
   }, [filter, report]);
 
-  const selected: ReportEntry | null = useMemo(() => {
-    if (report === null || selectedFilename === null) {
+  const activeFilename = useMemo(() => {
+    if (visible.length === 0) {
       return null;
     }
 
-    return (
-      report.entries.find((entry) => entry.filename === selectedFilename) ??
-      null
-    );
-  }, [report, selectedFilename]);
+    if (
+      selectedFilename !== null &&
+      visible.some((entry) => entry.filename === selectedFilename)
+    ) {
+      return selectedFilename;
+    }
+
+    return visible[0]?.filename ?? null;
+  }, [selectedFilename, visible]);
+
+  const selected: ReportEntry | null = useMemo(() => {
+    if (activeFilename === null) {
+      return null;
+    }
+
+    return visible.find((entry) => entry.filename === activeFilename) ?? null;
+  }, [activeFilename, visible]);
 
   return (
     <div className="min-h-full font-sans leading-normal">
@@ -165,13 +177,19 @@ export const App = () => {
                 entries={visible}
                 onAccept={refreshReport}
                 onSelect={setSelectedFilename}
-                selectedFilename={selectedFilename}
+                selectedFilename={activeFilename}
               />
             </div>
           )}
         </aside>
         <section className="min-w-0 overflow-auto p-4">
-          <ComparisonViewer entry={selected} report={report} />
+          <ComparisonViewer
+            entry={selected}
+            filter={filter}
+            onAccept={refreshReport}
+            report={report}
+            visibleCount={visible.length}
+          />
         </section>
       </main>
     </div>

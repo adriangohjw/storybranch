@@ -4,6 +4,18 @@ const statusBadgeClass = {
   new: "rounded-full px-1.5 py-px text-[9px] leading-none font-semibold tracking-wide uppercase bg-sky-500/20 text-sky-300",
 } as const;
 
+const headerBadgeClass = {
+  approved:
+    "rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase bg-violet-500/20 text-violet-300",
+  changed:
+    "rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase bg-amber-500/20 text-amber-300",
+  new: "rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase bg-sky-500/20 text-sky-300",
+  unchanged:
+    "rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase bg-emerald-500/20 text-emerald-300",
+} as const;
+
+const shotBrowserPattern = /__(?<browser>chrome|firefox|edge)\.png$/iu;
+
 function statusBadgeClassFor(status: string): string {
   if (status === "new") {
     return statusBadgeClass.new;
@@ -17,6 +29,57 @@ const approvedBadgeClass =
 
 function pendingApproval(status: string): boolean {
   return status === "new" || status === "changed";
+}
+
+function storyPartsFromId(storyId: string) {
+  const marker = "--";
+  const index = storyId.indexOf(marker);
+
+  if (index === -1) {
+    return { component: storyId, story: "default" };
+  }
+
+  return {
+    component: storyId.slice(0, index),
+    story: storyId.slice(index + marker.length),
+  };
+}
+
+function headerBadgeClassFor(displayStatus: string): string {
+  switch (displayStatus) {
+    case "approved": {
+      return headerBadgeClass.approved;
+    }
+
+    case "changed": {
+      return headerBadgeClass.changed;
+    }
+
+    case "new": {
+      return headerBadgeClass.new;
+    }
+
+    case "unchanged": {
+      return headerBadgeClass.unchanged;
+    }
+
+    default: {
+      return headerBadgeClass.changed;
+    }
+  }
+}
+
+function browserFromShot(id: string, label: string): string {
+  const match = shotBrowserPattern.exec(id);
+  const fromId = match?.groups?.browser;
+
+  if (fromId !== undefined) {
+    return fromId;
+  }
+
+  const segment = label.split("·").at(-1)?.trim();
+
+  return segment !== undefined && segment.length > 0 ? segment : "chrome";
 }
 
 function matchesFilter(
@@ -45,6 +108,16 @@ function matchesFilter(
 
 function rowApproved(row: HTMLElement): boolean {
   return row.dataset.approved === "1";
+}
+
+function replayEmptyIconPop(icon: HTMLElement | null): void {
+  if (icon === null) {
+    return;
+  }
+
+  icon.classList.remove("review-demo-empty-pop");
+  void icon.offsetWidth;
+  icon.classList.add("review-demo-empty-pop");
 }
 
 function setRowActionButtons(row: HTMLElement, approved: boolean): void {
@@ -109,7 +182,10 @@ function initReviewDemo(root: HTMLElement): void {
   const actualImg = root.querySelector<HTMLImageElement>("[data-actual-img]");
   const diffImg = root.querySelector<HTMLImageElement>("[data-diff-img]");
 
-  const noBaseline = root.querySelector<HTMLElement>("[data-no-baseline]");
+  const baselineEmpty = root.querySelector<HTMLElement>(
+    "[data-baseline-empty]"
+  );
+
   const diffControls = root.querySelector<HTMLElement>("[data-diff-controls]");
 
   const diffToggle =
@@ -118,7 +194,15 @@ function initReviewDemo(root: HTMLElement): void {
   const diffKnob = root.querySelector<HTMLElement>("[data-diff-knob]");
   const comparison = root.querySelector<HTMLElement>("[data-comparison]");
   const emptyState = root.querySelector<HTMLElement>("[data-empty-state]");
-  const emptyEmoji = root.querySelector<HTMLElement>("[data-empty-emoji]");
+
+  const emptyIconAttention = root.querySelector<HTMLElement>(
+    "[data-empty-icon-attention]"
+  );
+
+  const emptyIconFilter = root.querySelector<HTMLElement>(
+    "[data-empty-icon-filter]"
+  );
+
   const emptyTitle = root.querySelector<HTMLElement>("[data-empty-title]");
 
   const emptySubtitle = root.querySelector<HTMLElement>(
@@ -136,6 +220,27 @@ function initReviewDemo(root: HTMLElement): void {
   );
 
   const previewFrame = root.querySelector<HTMLElement>("[data-preview-frame]");
+
+  const headerBadge = root.querySelector<HTMLElement>("[data-header-badge]");
+
+  const headerBrowser = root.querySelector<HTMLElement>(
+    "[data-header-browser]"
+  );
+
+  const headerComponent = root.querySelector<HTMLElement>(
+    "[data-header-component]"
+  );
+
+  const headerStory = root.querySelector<HTMLElement>("[data-header-story]");
+  const headerLabel = root.querySelector<HTMLElement>("[data-header-label]");
+
+  const headerFilename = root.querySelector<HTMLElement>(
+    "[data-header-filename]"
+  );
+
+  const viewerAccept = root.querySelector<HTMLButtonElement>(
+    "[data-viewer-accept]"
+  );
 
   let overlayOn = true;
   let collapsed = false;
@@ -180,31 +285,74 @@ function initReviewDemo(root: HTMLElement): void {
     }
   }
 
+  function syncAspectFromImage(img: HTMLImageElement): void {
+    if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+      setFrameAspect(`${img.naturalWidth} / ${img.naturalHeight}`);
+    }
+  }
+
   function setBaselinePanel(baseline: string): void {
     if (baseline === "") {
-      if (baselineImg !== null) {
-        baselineImg.hidden = true;
-      }
-
-      if (baselineFrame !== null) {
-        baselineFrame.hidden = true;
-      }
-
-      noBaseline?.classList.remove("hidden");
+      baselineImg?.classList.add("hidden");
+      baselineFrame?.classList.add("hidden");
+      baselineEmpty?.classList.remove("hidden");
+      baselineEmpty?.classList.add("flex");
 
       return;
     }
 
+    baselineEmpty?.classList.add("hidden");
+    baselineEmpty?.classList.remove("flex");
+    baselineFrame?.classList.remove("hidden");
+    baselineImg?.classList.remove("hidden");
+
     if (baselineImg !== null) {
-      baselineImg.hidden = false;
       baselineImg.src = baseline;
     }
+  }
 
-    if (baselineFrame !== null) {
-      baselineFrame.hidden = false;
+  function syncSnapshotHeader(button: HTMLButtonElement): void {
+    const row = button.closest<HTMLElement>("[data-shot-row]");
+    const status = row?.dataset.status ?? button.dataset.status ?? "changed";
+    const approved = row !== null && rowApproved(row);
+    const displayStatus = approved ? "approved" : status;
+
+    if (headerBadge !== null) {
+      headerBadge.textContent = displayStatus;
+      headerBadge.className = headerBadgeClassFor(displayStatus);
     }
 
-    noBaseline?.classList.add("hidden");
+    const storyId = button.dataset.storyId ?? "";
+    const { component, story } = storyPartsFromId(storyId);
+    const id = button.dataset.id ?? "";
+    const label = button.dataset.label ?? "";
+
+    if (headerComponent !== null) {
+      headerComponent.textContent = component;
+    }
+
+    if (headerStory !== null) {
+      headerStory.textContent = story;
+    }
+
+    if (headerLabel !== null) {
+      headerLabel.textContent = label;
+    }
+
+    if (headerFilename !== null) {
+      headerFilename.textContent = id;
+    }
+
+    if (headerBrowser !== null) {
+      headerBrowser.textContent = browserFromShot(id, label);
+    }
+
+    const canAccept =
+      !approved && pendingApproval(status) && status !== "unchanged";
+
+    if (viewerAccept !== null) {
+      viewerAccept.hidden = !canAccept;
+    }
   }
 
   function selectShot(button: HTMLButtonElement): void {
@@ -230,6 +378,7 @@ function initReviewDemo(root: HTMLElement): void {
     }
 
     setBaselinePanel(baseline);
+    syncSnapshotHeader(button);
 
     const hasDiff = diff.length > 0;
 
@@ -265,17 +414,6 @@ function initReviewDemo(root: HTMLElement): void {
     return value === "attention" && pendingAttentionRows().length === 0;
   }
 
-  function replayEmptyEmojiPop(): void {
-    if (emptyEmoji === null) {
-      return;
-    }
-
-    emptyEmoji.classList.remove("review-demo-empty-pop");
-    // Force reflow so the pop animation can run again.
-    void emptyEmoji.offsetWidth;
-    emptyEmoji.classList.add("review-demo-empty-pop");
-  }
-
   function showEmptyViewer(): void {
     comparison?.classList.add("hidden");
     emptyState?.classList.remove("hidden");
@@ -283,39 +421,41 @@ function initReviewDemo(root: HTMLElement): void {
     clearSelectionHighlight();
 
     if (isAttentionClearState()) {
-      if (emptyEmoji !== null) {
-        emptyEmoji.textContent = "🎉";
-      }
+      emptyIconAttention?.classList.remove("hidden");
+      emptyIconAttention?.classList.add("flex");
+      emptyIconFilter?.classList.add("hidden");
+      emptyIconFilter?.classList.remove("flex");
 
       if (emptyTitle !== null) {
-        emptyTitle.textContent = "No snapshots need attention.";
+        emptyTitle.textContent = "Nothing needs attention";
       }
 
       if (emptySubtitle !== null) {
         emptySubtitle.textContent =
-          "Everything in this demo is approved. Nice work.";
+          "Every snapshot in this filter is unchanged or already accepted.";
         emptySubtitle.hidden = false;
       }
 
-      replayEmptyEmojiPop();
+      replayEmptyIconPop(emptyIconAttention);
 
       return;
     }
 
-    if (emptyEmoji !== null) {
-      emptyEmoji.textContent = "🔍";
-    }
+    emptyIconAttention?.classList.add("hidden");
+    emptyIconAttention?.classList.remove("flex");
+    emptyIconFilter?.classList.remove("hidden");
+    emptyIconFilter?.classList.add("flex");
 
     if (emptyTitle !== null) {
-      emptyTitle.textContent = "No snapshots match this filter.";
+      emptyTitle.textContent = "No snapshots match this filter";
     }
 
     if (emptySubtitle !== null) {
-      emptySubtitle.textContent = "Try another filter to see more shots.";
+      emptySubtitle.textContent = "Try another filter to see more snapshots.";
       emptySubtitle.hidden = false;
     }
 
-    replayEmptyEmojiPop();
+    replayEmptyIconPop(emptyIconFilter);
   }
 
   function hideEmptyViewer(): void {
@@ -349,7 +489,15 @@ function initReviewDemo(root: HTMLElement): void {
 
     const stillSelected = visible.some((row) => row.dataset.id === selectedId);
 
-    if (!stillSelected) {
+    if (stillSelected) {
+      const selected = selectButtons.find(
+        (button) => button.dataset.id === selectedId
+      );
+
+      if (selected !== undefined) {
+        syncSnapshotHeader(selected);
+      }
+    } else {
       const first =
         visible[0]?.querySelector<HTMLButtonElement>("[data-select]");
 
@@ -409,6 +557,12 @@ function initReviewDemo(root: HTMLElement): void {
     });
   }
 
+  viewerAccept?.addEventListener("click", () => {
+    if (selectedId !== null) {
+      acceptId(selectedId);
+    }
+  });
+
   for (const button of root.querySelectorAll<HTMLButtonElement>(
     "[data-reset]"
   )) {
@@ -429,6 +583,18 @@ function initReviewDemo(root: HTMLElement): void {
     }
 
     applyFilter();
+  });
+
+  actualImg?.addEventListener("load", () => {
+    if (actualImg !== null) {
+      syncAspectFromImage(actualImg);
+    }
+  });
+
+  baselineImg?.addEventListener("load", () => {
+    if (baselineImg !== null && baselineImg.hidden !== true) {
+      syncAspectFromImage(baselineImg);
+    }
   });
 
   applyFilter();
