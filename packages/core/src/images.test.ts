@@ -1,11 +1,11 @@
 import { expect, test } from "bun:test";
-import { mkdtemp, readdir } from "node:fs/promises";
+import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
 import { PNG } from "pngjs";
 
-import { actualDirectory, comparePng, promoteActuals } from "@/images.ts";
+import { actualDirectory, comparePng } from "@/images.ts";
 
 function solid(
   width: number,
@@ -137,23 +137,12 @@ test("different sizes mismatch without a diff image", () => {
   });
 });
 
-test("approve copies actuals and deletes stale baselines", async () => {
+test("actuals are stored under the current git commit", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "storybranch-"));
   const hash = await initRepo(root);
-  const actual = path.join(root, ".storybranch", "actual", hash);
-  expect(await actualDirectory(root)).toBe(actual);
-  const baseline = path.join(root, ".storybranch", "baseline");
-  await Bun.write(path.join(actual, "keep.png"), red);
-  await Bun.write(path.join(baseline, "keep.png"), blue);
-  await Bun.write(path.join(baseline, "stale.png"), blue);
-
-  const result = await promoteActuals(root);
-  expect(result).toEqual({ removed: ["stale.png"], updated: ["keep.png"] });
-  expect(await Bun.file(path.join(baseline, "keep.png")).bytes()).toEqual(
-    new Uint8Array(red)
+  expect(await actualDirectory(root)).toBe(
+    path.join(root, ".storybranch", "actual", hash)
   );
-  expect(await Bun.file(path.join(baseline, "stale.png")).exists()).toBe(false);
-  expect(await readdir(baseline)).toEqual(["keep.png"]);
 });
 
 async function initRepo(cwd: string): Promise<string> {

@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 
-import { isCapturable, planShots, shotFilename } from "@/plan.ts";
+import { isCapturable, planShots } from "@/plan.ts";
 import type { Shot } from "@/plan.ts";
 
 const mobile1 = {
@@ -184,13 +184,4 @@ test("index entries skip docs and !test", () => {
   );
   expect(isCapturable({ tags: ["!test"], type: "story" })).toBe(false);
   expect(isCapturable({ tags: [], type: "docs" })).toBe(false);
-});
-
-test("shot filenames keep the label and browser", () => {
-  expect(shotFilename("button--default", "1200x900", "firefox")).toBe(
-    "button--default__1200x900__firefox.png"
-  );
-  expect(shotFilename("button--modes", "dark/mobile", "chrome")).toBe(
-    "button--modes__dark_mobile__chrome.png"
-  );
 });

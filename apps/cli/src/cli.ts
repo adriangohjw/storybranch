@@ -1,11 +1,11 @@
 #!/usr/bin/env bun
 import { capture } from "@storybranch/core/capture";
 import { loadConfig, parseBrowserList } from "@storybranch/core/config";
-import { promoteActuals } from "@storybranch/core/images";
 import {
   resolveProjectRoot,
   resolveStartDir,
 } from "@storybranch/core/project-root";
+import { approve } from "@storybranch/core/store";
 import {
   reportHasAttention,
   terminalAttentionBlock,
@@ -201,10 +201,8 @@ if (command === "approve") {
   const root = await packageRoot();
 
   try {
-    const result = await promoteActuals(root);
-    console.log(
-      `updated ${result.updated.length}, removed ${result.removed.length}`
-    );
+    const result = await approve(root);
+    console.log(`updated ${result.updated}, removed ${result.removed}`);
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);

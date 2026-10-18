@@ -38,7 +38,7 @@ test("buildSnapshotTree nests component, story, size, and browser", () => {
     tree.components[0]?.stories[0]?.shots.map((shot) => shot.label)
   ).toEqual(["380", "1280"]);
   expect(tree.components[0]?.stories[0]?.shots[1]?.leaves[0]?.browser).toBe(
-    "chromium"
+    "chrome"
   );
 });
 
