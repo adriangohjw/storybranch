@@ -33,8 +33,10 @@ npm run visual:approve
 In CI, after `storybook build` writes `storybook-static/`:
 
 ```bash
-storybranch test --build
+storybranch test --build --exit-once
 ```
+
+A copy-paste GitHub Actions workflow is in [docs/ci.md](../../docs/ci.md). `--exit-once` keeps the job from leaving the review server running.
 
 Another output directory: `storybranch test --storybook-build-dir ./storybook-static`.
 
