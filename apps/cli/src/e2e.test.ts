@@ -4,7 +4,8 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 
 import { readReport } from "@storybranch/report";
-import { chromium } from "playwright";
+import { chromium, firefox } from "playwright";
+import type { Browser } from "playwright";
 import { PNG } from "pngjs";
 
 const root = path.join(import.meta.dir, "../../..");
@@ -48,7 +49,14 @@ const shots = [
   "hero--pinned__mobile1.png",
 ];
 
-const captured = ["chrome", "edge", "firefox"]
+const e2eBrowsers = (
+  process.env.STORYBRANCH_E2E_BROWSERS ?? "chrome,firefox,edge"
+)
+  .split(",")
+  .map((name) => name.trim())
+  .filter((name) => name !== "" && name !== "skip");
+
+const captured = e2eBrowsers
   .flatMap((browser) =>
     shots.map((name) => name.replace(/\.png$/u, `__${browser}.png`))
   )
@@ -63,7 +71,7 @@ const absent = [
   "hero--skipped",
 ];
 
-test(
+test.skipIf(process.env.STORYBRANCH_E2E_BROWSERS === "skip")(
   "fixture stories capture, approve, and match",
   async () => {
     const url = "http://127.0.0.1:6019";
@@ -79,7 +87,7 @@ test(
       await storybookPackage(work);
       const hash = await initRepo(work);
       const first = await run(
-        ["test", "--url", url, "--browsers", "chrome,firefox,edge"],
+        ["test", "--url", url, "--browsers", e2eBrowsers.join(",")],
         work
       );
       expect(first.exitCode).toBe(1);
@@ -92,7 +100,7 @@ test(
       expect(approved.exitCode).toBe(0);
 
       const second = await run(
-        ["test", "--url", url, "--browsers", "chrome,firefox,edge"],
+        ["test", "--url", url, "--browsers", e2eBrowsers.join(",")],
         work
       );
       expect(second.stderr).toBe("");
@@ -112,6 +120,10 @@ test(
         report.entries.every((entry) => entry.status === "unchanged")
       ).toBe(true);
       expect(report.commit).toBe(hash);
+
+      if (!e2eBrowsers.includes("chrome")) {
+        return;
+      }
 
       await expectShot(work, hash, "coverage--default__1200x900__chrome.png", {
         color: [226, 232, 240],
@@ -287,7 +299,10 @@ test(
       const work = await mkdtemp(path.join(tmpdir(), "storybranch-e2e-"));
       await storybookPackage(work);
       await initRepo(work);
-      const result = await run(["test", "--url", errorUrl], work);
+      const result = await run(
+        ["test", "--url", errorUrl, "--browsers", e2eBrowsers.join(",")],
+        work
+      );
       expect(result.exitCode).toBe(1);
       const stderr = result.stderr;
       expect(stderr).toContain(
@@ -434,6 +449,20 @@ async function withStorybook(
   }
 }
 
+async function launchE2eBrowser(): Promise<Browser> {
+  const name = e2eBrowsers[0] ?? "chrome";
+
+  if (name === "firefox") {
+    return await firefox.launch();
+  }
+
+  if (name === "edge") {
+    return await chromium.launch({ channel: "msedge" });
+  }
+
+  return await chromium.launch();
+}
+
 async function warmPreview(storybookUrl: string): Promise<void> {
   const entries = await readIndex(storybookUrl);
   const id = entries.find((entry) => entry.type === "story")?.id;
@@ -442,7 +471,7 @@ async function warmPreview(storybookUrl: string): Promise<void> {
     return;
   }
 
-  const browser = await chromium.launch();
+  const browser = await launchE2eBrowser();
 
   try {
     const page = await browser.newPage();
