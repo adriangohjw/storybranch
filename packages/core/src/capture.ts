@@ -218,8 +218,10 @@ export async function capture(
     actualDir,
     commit,
     createdAt: new Date().toISOString(),
+    durationMs: Date.now() - started,
     entries: entries.toSorted((a, b) => entryKey(a).localeCompare(entryKey(b))),
     root,
+    storyCount: stories.length,
   };
 
   await writeReport(root, report);
@@ -232,8 +234,10 @@ function emptyReport(root: string, commit: string, actualDir: string): Report {
     actualDir,
     commit,
     createdAt: new Date().toISOString(),
+    durationMs: 0,
     entries: [],
     root,
+    storyCount: 0,
   };
 }
 

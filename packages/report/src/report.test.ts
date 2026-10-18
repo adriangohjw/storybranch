@@ -11,9 +11,21 @@ import {
   readReport,
   shotLabelFromFilename,
   storyIdFromFilename,
+  storyPartsFromId,
   writeReport,
 } from "@/report.ts";
 import type { Report } from "@/report.ts";
+
+test("story parts split on first double dash", () => {
+  expect(storyPartsFromId("button--default")).toEqual({
+    component: "button",
+    story: "default",
+  });
+  expect(storyPartsFromId("orphan")).toEqual({
+    component: "orphan",
+    story: "default",
+  });
+});
 
 test("story id, label, and browser parse from filename", () => {
   const filename = "button--default__1200x900__firefox.png";

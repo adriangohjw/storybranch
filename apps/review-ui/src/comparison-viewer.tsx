@@ -1,18 +1,29 @@
-import type { ReportEntry } from "@storybranch/report";
+import type { Report, ReportEntry } from "@storybranch/report";
 import { useState } from "react";
 
+import { BuildSummary } from "@/build-summary.tsx";
 import { cn } from "@/lib/cn.ts";
 
 interface ComparisonViewerProps {
   entry: ReportEntry | null;
+  report: Report | null;
 }
 
-export const ComparisonViewer = ({ entry }: ComparisonViewerProps) => {
+export const ComparisonViewer = ({ entry, report }: ComparisonViewerProps) => {
   const [diffOverlay, setDiffOverlay] = useState(true);
 
   if (entry === null) {
     return (
-      <p className="text-sm text-zinc-500">Select a snapshot to compare.</p>
+      <div>
+        {report === null ? null : (
+          <BuildSummary
+            className="mb-4 border-b border-zinc-800 pb-3"
+            compact
+            report={report}
+          />
+        )}
+        <p className="text-sm text-zinc-500">Select a snapshot to compare.</p>
+      </div>
     );
   }
 
@@ -27,6 +38,13 @@ export const ComparisonViewer = ({ entry }: ComparisonViewerProps) => {
 
   return (
     <div>
+      {report === null ? null : (
+        <BuildSummary
+          className="mb-4 border-b border-zinc-800 pb-3"
+          compact
+          report={report}
+        />
+      )}
       <div className="grid gap-4 lg:grid-cols-2">
         <figure className="m-0">
           <div className="mb-1 flex h-5 items-center">
