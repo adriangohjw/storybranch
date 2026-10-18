@@ -94,12 +94,16 @@ export async function capture(
 
   stories.sort((a, b) => a.id.localeCompare(b.id));
 
-  // ponytail: partial runs skip stale baselines. A full run still catches removed stories.
-  let partial = false;
+  // Stories left out of --only-changed keep their baselines. Captured stories still go stale.
+  let capturedIds: ReadonlySet<string> | undefined;
 
   if (options.onlyChanged !== undefined) {
     const picked = pickStories(stories, options.onlyChanged);
-    partial = !picked.full;
+
+    if (!picked.full) {
+      capturedIds = new Set(picked.stories.map((story) => story.id));
+    }
+
     stories.splice(0, stories.length, ...picked.stories);
   }
 
@@ -224,9 +228,17 @@ export async function capture(
     baselines = [];
   }
 
-  for (const baselineFile of partial
-    ? []
-    : baselines.filter((entry) => !expected.has(entry)).toSorted()) {
+  const staleNames = baselines.filter((entry) => {
+    if (expected.has(entry)) {
+      return false;
+    }
+
+    return (
+      capturedIds === undefined || capturedIds.has(storyIdFromFilename(entry))
+    );
+  });
+
+  for (const baselineFile of staleNames.toSorted()) {
     failures.push(`stale ${baselineFile}`);
     entries.push({
       baselinePath: path.join(baselineDir, baselineFile),
