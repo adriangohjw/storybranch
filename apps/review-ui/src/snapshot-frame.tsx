@@ -62,7 +62,7 @@ export const SnapshotFrame = ({
         <img
           alt={overlayAlt}
           aria-hidden={overlayAlt.length === 0}
-          className="pointer-events-none absolute inset-0 size-full object-contain opacity-75 mix-blend-screen"
+          className="pointer-events-none absolute inset-0 size-full object-contain opacity-80 mix-blend-normal"
           decoding="async"
           src={overlaySrc}
         />

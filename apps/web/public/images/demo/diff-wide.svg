@@ -9,6 +9,6 @@
       <text x="540" y="156" fill="#000" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13">changed - 142 px</text>
     </mask>
   </defs>
-  <rect x="32" y="204" width="124" height="40" rx="8" fill="#ff2bd6" mask="url(#button)"/>
-  <rect width="800" height="300" fill="#ff2bd6" mask="url(#caption)"/>
+  <rect x="32" y="204" width="124" height="40" rx="8" fill="#7de950" mask="url(#button)"/>
+  <rect width="800" height="300" fill="#7de950" mask="url(#caption)"/>
 </svg>
