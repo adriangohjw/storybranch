@@ -152,9 +152,21 @@ export const ComparisonViewer = ({
 
       <div className="grid gap-5 xl:grid-cols-2">
         <figure className="m-0 space-y-2">
-          <figcaption className="text-xs font-medium tracking-wide text-zinc-500 uppercase">
-            Baseline
-          </figcaption>
+          <div className="flex min-h-8 items-center justify-between gap-3">
+            <figcaption className="text-xs font-medium tracking-wide text-zinc-500 uppercase">
+              Baseline
+            </figcaption>
+            <div
+              aria-hidden
+              className={cn(
+                "flex shrink-0 items-center gap-2 text-xs text-zinc-400",
+                !hasDiff && "invisible"
+              )}
+            >
+              <span>Diff overlay</span>
+              <span className="inline-block h-5 w-9 shrink-0" />
+            </div>
+          </div>
           <SnapshotFrame
             alt="Baseline snapshot"
             emptyLabel="No baseline yet"
@@ -166,7 +178,7 @@ export const ComparisonViewer = ({
           />
         </figure>
         <figure className="m-0 space-y-2">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex min-h-8 items-center justify-between gap-3">
             <figcaption className="text-xs font-medium tracking-wide text-zinc-500 uppercase">
               This scan
             </figcaption>

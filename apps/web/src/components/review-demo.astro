@@ -237,9 +237,19 @@ const initialId = "hero--default__1200x900__chrome.png";
 
           <div class="grid gap-5 xl:grid-cols-2">
             <figure class="m-0 space-y-2">
-              <figcaption class="text-xs font-medium tracking-wide text-zinc-500 uppercase">
-                Baseline
-              </figcaption>
+              <div class="flex min-h-8 items-center justify-between gap-3">
+                <figcaption class="text-xs font-medium tracking-wide text-zinc-500 uppercase">
+                  Baseline
+                </figcaption>
+                <div
+                  aria-hidden="true"
+                  class="invisible flex shrink-0 items-center gap-2 text-xs text-zinc-400"
+                  data-diff-controls-spacer
+                >
+                  <span>Diff overlay</span>
+                  <span class="inline-block h-5 w-9 shrink-0"></span>
+                </div>
+              </div>
               <div
                 class="hidden min-h-32 items-center justify-center rounded-md border border-dashed border-zinc-700 bg-zinc-900/40 px-4 py-8 text-center text-xs text-zinc-500"
                 data-baseline-empty
@@ -261,7 +271,7 @@ const initialId = "hero--default__1200x900__chrome.png";
               </div>
             </figure>
             <figure class="m-0 space-y-2">
-              <div class="flex items-center justify-between gap-3">
+              <div class="flex min-h-8 items-center justify-between gap-3">
                 <figcaption class="text-xs font-medium tracking-wide text-zinc-500 uppercase">
                   This scan
                 </figcaption>
