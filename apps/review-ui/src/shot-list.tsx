@@ -29,8 +29,7 @@ export const ShotList = ({
             <li
               className="flex items-center gap-0.5"
               key={
-                entry.filename ??
-                `${entry.storyId}:${entry.browser ?? "error"}`
+                entry.filename ?? `${entry.storyId}:${entry.browser ?? "error"}`
               }
             >
               <ShotRow

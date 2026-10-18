@@ -118,26 +118,51 @@ test(
         height: 900,
         width: 1200,
       });
-      await expectShot(work, hash, "coverage--pinned-mobile-1__mobile1__chrome.png", {
-        height: 568,
-        width: 320,
-      });
-      await expectShot(work, hash, "coverage--pinned-rotated__mobile1__chrome.png", {
-        height: 320,
-        width: 568,
-      });
-      await expectShot(work, hash, "coverage--pinned-desktop__desktop__chrome.png", {
-        height: 1024,
-        width: 1280,
-      });
-      await expectShot(work, hash, "coverage--pinned-mobile-2__mobile2__chrome.png", {
-        height: 896,
-        width: 414,
-      });
-      await expectShot(work, hash, "coverage--pinned-tablet__tablet__chrome.png", {
-        height: 1112,
-        width: 834,
-      });
+      await expectShot(
+        work,
+        hash,
+        "coverage--pinned-mobile-1__mobile1__chrome.png",
+        {
+          height: 568,
+          width: 320,
+        }
+      );
+      await expectShot(
+        work,
+        hash,
+        "coverage--pinned-rotated__mobile1__chrome.png",
+        {
+          height: 320,
+          width: 568,
+        }
+      );
+      await expectShot(
+        work,
+        hash,
+        "coverage--pinned-desktop__desktop__chrome.png",
+        {
+          height: 1024,
+          width: 1280,
+        }
+      );
+      await expectShot(
+        work,
+        hash,
+        "coverage--pinned-mobile-2__mobile2__chrome.png",
+        {
+          height: 896,
+          width: 414,
+        }
+      );
+      await expectShot(
+        work,
+        hash,
+        "coverage--pinned-tablet__tablet__chrome.png",
+        {
+          height: 1112,
+          width: 834,
+        }
+      );
       await expectShot(work, hash, "coverage--pinned-wide__wide__chrome.png", {
         height: 700,
         width: 1440,
@@ -154,10 +179,15 @@ test(
         height: 900,
         width: 1200,
       });
-      await expectShot(work, hash, "coverage--mode-widths__narrow__chrome.png", {
-        height: 900,
-        width: 320,
-      });
+      await expectShot(
+        work,
+        hash,
+        "coverage--mode-widths__narrow__chrome.png",
+        {
+          height: 900,
+          width: 320,
+        }
+      );
       await expectShot(work, hash, "coverage--mode-widths__wide__chrome.png", {
         height: 900,
         width: 800,
@@ -181,15 +211,25 @@ test(
         height: 200,
         width: 400,
       });
-      await expectShot(work, hash, "coverage--mode-width-only__half__chrome.png", {
-        height: 900,
-        width: 500,
-      });
-      await expectShot(work, hash, "coverage--mode-slash__dark_mobile__chrome.png", {
-        color: [17, 24, 39],
-        height: 900,
-        width: 360,
-      });
+      await expectShot(
+        work,
+        hash,
+        "coverage--mode-width-only__half__chrome.png",
+        {
+          height: 900,
+          width: 500,
+        }
+      );
+      await expectShot(
+        work,
+        hash,
+        "coverage--mode-slash__dark_mobile__chrome.png",
+        {
+          color: [17, 24, 39],
+          height: 900,
+          width: 360,
+        }
+      );
       await expectShot(work, hash, "coverage--mode-several__mid__chrome.png", {
         height: 900,
         width: 640,
@@ -199,26 +239,41 @@ test(
         height: 900,
         width: 1200,
       });
-      await expectShot(work, hash, "coverage--pause-at-end__1200x900__chrome.png", {
-        color: [255, 0, 0],
-        height: 900,
-        width: 1200,
-      });
-      await expectShot(work, hash, "coverage--pause-at-start__1200x900__chrome.png", {
-        color: [0, 255, 0],
-        height: 900,
-        width: 1200,
-      });
+      await expectShot(
+        work,
+        hash,
+        "coverage--pause-at-end__1200x900__chrome.png",
+        {
+          color: [255, 0, 0],
+          height: 900,
+          width: 1200,
+        }
+      );
+      await expectShot(
+        work,
+        hash,
+        "coverage--pause-at-start__1200x900__chrome.png",
+        {
+          color: [0, 255, 0],
+          height: 900,
+          width: 1200,
+        }
+      );
       await expectShot(work, hash, "coverage--cropped__1200x900__chrome.png", {
         color: [18, 52, 86],
         height: 900,
         width: 1200,
       });
-      await expectShot(work, hash, "coverage--uncropped__1200x900__chrome.png", {
-        color: [18, 52, 86],
-        height: 2000,
-        width: 2000,
-      });
+      await expectShot(
+        work,
+        hash,
+        "coverage--uncropped__1200x900__chrome.png",
+        {
+          color: [18, 52, 86],
+          height: 2000,
+          width: 2000,
+        }
+      );
       await expectShot(work, hash, "coverage--blank__1200x900__chrome.png", {
         color: [255, 255, 255],
         height: 4,
