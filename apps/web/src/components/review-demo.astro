@@ -1,5 +1,5 @@
 ---
-import { LuCheck, LuRotateCcw } from "react-icons/lu";
+import { LuCheck, LuCircleDashed, LuPartyPopper, LuRotateCcw } from "react-icons/lu";
 
 const shots = [
   {
@@ -147,7 +147,9 @@ const initialId = "hero--default__1200x900__chrome.png";
                         data-actual={shot.actual}
                         data-diff={shot.diff ?? ""}
                         data-aspect={shot.aspect}
+                        data-label={shot.label}
                         data-status={shot.status}
+                        data-story-id={shot.storyId}
                         type="button"
                       >
                         <span
@@ -193,64 +195,118 @@ const initialId = "hero--default__1200x900__chrome.png";
       </aside>
 
       <div class="relative min-w-0 overflow-auto p-4" data-viewer>
-        <div class="grid gap-4 lg:grid-cols-2" data-comparison>
-          <figure class="m-0">
-            <div class="mb-1 flex h-5 items-center">
-              <figcaption class="text-xs text-zinc-500">Baseline</figcaption>
-            </div>
-            <p class="hidden text-xs text-zinc-600" data-no-baseline>No baseline</p>
-            <div
-              class="relative w-full overflow-hidden rounded border border-zinc-800 bg-zinc-900/50"
-              data-baseline-frame
-              style="aspect-ratio: 800 / 300"
-            >
-              <img
-                alt="baseline"
-                class="absolute inset-0 size-full object-contain"
-                data-baseline-img
-                src="/images/demo/baseline.svg"
-              />
-            </div>
-          </figure>
-          <figure class="m-0">
-            <div class="mb-1 flex h-5 items-center justify-between gap-2">
-              <figcaption class="text-xs text-zinc-500">This scan</figcaption>
-              <div class="flex shrink-0 items-center gap-2 text-xs text-zinc-400" data-diff-controls>
-                <span>Diff overlay</span>
-                <button
-                  aria-label="Toggle diff overlay"
-                  aria-pressed="true"
-                  class="relative h-5 w-9 rounded-full bg-sky-600 transition-colors"
-                  data-diff-toggle
-                  type="button"
+        <div class="space-y-5" data-comparison>
+          <header
+            class="flex flex-wrap items-start justify-between gap-4 border-b border-zinc-800 pb-4"
+            data-snapshot-header
+          >
+            <div class="min-w-0 space-y-2">
+              <div class="flex flex-wrap items-center gap-2">
+                <span
+                  class="rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase bg-amber-500/20 text-amber-300"
+                  data-header-badge
                 >
-                  <span
-                    class="absolute top-0.5 left-0.5 size-4 translate-x-4 rounded-full bg-white transition-transform"
-                    data-diff-knob
-                  ></span>
-                </button>
+                  changed
+                </span>
+                <span class="text-xs text-zinc-500 capitalize" data-header-browser>
+                  chrome
+                </span>
               </div>
+              <h4 class="text-base font-semibold tracking-tight text-zinc-100">
+                <span class="text-zinc-400" data-header-component>hero</span>
+                <span class="text-zinc-600"> / </span>
+                <span data-header-story>default</span>
+              </h4>
+              <p class="text-sm text-zinc-400" data-header-label>1200x900 · chrome</p>
+              <p
+                class="font-mono text-xs text-zinc-500 break-all"
+                data-header-filename
+              >
+                hero--default__1200x900__chrome.png
+              </p>
             </div>
-            <div
-              class="relative w-full overflow-hidden rounded border border-zinc-800 bg-zinc-900/50"
-              data-preview-frame
-              style="aspect-ratio: 800 / 300"
+            <button
+              class="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+              data-viewer-accept
+              type="button"
             >
-              <img
-                alt="this scan"
-                class="absolute inset-0 size-full object-contain"
-                data-actual-img
-                src="/images/demo/actual-copy.svg"
-              />
-              <img
-                alt=""
-                aria-hidden
-                class="pointer-events-none absolute inset-0 size-full object-contain opacity-70"
-                data-diff-img
-                src="/images/demo/diff-copy.svg"
-              />
-            </div>
-          </figure>
+              <LuCheck aria-hidden className="size-4" />
+              Accept snapshot
+            </button>
+          </header>
+
+          <div class="grid gap-5 xl:grid-cols-2">
+            <figure class="m-0 space-y-2">
+              <figcaption class="text-xs font-medium tracking-wide text-zinc-500 uppercase">
+                Baseline
+              </figcaption>
+              <div
+                class="hidden min-h-32 items-center justify-center rounded-md border border-dashed border-zinc-700 bg-zinc-900/40 px-4 py-8 text-center text-xs text-zinc-500"
+                data-baseline-empty
+              >
+                No baseline yet
+              </div>
+              <div
+                class="checker-surface relative min-h-32 w-full overflow-hidden rounded-md border border-zinc-800"
+                data-baseline-frame
+                style="aspect-ratio: 800 / 300"
+              >
+                <img
+                  alt="Baseline snapshot"
+                  class="absolute inset-0 size-full object-contain"
+                  data-baseline-img
+                  decoding="async"
+                  src="/images/demo/baseline.svg"
+                />
+              </div>
+            </figure>
+            <figure class="m-0 space-y-2">
+              <div class="flex items-center justify-between gap-3">
+                <figcaption class="text-xs font-medium tracking-wide text-zinc-500 uppercase">
+                  This scan
+                </figcaption>
+                <div
+                  class="flex shrink-0 items-center gap-2 text-xs text-zinc-400"
+                  data-diff-controls
+                >
+                  <span id="review-demo-diff-label">Diff overlay</span>
+                  <button
+                    aria-labelledby="review-demo-diff-label"
+                    aria-label="Toggle diff overlay"
+                    aria-pressed="true"
+                    class="relative h-5 w-9 rounded-full bg-sky-600 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+                    data-diff-toggle
+                    type="button"
+                  >
+                    <span
+                      class="absolute top-0.5 left-0.5 size-4 translate-x-4 rounded-full bg-white transition-transform"
+                      data-diff-knob
+                    ></span>
+                  </button>
+                </div>
+              </div>
+              <div
+                class="checker-surface relative min-h-32 w-full overflow-hidden rounded-md border border-zinc-800"
+                data-preview-frame
+                style="aspect-ratio: 800 / 300"
+              >
+                <img
+                  alt="This scan"
+                  class="absolute inset-0 size-full object-contain"
+                  data-actual-img
+                  decoding="async"
+                  src="/images/demo/actual-copy.svg"
+                />
+                <img
+                  alt=""
+                  aria-hidden
+                  class="pointer-events-none absolute inset-0 size-full object-contain opacity-75 mix-blend-screen"
+                  data-diff-img
+                  src="/images/demo/diff-copy.svg"
+                />
+              </div>
+            </figure>
+          </div>
         </div>
         <div
           class="hidden min-h-[min(22rem,55vh)] flex-col items-center justify-center gap-3 px-6 py-12 text-center"
@@ -258,13 +314,20 @@ const initialId = "hero--default__1200x900__chrome.png";
         >
           <span
             aria-hidden="true"
-            class="text-5xl leading-none review-demo-empty-pop"
-            data-empty-emoji
+            class="review-demo-empty-pop flex size-14 items-center justify-center rounded-full border border-zinc-800 bg-zinc-900/80 text-zinc-300"
+            data-empty-icon-attention
           >
-            🎉
+            <LuPartyPopper aria-hidden className="size-7" />
           </span>
-          <p class="text-lg font-semibold text-emerald-300" data-empty-title></p>
-          <p class="max-w-xs text-sm text-zinc-400" data-empty-subtitle></p>
+          <span
+            aria-hidden="true"
+            class="review-demo-empty-pop hidden size-14 items-center justify-center rounded-full border border-zinc-800 bg-zinc-900/80 text-zinc-300"
+            data-empty-icon-filter
+          >
+            <LuCircleDashed aria-hidden className="size-7" />
+          </span>
+          <p class="text-lg font-semibold text-zinc-100" data-empty-title></p>
+          <p class="max-w-sm text-sm leading-relaxed text-zinc-400" data-empty-subtitle></p>
         </div>
       </div>
     </div>
