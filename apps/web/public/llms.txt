@@ -1,6 +1,6 @@
 # storybranch
 
-> Alpha open-source visual testing for Storybook 10+: capture stories as PNGs, pixel-diff against baselines in git, review locally. Install `@adriangohjw/storybranch` as a dev dependency of the Storybook app.
+> Alpha open-source visual testing for Storybook: capture stories as PNGs, pixel-diff against baselines in git, review locally. Install `@adriangohjw/storybranch` as a dev dependency of the Storybook app.
 
 Storybook must already be running at a URL Chromium can reach. Chromatic `modes` or `viewports` on a story become extra snapshots; both on one story is an error.
 

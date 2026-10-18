@@ -38,7 +38,7 @@ storybranch drives Playwright against your Storybook, saves one PNG per story (a
 
 storybranch is an **open-source, self-hosted** take on that workflow: you operate the tool, you own the artifacts, and you can keep the whole loop **local** during development.
 
-It is not a drop-in Chromatic replacement for every feature (e.g. hosted Storybook builds, TurboSnap, or Chromatic’s GitHub App integrations). It **does** cover the core visual regression workflow for Storybook 10+ using Playwright capture, pixel diffs, and an accept/reject review experience.
+It is not a drop-in Chromatic replacement for every feature (e.g. hosted Storybook builds, TurboSnap, or Chromatic’s GitHub App integrations). It **does** cover the core visual regression workflow for Storybook using Playwright capture, pixel diffs, and an accept/reject review experience.
 
 ## Self-hosted and local
 
@@ -82,7 +82,7 @@ Publish from the repo root with `bun run publish:cli` when you are ready to put 
 
 ## Quick start
 
-Storybook 10 or newer has to be running. Chromatic `modes` or `viewports` on a story become extra snapshots. Setting both on one story is an error.
+Storybook has to be running at your `--url`. Chromatic `modes` or `viewports` on a story become extra snapshots. Setting both on one story is an error.
 
 Add scripts to the Storybook app:
 
@@ -121,7 +121,7 @@ Paste this into the Storybook app’s `AGENTS.md`. `@adriangohjw/storybranch` is
 ```markdown
 ## storybranch
 
-`@adriangohjw/storybranch` is a dev dependency. Storybook 10+ must already be running. Run `npm run visual` (`pnpm run visual` or `bun run visual`).
+`@adriangohjw/storybranch` is a dev dependency. Storybook must already be running at your `--url`. Run `npm run visual` (`pnpm run visual` or `bun run visual`).
 
 - `visual` runs `storybranch test --url <storybook>`. Exit 1 means a visual diff. Lines: `missing baseline`, `pixels`, `size`, `stale`. A clean run prints `ok`.
 - Read `.storybranch/report.json` (`new`, `changed`, `unchanged`, `stale`, `error`).
