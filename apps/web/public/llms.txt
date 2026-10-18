@@ -1,12 +1,12 @@
 # storybranch
 
-> Alpha open-source visual testing for Storybook 10+: capture stories as PNGs, pixel-diff against baselines in git, review locally. Not on npm yet — clone the repo and run the CLI from your app.
+> Alpha open-source visual testing for Storybook 10+: capture stories as PNGs, pixel-diff against baselines in git, review locally. Not on npm yet — clone the repo and run the CLI from the package that owns Storybook (`package.json` + `.storybook/`), or pass `--cwd`.
 
 Storybook must already be running at a URL Chromium can reach. Chromatic `modes` or `viewports` on a story become extra snapshots; both on one story is an error.
 
-`storybranch test --url <storybook>` exits **1** when a snapshot needs attention. Failure lines: `missing baseline <file.png>`, `pixels <file.png>`, `size <file.png>`, `stale <file.png>`. A clean run prints `ok`. Inventory: `.storybranch/report.json`. The **first run** exits 1 with `missing baseline` for every shot — that is the baseline set, not a broken install.
+`storybranch test --url <storybook>` exits **1** when a snapshot needs attention. Failure lines: `missing baseline <file.png>`, `pixels <file.png>`, `size <file.png>`, `stale <file.png>`. A clean run prints `ok`. Inventory: `.storybranch/report.json` under that package. The **first run** exits 1 with `missing baseline` for every shot — that is the baseline set, not a broken install. Monorepos: one `.storybranch/` per Storybook package; use `--cwd` when not cd’d into the app.
 
-Commit only `.storybranch/baseline/`. Ignore `.storybranch/actual/`, `.storybranch/diff/`, and `.storybranch/report.json`. Run `approve` only when asked to accept shots. `review` and `--open` are for a person.
+Commit only that package’s `.storybranch/baseline/`. Ignore `actual/`, `diff/`, and `report.json`. Run `approve` only when asked to accept shots. `review` and `--open` are for a person.
 
 Until publish: `bun /path/to/storybranch/apps/cli/src/cli.ts`. After publish: `bunx storybranch`. Install: clone [github.com/adriangohjw/storybranch](https://github.com/adriangohjw/storybranch), `bun install`, `bunx playwright install chromium`, `bun run build`.
 

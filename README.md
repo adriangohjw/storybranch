@@ -4,7 +4,7 @@
 
 **Open-source, self-hosted visual testing for Storybook** — the capture → diff → review loop teams know from [Chromatic](https://www.chromatic.com/), designed to **run on your machine** and **deploy on infrastructure you control**.
 
-storybranch drives Playwright against your Storybook, saves one PNG per story (and per [Chromatic mode](https://www.chromatic.com/docs/modes/)), compares them to baselines you keep in git, and opens a review UI when something needs your attention. Use it locally while you develop, or self-host the same CLI in CI — baselines and diffs live under `.storybranch/` on disk.
+storybranch drives Playwright against your Storybook, saves one PNG per story (and per [Chromatic mode](https://www.chromatic.com/docs/modes/)), compares them to baselines you keep in git, and opens a review UI when something needs your attention. Use it locally while you develop, or self-host the same CLI in CI — baselines and diffs live under each Storybook package’s `.storybranch/` directory (not necessarily the git root).
 
 ## Contents
 
@@ -56,7 +56,7 @@ Related behavior:
 
 Storybook 10 or newer has to be running. Chromatic `modes` or `viewports` on a story become extra snapshots. Setting both on one story is an error.
 
-The npm package is not published yet. Clone this repo, build the review UI, then run the CLI **from your app** so `.storybranch/` is created there:
+The npm package is not published yet. Clone this repo, build the review UI, then run the CLI **from the package that owns Storybook** (it must have `package.json` and `.storybook/` in the same directory). Artifacts are written to that package’s `.storybranch/`:
 
 ```bash
 git clone https://github.com/adriangohjw/storybranch.git
@@ -86,8 +86,11 @@ To try the fixture in this repo instead of your app:
 
 ```bash
 bunx storybook dev -p 6006 --config-dir packages/fixture/.storybook
-bun apps/cli/src/cli.ts test --url http://127.0.0.1:6006
+cd packages/fixture
+bun ../../apps/cli/src/cli.ts test --url http://127.0.0.1:6006
 ```
+
+In a monorepo with several Storybooks, run `test` / `review` / `approve` from each app package (or pass `--cwd apps/web`). Each package keeps its own `.storybranch/` tree.
 
 ### For agents
 
@@ -96,12 +99,12 @@ Paste this into the Storybook app’s `AGENTS.md`. Until the package is on npm, 
 ```markdown
 ## storybranch
 
-Storybook 10+ must already be running.
+Storybook 10+ must already be running. Run commands from the package that has `.storybook/` (or use `--cwd`).
 
 - `test --url <storybook>` — exit 1 means a visual diff. Lines: `missing baseline`, `pixels`, `size`, `stale`. A clean run prints `ok`.
-- Read `.storybranch/report.json` (`new`, `changed`, `unchanged`, `stale`, `error`).
+- Read `.storybranch/report.json` in that package (`new`, `changed`, `unchanged`, `stale`, `error`).
 - The first run is `missing baseline` for every shot.
-- Commit only `.storybranch/baseline/`. Ignore `actual/`, `diff/`, and `report.json`.
+- Commit only `.storybranch/baseline/` in that package. Ignore `actual/`, `diff/`, and `report.json`.
 - Run `approve` only when asked to accept the shots. `review` and `--open` are for a person.
 ```
 
@@ -184,6 +187,8 @@ See [How it works](#how-it-works) for screenshots. On a run with **missing / cha
 
 | Command / flag | Effect |
 | --- | --- |
+| `--cwd <path>` | Resolve the Storybook package from this path (walks up to `package.json` + `.storybook/`) |
+| `STORYBRANCH_ROOT` | Same as `--cwd` for all commands (env wins over process cwd, loses to `--cwd`) |
 | `test --open` | Open the review URL in your browser when review is offered |
 | `test --review` | Offer review even when the run is fully green |
 | `review [--open]` | Serve the last `report.json` until Ctrl+C |

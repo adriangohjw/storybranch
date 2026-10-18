@@ -53,7 +53,7 @@ export function spawnDetachedReview(
   const proc = Bun.spawn(args, {
     cwd: root,
     detached: true,
-    env: { ...process.env, STORYBRANCH_REVIEW_ROOT: root },
+    env: { ...process.env, STORYBRANCH_ROOT: root },
     stderr: "ignore",
     stdin: "ignore",
     stdout: "ignore",

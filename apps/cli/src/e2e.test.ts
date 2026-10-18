@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { mkdtemp, readdir } from "node:fs/promises";
+import { cp, mkdtemp, readdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -48,6 +48,13 @@ test(
     try {
       await waitForIndex(url);
       const work = await mkdtemp(path.join(tmpdir(), "storybranch-e2e-"));
+      const fixturePkg = path.join(root, "packages/fixture");
+
+      for (const name of await readdir(fixturePkg)) {
+        await cp(path.join(fixturePkg, name), path.join(work, name), {
+          recursive: true,
+        });
+      }
       const hash = await initRepo(work);
       const first = await run(["test", "--url", url], work);
       expect(
