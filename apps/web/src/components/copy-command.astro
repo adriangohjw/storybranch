@@ -2,24 +2,43 @@
 interface Props {
   class?: string;
   command: string;
+  compact?: boolean;
   prompt?: boolean;
+  scrollable?: boolean;
 }
 
-const { command, class: className = "", prompt = true } = Astro.props;
+const {
+  command,
+  class: className = "",
+  compact = false,
+  prompt = true,
+  scrollable = false,
+} = Astro.props;
 ---
 
 <div
   class:list={[
-    "group flex items-start rounded-lg border border-ink/10 bg-surface shadow-sm",
+    "group flex flex-col rounded-lg border border-ink/10 bg-surface shadow-sm sm:flex-row sm:items-start",
     className,
   ]}
 >
   <code
-    class="min-w-0 flex-1 px-4 py-3 font-mono text-[13px] leading-relaxed break-words whitespace-pre-wrap text-ink sm:text-sm"
+    class:list={[
+      "min-w-0 flex-1 font-mono break-words whitespace-pre-wrap text-ink",
+      compact
+        ? "px-3 py-2 text-[11px] leading-snug sm:px-4 sm:py-3 sm:text-[13px] sm:leading-relaxed"
+        : "px-4 py-3 text-[13px] leading-relaxed sm:text-sm",
+      scrollable && "max-h-36 overflow-y-auto sm:max-h-52 lg:max-h-none",
+    ]}
   >{prompt ? <span class="text-moss select-none">$ </span> : null}<span data-command>{command}</span></code>
   <button
     type="button"
-    class="shrink-0 self-stretch border-l border-ink/10 bg-paper-2/60 px-4 text-xs font-semibold tracking-wide text-ink-muted transition-colors hover:bg-paper-2 hover:text-ink"
+    class:list={[
+      "shrink-0 border-ink/10 bg-paper-2/60 font-semibold tracking-wide text-ink-muted transition-colors hover:bg-paper-2 hover:text-ink",
+      compact
+        ? "border-t px-3 py-2 text-[10px] sm:border-t-0 sm:border-l sm:self-stretch sm:px-4 sm:py-3 sm:text-xs"
+        : "border-t px-4 py-2.5 text-xs sm:border-t-0 sm:border-l sm:self-stretch sm:py-3",
+    ]}
     data-copy
     aria-label="Copy command"
   >
