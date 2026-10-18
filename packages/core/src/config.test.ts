@@ -5,13 +5,18 @@ import path from "node:path";
 
 import { loadConfig, parseBrowserList } from "@/config.ts";
 
-test("parseBrowserList accepts chrome firefox edge", () => {
-  expect(parseBrowserList(["chrome", "firefox", "edge"])).toEqual([
+test("parseBrowserList accepts chrome firefox edge safari", () => {
+  expect(parseBrowserList(["chrome", "firefox", "edge", "safari"])).toEqual([
     "chrome",
     "firefox",
     "edge",
+    "safari",
   ]);
-  expect(() => parseBrowserList(["safari"])).toThrow("unknown browser");
+  expect(parseBrowserList(["webkit"])).toEqual(["safari"]);
+  expect(() => parseBrowserList(["safari", "webkit"])).toThrow(
+    "duplicate browser safari"
+  );
+  expect(() => parseBrowserList(["ie"])).toThrow("unknown browser");
   expect(() => parseBrowserList([])).toThrow("non-empty");
   expect(() => parseBrowserList(["chrome", "chrome"])).toThrow("duplicate");
 });

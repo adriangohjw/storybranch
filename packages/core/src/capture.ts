@@ -9,7 +9,7 @@ import {
   writeReport,
 } from "@storybranch/report";
 import type { Report, ReportEntry } from "@storybranch/report";
-import { chromium, firefox } from "playwright";
+import { chromium, firefox, webkit } from "playwright";
 import type { Browser, Page } from "playwright";
 
 import { installHint } from "@/config.ts";
@@ -258,6 +258,10 @@ async function launchBrowser(browserName: BrowserName): Promise<Browser> {
 
     if (browserName === "edge") {
       return await chromium.launch({ channel: "msedge" });
+    }
+
+    if (browserName === "safari") {
+      return await webkit.launch();
     }
 
     return await chromium.launch();

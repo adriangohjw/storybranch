@@ -39,6 +39,9 @@ test("story id, label, and browser parse from filename", () => {
   expect(browserFromFilename("button--modes__dark_mobile__edge.png")).toBe(
     "edge"
   );
+  expect(browserFromFilename("button--modes__dark_mobile__safari.png")).toBe(
+    "safari"
+  );
 });
 
 test("needsAttention marks non-unchanged statuses", () => {

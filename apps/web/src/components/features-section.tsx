@@ -7,7 +7,7 @@ export function FeaturesSection() {
 
   const features = [
     {
-      body: "Point storybranch at a running Storybook URL. The default snapshot is Chrome. Add Firefox or Edge with --browsers or storybranch.config.json next to .storybook/. Chromatic modes or viewports on a story become extra snapshots. Setting both on one story is an error.",
+      body: "Point storybranch at a running Storybook URL. The default snapshot is Chrome. Add Firefox, Edge, or Safari with --browsers or storybranch.config.json next to .storybook/. webkit is an alias for safari. Linux WebKit screenshots do not match macOS. Chromatic modes or viewports on a story become extra snapshots. Setting both on one story is an error.",
       command: "storybranch test --url …",
       title: "Your Storybook",
     },
