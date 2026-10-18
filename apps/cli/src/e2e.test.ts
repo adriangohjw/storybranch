@@ -104,9 +104,11 @@ test.skipIf(process.env.STORYBRANCH_E2E_BROWSERS === "skip")(
         );
         expect(first.exitCode).toBe(1);
 
-        for (const line of failureLines(first.stderr)) {
-          expect(line.startsWith("missing baseline ") ? true : line).toBe(true);
-        }
+        expect(
+          failureLines(first.stderr)
+            .filter((line) => line.startsWith("missing baseline "))
+            .toSorted()
+        ).toEqual(captured.map((file) => `missing baseline ${file}`));
 
         const approved = await run(["approve"], work);
         expect(approved.exitCode).toBe(0);
@@ -343,7 +345,6 @@ test.skipIf(process.env.STORYBRANCH_E2E_BROWSERS === "skip")(
           height: 4,
           width: 4,
         });
-        await expectShot(work, hash, "hero--default__1200x900__chrome.png", {});
       }
     );
 
@@ -411,20 +412,15 @@ async function expectShot(
   work: string,
   hash: string,
   filename: string,
-  expected: { width?: number; height?: number; color?: number[] }
+  expected: { width: number; height: number; color?: number[] }
 ): Promise<void> {
   const bytes = await Bun.file(
     path.join(work, ".storybranch", "actual", hash, filename)
   ).bytes();
   const png = PNG.sync.read(Buffer.from(bytes));
 
-  if (expected.width !== undefined) {
-    expect(png.width).toBe(expected.width);
-  }
-
-  if (expected.height !== undefined) {
-    expect(png.height).toBe(expected.height);
-  }
+  expect(png.width).toBe(expected.width);
+  expect(png.height).toBe(expected.height);
 
   const [red, green, blue] = expected.color ?? [];
 

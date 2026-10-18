@@ -211,7 +211,7 @@ export async function writeReport(root: string, report: Report): Promise<void> {
   await writeFile(file, `${JSON.stringify(report, null, 2)}\n`, "utf-8");
 }
 
-function isReport(value: unknown): value is Report {
+export function isReport(value: unknown): value is Report {
   if (typeof value !== "object" || value === null) {
     return false;
   }

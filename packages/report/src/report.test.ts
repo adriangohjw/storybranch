@@ -1,9 +1,13 @@
 import { expect, test } from "bun:test";
+import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 
 import {
   attentionSummary,
   browserFromFilename,
   needsAttention,
+  readReport,
   shotFilename,
   shotLabelFromFilename,
   storyIdFromFilename,
@@ -39,8 +43,10 @@ test("story id, label, and browser parse from filename", () => {
 
 test("needsAttention marks non-unchanged statuses", () => {
   expect(needsAttention("unchanged")).toBe(false);
+  expect(needsAttention("new")).toBe(true);
   expect(needsAttention("changed")).toBe(true);
   expect(needsAttention("stale")).toBe(true);
+  expect(needsAttention("error")).toBe(true);
 });
 
 test("attentionSummary formats status counts", () => {
@@ -121,4 +127,12 @@ test("terminalAttentionBlock lists each snapshot that needs attention", () => {
     "-> changed: button--hover__1200x900__chrome",
     "-> changed: button--disabled__1200x900__chrome",
   ]);
+});
+
+test("readReport rejects a file that is not a report", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "storybranch-report-"));
+  await mkdir(path.join(root, ".storybranch"));
+  await writeFile(path.join(root, ".storybranch", "report.json"), "{}\n");
+
+  await expect(readReport(root)).rejects.toThrow("invalid report.json");
 });
