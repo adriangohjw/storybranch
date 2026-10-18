@@ -8,10 +8,17 @@ import { PNG } from "pngjs";
 /** Chromatic Diff Inspector “neon green”; sampled from chromaui/chromatic-docs `diff-inspector.png`. */
 export const DIFF_HIGHLIGHT_RGB: [number, number, number] = [125, 233, 80];
 
+export interface IgnoreRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export function comparePng(
   baseline: Buffer,
   actual: Buffer,
-  options: { threshold: number; includeAA: boolean }
+  options: { threshold: number; includeAA: boolean; ignore?: IgnoreRect[] }
 ):
   | { match: true }
   | { match: false; reason: "size" }
@@ -24,6 +31,8 @@ export function comparePng(
   }
 
   const diff = new PNG({ height: left.height, width: left.width });
+  paintIgnored(left, options.ignore ?? []);
+  paintIgnored(right, options.ignore ?? []);
 
   const mismatched = pixelmatch(
     left.data,
@@ -51,6 +60,25 @@ export function comparePng(
     match: false,
     reason: "pixels",
   };
+}
+
+function paintIgnored(png: PNG, rects: IgnoreRect[]): void {
+  for (const rect of rects) {
+    const x0 = Math.max(0, Math.floor(rect.x));
+    const y0 = Math.max(0, Math.floor(rect.y));
+    const x1 = Math.min(png.width, Math.ceil(rect.x + rect.width));
+    const y1 = Math.min(png.height, Math.ceil(rect.y + rect.height));
+
+    for (let y = y0; y < y1; y += 1) {
+      for (let x = x0; x < x1; x += 1) {
+        const index = (y * png.width + x) * 4;
+        png.data[index] = 0;
+        png.data[index + 1] = 0;
+        png.data[index + 2] = 0;
+        png.data[index + 3] = 0;
+      }
+    }
+  }
 }
 
 // oxlint-disable-next-line typescript/strict-void-return -- promisify adapts execFile's callback
