@@ -42,10 +42,7 @@ export function HeroSection() {
             </a>
           </div>
           <div className="animate-rise-delay-3 mt-6 max-w-xl">
-            <InstallCommandPanel
-              kinds={["addPackage", "run"]}
-              showTabs={false}
-            />
+            <InstallCommandPanel kinds={["addPackage", "run"]} />
             <p className="text-ink-muted mt-2 text-xs leading-relaxed">
               Add{" "}
               <code className="text-ink font-mono break-all">

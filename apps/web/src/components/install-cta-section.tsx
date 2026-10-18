@@ -24,11 +24,7 @@ export function InstallCtaSection() {
           <code>{`"visual": "storybranch test --url http://127.0.0.1:6006"`}</code>
         </pre>
         <div className="mt-10 max-w-2xl">
-          <InstallCommandPanel
-            kinds={["addPackage", "run"]}
-            showTabs={false}
-            theme="dark"
-          />
+          <InstallCommandPanel kinds={["addPackage", "run"]} theme="dark" />
         </div>
         <div className="mt-6 flex flex-wrap gap-4 text-sm font-medium">
           <a
