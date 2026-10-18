@@ -16,6 +16,8 @@
     "lint:fix": "turbo run lint:fix",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "pack:cli": "bun pm pack --cwd apps/cli",
+    "publish:cli": "bun publish --cwd apps/cli",
     "prepare": "lefthook install"
   },
   "catalog": {

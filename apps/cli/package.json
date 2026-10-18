@@ -30,12 +30,16 @@
     "review/public"
   ],
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "bun build ./src/cli.ts --outfile ./dist/cli.js --target bun --external playwright --external picocolors --external pixelmatch --external pngjs --external ora --external log-update",
     "format": "oxfmt --check .",
     "format:fix": "oxfmt .",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
+    "prepublishOnly": "bun test src/dependencies.test.ts src/help.test.ts src/review-spawn.test.ts",
     "prepack": "bun run --cwd ../review-ui build && bun run build && bun scripts/published-manifest.mjs",
     "postpack": "bun scripts/published-manifest.mjs restore",
     "test": "bun test",

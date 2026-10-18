@@ -4,29 +4,14 @@ import path from "node:path";
 
 const cliDir = path.join(import.meta.dirname, "..");
 
-export function publishedManifest(pkg, catalog) {
-  const dependencies = {};
-
+export function publishedManifest(pkg) {
   for (const [name, version] of Object.entries(pkg.dependencies ?? {})) {
-    if (version === "catalog:") {
-      const resolved = catalog[name];
-
-      if (resolved === undefined) {
-        throw new Error(`no catalog version for ${name}`);
-      }
-
-      dependencies[name] = resolved;
-      continue;
-    }
-
     if (version.startsWith("workspace:")) {
       throw new Error(`${name} must be bundled, not published as a dependency`);
     }
-
-    dependencies[name] = version;
   }
 
-  const next = { ...pkg, dependencies };
+  const next = { ...pkg };
   delete next.devDependencies;
   delete next.scripts;
 
@@ -59,11 +44,8 @@ async function packManifest(restore) {
     );
   }
 
-  const root = JSON.parse(
-    await readFile(path.join(cliDir, "../../package.json"), "utf8")
-  );
   const original = await readFile(pkgPath);
-  const next = publishedManifest(JSON.parse(original.toString()), root.catalog);
+  const next = publishedManifest(JSON.parse(original.toString()));
 
   await copyFile(path.join(cliDir, "../../LICENSE"), licensePath);
   await writeFile(backupPath, original);

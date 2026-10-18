@@ -10,7 +10,7 @@ interface CliManifest {
   dependencies: Record<string, string>;
 }
 
-test("published runtime versions match the root catalog", async () => {
+test("cli runtime dependencies use the root catalog", async () => {
   const root = (await Bun.file(
     new URL("../../../package.json", import.meta.url)
   ).json()) as RootManifest;
@@ -19,28 +19,30 @@ test("published runtime versions match the root catalog", async () => {
   ).json()) as CliManifest;
 
   for (const [name, version] of Object.entries(cli.dependencies)) {
-    if (version === "catalog:") {
-      expect(root.catalog[name]).toBeDefined();
-      continue;
-    }
-
-    expect(root.catalog[name]).toBe(version);
+    expect(version).toBe("catalog:");
+    expect(root.catalog[name]).toBeDefined();
   }
 });
 
-test("published manifest drops workspace dev dependencies", () => {
-  const manifest = publishedManifest(
-    {
-      dependencies: { picocolors: "catalog:" },
-      devDependencies: { "@storybranch/core": "workspace:*" },
-      name: "@adriangohjw/storybranch",
-      scripts: { prepack: "build" },
-    },
-    { picocolors: "^1.1.1" }
-  );
+test("published manifest drops workspace dev dependencies and scripts", () => {
+  const manifest = publishedManifest({
+    dependencies: { picocolors: "catalog:" },
+    devDependencies: { "@storybranch/core": "workspace:*" },
+    name: "@adriangohjw/storybranch",
+    scripts: { prepack: "build" },
+  });
 
   expect(manifest).toEqual({
-    dependencies: { picocolors: "^1.1.1" },
+    dependencies: { picocolors: "catalog:" },
     name: "@adriangohjw/storybranch",
   });
+});
+
+test("published manifest rejects workspace runtime dependencies", () => {
+  expect(() =>
+    publishedManifest({
+      dependencies: { "@storybranch/core": "workspace:*" },
+      name: "@adriangohjw/storybranch",
+    })
+  ).toThrow(/must be bundled/);
 });
