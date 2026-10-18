@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { mkdtemp } from "node:fs/promises";
+import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -32,6 +32,7 @@ test("accept copies the reported actual and the report route shows it", async ()
   };
 
   await writeReport(root, report);
+  const removePlaceholder = await ensureReviewIndex();
   const server = await startReviewServer({ once: false, port: 0, root });
 
   try {
@@ -67,5 +68,26 @@ test("accept copies the reported actual and the report route shows it", async ()
     expect(missing.status).toBe(404);
   } finally {
     server.stop();
+    await removePlaceholder();
   }
 });
+
+async function ensureReviewIndex(): Promise<() => Promise<void>> {
+  const index = path.join(
+    import.meta.dir,
+    "..",
+    "review",
+    "public",
+    "index.html"
+  );
+
+  if (await Bun.file(index).exists()) {
+    return async () => undefined;
+  }
+
+  await Bun.write(index, "<!doctype html>");
+
+  return async () => {
+    await rm(index, { force: true });
+  };
+}
