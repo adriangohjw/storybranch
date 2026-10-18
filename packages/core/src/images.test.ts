@@ -129,6 +129,32 @@ test("diff leaves unchanged text clear when the surrounding block changes", () =
   expect(diff.data[text + 3]).toBe(0);
 });
 
+test("ignore rects drop those pixels and still flag the rest", () => {
+  const result = comparePng(red, blue, {
+    ignore: [{ height: 2, width: 1, x: 0, y: 0 }],
+    includeAA: false,
+    threshold: 0.1,
+  });
+
+  if (result.match || result.reason !== "pixels") {
+    throw new Error("expected a pixel diff");
+  }
+
+  const diff = PNG.sync.read(result.diff);
+  expect(diff.data[3]).toBe(0);
+  expect(diff.data[7]).toBeGreaterThan(0);
+});
+
+test("an ignore rect covering every pixel matches", () => {
+  expect(
+    comparePng(red, blue, {
+      ignore: [{ height: 2, width: 2, x: 0, y: 0 }],
+      includeAA: false,
+      threshold: 0.1,
+    })
+  ).toEqual({ match: true });
+});
+
 test("different sizes mismatch without a diff image", () => {
   const wide = solid(3, 2, [255, 0, 0, 255]);
   expect(comparePng(red, wide, { includeAA: false, threshold: 0.1 })).toEqual({

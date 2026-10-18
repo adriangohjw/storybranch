@@ -235,6 +235,7 @@ async function ensureTooling(root: string): Promise<void> {
 
   const reviewHtml = path.join(root, "apps/cli/review/public/index.html");
   const cliBundle = path.join(root, "apps/cli/dist/cli.js");
+  const addonPreset = path.join(root, "apps/cli/dist/addon/preset.js");
 
   if (!(await Bun.file(reviewHtml).exists())) {
     console.error("Building the review UI");
@@ -249,7 +250,10 @@ async function ensureTooling(root: string): Promise<void> {
     }
   }
 
-  if (!(await Bun.file(cliBundle).exists())) {
+  if (
+    !(await Bun.file(cliBundle).exists()) ||
+    !(await Bun.file(addonPreset).exists())
+  ) {
     console.error("Building the storybranch CLI");
     const build = Bun.spawn(["bun", "run", "build"], {
       cwd: path.join(root, "apps/cli"),

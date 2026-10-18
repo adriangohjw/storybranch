@@ -4,6 +4,7 @@
   "type": "module",
   "exports": {
     "./capture": "./src/capture.ts",
+    "./chromatic": "./src/chromatic.ts",
     "./config": "./src/config.ts",
     "./images": "./src/images.ts",
     "./plan": "./src/plan.ts",

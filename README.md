@@ -17,6 +17,7 @@ storybranch drives Playwright against your Storybook, saves one PNG per story, [
   - [First run — missing baselines](#first-run--missing-baselines)
   - [UI change — pixel diff](#ui-change--pixel-diff)
 - [Features](#features)
+- [Chromatic compatibility](#chromatic-compatibility)
 - [Usage](#usage)
   - [Artifacts](#artifacts)
   - [Review UI](#review-ui)
@@ -33,7 +34,7 @@ storybranch drives Playwright against your Storybook, saves one PNG per story, [
 | **Where it runs** | Chromatic’s cloud | Your laptop, your CI runners, your servers |
 | **Baselines** | Hosted project | Committed PNGs in `.storybranch/baseline/` |
 | **Review** | chromatic.com | Review UI you serve (`npm run visual:review` on localhost by default) |
-| **Storybook** | Chromatic build pipeline | Any URL you point at — especially `http://127.0.0.1:…` while developing |
+| **Storybook** | Chromatic build pipeline | `storybook build && storybranch test --build` (serves `storybook-static/`), or `--url` while developing |
 | **License / cost** | Commercial product | Open source ([LICENSE](LICENSE)) |
 
 storybranch is an **open-source, self-hosted** take on that workflow: you operate the tool, you own the artifacts, and you can keep the whole loop **local** during development.
@@ -51,12 +52,12 @@ Related behavior:
 
 - **Baselines in git** — Reference images are normal files; PRs show baseline updates like any other asset change.
 - **Offline-friendly local runs** — After install, capture and review against a local Storybook work without reaching a hosted visual-testing service.
-- **Chromatic modes** — Multiple snapshots per story via [modes](https://www.chromatic.com/docs/modes/) naming, aligned with how Chromatic labels variant viewports/themes.
+- **Chromatic modes** — Multiple snapshots per story via [modes](https://www.chromatic.com/docs/modes/) naming, aligned with how Chromatic labels variant viewports/themes. Supported `parameters.chromatic` keys, ignore regions, and media features are listed under [Chromatic compatibility](#chromatic-compatibility).
 - **Chrome, Firefox, Edge, and Safari** — Each shot is `{storyId}__{label}__{browser}.png`. The default browser is `chrome`. Add `firefox`, `edge`, and `safari` in config or with `--browsers`. `webkit` is an alias for `safari` and writes `__safari.png`.
 
 ## Install
 
-Install `@adriangohjw/storybranch` as a dev dependency of the Storybook app you want to test. Requires [Bun](https://bun.com) 1.4.3+.
+Install `@adriangohjw/storybranch` as a dev dependency of the Storybook app you want to test. The `storybranch` command runs on [Node.js](https://nodejs.org) 22.18+.
 
 **npm** (default):
 
@@ -82,7 +83,13 @@ Publish from the repo root with `bun run publish:cli` when you are ready to put 
 
 ## Quick start
 
-Storybook has to be running at your `--url`. Chromatic `modes` or `viewports` on a story become extra snapshots. Setting both on one story is an error.
+Storybook has to be reachable. While developing, point `--url` at a dev server. In CI, build first and let storybranch serve the output:
+
+```bash
+storybook build && storybranch test --build
+```
+
+`--build` serves `<package>/storybook-static`. Another directory: `storybranch test --storybook-build-dir ./storybook-static`. Chromatic `modes` or `viewports` on a story become extra snapshots. Setting both on one story is an error.
 
 Add scripts to the Storybook app:
 
@@ -136,9 +143,9 @@ Paste this into the Storybook app’s `AGENTS.md`. `@adriangohjw/storybranch` is
 ```markdown
 ## storybranch
 
-`@adriangohjw/storybranch` is a dev dependency. Storybook must already be running at your `--url`. Run `npm run visual` from the package that has `.storybook/` (or pass `--cwd`). (`pnpm run visual` or `bun run visual`.)
+`@adriangohjw/storybranch` is a dev dependency. Storybook must already be running at your `--url`, or built so `storybranch test --build` can serve `storybook-static/`. Run `npm run visual` from the package that has `.storybook/` (or pass `--cwd`). (`pnpm run visual` or `bun run visual`.)
 
-- `visual` runs `storybranch test --url <storybook>`. Exit 1 means a visual diff. In a terminal: scan time, status summary, and one `->` row per snapshot, plus `storybranch review at …`. In CI/non-TTY: `missing baseline`, `pixels`, `size`, `stale` per snapshot. A clean run prints `ok`.
+- `visual` runs `storybranch test --url <storybook>`. CI can run `storybook build && storybranch test --build` instead. Exit 1 means a visual diff. In a terminal: scan time, status summary, and one `->` row per snapshot, plus `storybranch review at …`. In CI/non-TTY: `missing baseline`, `pixels`, `size`, `stale` per snapshot. A clean run prints `ok`.
 - Default browser is `chrome`. Filenames end in `__chrome.png`, `__firefox.png`, `__edge.png`, or `__safari.png`. Extra browsers come from `storybranch.config.json` or `storybranch.config.ts` in that package, or from `--browsers`. `webkit` is an alias for `safari`. Linux WebKit shots do not match macOS; pin the runner OS.
 - Read `.storybranch/report.json` in that package (`new`, `changed`, `unchanged`, `stale`, `error`).
 - The first run marks every shot as `new` in the summary (or `missing baseline` lines in CI).
@@ -187,9 +194,19 @@ storybranch review at http://127.0.0.1:4321
 
 The fixture story is a sample hero. The screenshot above is that hero after the primary CTA color shifts.
 
+## Chromatic compatibility
+
+storybranch reads `parameters.chromatic` from the merged story context Storybook already built: project (`preview`) parameters, then meta, then the story. Objects deep-merge. Arrays such as `ignoreSelectors` and `viewports` are replaced by the more specific value. The same rules are what `combineParameters` in Storybook 10 applies.
+
+Supported keys: `delay`, `diffIncludeAntiAliasing`, `diffThreshold`, `disable`, `disableSnapshot`, `ignoreSelectors`, `pauseAnimationAtEnd`, `forcedColors` (`active` | `none`), `prefersReducedMotion` (`reduce` | `no-preference`), `media` (`print` | `screen`), `cropToViewport`, `modes`, `viewports`. Any other `chromatic` key is left unused.
+
+Elements with `.chromatic-ignore` or `data-chromatic="ignore"`, plus `ignoreSelectors`, are excluded from the pixel diff. Open shadow roots are included. Iframe documents are not. A size or position change that moves other pixels, or that changes the screenshot size, still fails the diff. `forcedColors`, `prefersReducedMotion`, and `media` apply to every snapshot of that story, including each mode. They are not read from inside a mode object. An invalid value fails that story.
+
+The same notes are on the site at [/chromatic](https://storybook.adriangohjw.com/chromatic).
+
 ## Features
 
-- ⚡ [Bun](https://bun.com) workspaces + [Turborepo](https://turbo.build) monorepo; Bun for runtime, tests, and CLI
+- ⚡ [Bun](https://bun.com) workspaces + [Turborepo](https://turbo.build) monorepo; Bun for repo scripts and tests. The published CLI runs on Node
 - 🎨 [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) with [Ultracite](https://www.ultracite.dev/) presets; [Lefthook](https://lefthook.dev/) (`pre-commit` fix, `pre-push` CI checks)
 - 💚 CI on GitHub Actions (single **✅ CI passed** required check):
   - ✅ Lint, format, typecheck, and `turbo` **build** (parallel jobs)
@@ -227,6 +244,8 @@ See [How it works](#how-it-works) for screenshots. On a run with **missing / cha
 | --- | --- |
 | `--browsers chrome,firefox,edge,safari` | Browsers for this run (default `chrome`; overrides `storybranch.config.json` or `storybranch.config.ts` in the package). `webkit` is an alias for `safari` |
 | `--parallel-browsers` | Capture each browser at the same time (default is one browser after another; also `captureParallel` in config) |
+| `--build` | Serve `<package>/storybook-static` (the `storybook build` output) and capture it. Do not combine with `--url` |
+| `--storybook-build-dir <dir>` | Serve this directory instead of `storybook-static/` (resolved from the package) |
 | `--cwd <path>` | Resolve the Storybook package from this path (walks up to `package.json` + `.storybook/`) |
 | `STORYBRANCH_ROOT` | Same as `--cwd` for all commands (env wins over process cwd, loses to `--cwd`) |
 | `npm run visual -- --open` | Open the review URL in your browser when review is offered |
@@ -234,6 +253,38 @@ See [How it works](#how-it-works) for screenshots. On a run with **missing / cha
 | `npm run visual:review` | Serve the last `report.json` until Ctrl+C. Add `-- --open` to open a browser |
 | `npm run visual:review -- --once` | Exit when nothing needs attention |
 | `--port` / `STORYBRANCH_PORT` | Override default port `4321` (`npm run visual -- --port 4321`) |
+| `--only-changed` | Capture stories whose files changed since the merge base. A non-story change still captures every story |
+| `--changed-files` | Replace that diff with comma-separated paths, or `@changed.txt` / a `.txt` file (one path per line). Implies `--only-changed` |
+| `--exit-zero-on-changes` | Exit 0 when the only failures are visual (`missing baseline`, `pixels`, `size`, `stale`) |
+| `--auto-accept-changes` | Copy new and changed snapshots into `baseline/` and remove stale ones, then exit 0 unless capture failed |
+| `--exit-once` | Print the result and skip the review server |
+
+### From Chromatic
+
+Keep the Storybook URL. storybranch does not upload a build, so drop the project token.
+
+| Chromatic | storybranch |
+| --- | --- |
+| `chromatic --project-token "$CHROMATIC_PROJECT_TOKEN"` | `storybranch test --url http://127.0.0.1:6006` |
+| `chromatic --only-changed` | `storybranch test --url http://127.0.0.1:6006 --only-changed` |
+| `chromatic --only-changed` with a paths filter | `storybranch test --url http://127.0.0.1:6006 --changed-files @changed.txt` |
+| `chromatic --exit-zero-on-changes` | `storybranch test --url http://127.0.0.1:6006 --exit-zero-on-changes` |
+| `chromatic --auto-accept-changes` | `storybranch test --url http://127.0.0.1:6006 --auto-accept-changes` |
+| `chromatic --exit-once-uploaded` | `storybranch test --url http://127.0.0.1:6006 --exit-once` |
+
+`chromatic.config.json` in the Storybook package is read for `onlyChanged`, `externals`, `untraced`, `exitZeroOnChanges`, and `autoAcceptChanges`. `storybookBuildDir` is ignored (pass `--url` or `--storybook-build-dir`). `CHROMATIC_PROJECT_TOKEN` prints a warning and is otherwise ignored.
+
+`--only-changed` diffs against `GITHUB_BASE_REF` when that is set, then `origin/HEAD`, `origin/main`, `origin/master`, `main`, or `master`. `--changed-files` replaces that diff for a GitHub Actions paths filter. `externals` force a full capture. `untraced` paths are left out of the diff. Globs are `*` and `**` only. Baselines for stories that were not captured stay as they are. A captured story can still be stale. `--exit-once-uploaded` is an alias of `--exit-once`.
+
+### Storybook addon
+
+Register the addon on the Storybook app that depends on `@adriangohjw/storybranch`:
+
+```ts
+addons: ["@adriangohjw/storybranch/addon"],
+```
+
+The sidebar testing widget runs `storybranch test` against that dev server. Stories that need attention are highlighted from the last `.storybranch/report.json`. **Open review** links to the local review UI, which is where you accept baselines. Capture still uses `parameters.chromatic` (modes, viewports, disable). The addon does not call chromatic.com.
 
 ## Project structure
 
@@ -246,7 +297,7 @@ See [How it works](#how-it-works) for screenshots. On a run with **missing / cha
 .vscode
   └─ Recommended extensions and editor settings
 apps
-  ├─ cli/         # Published `@adriangohjw/storybranch` package (bin, bundled CLI, review assets)
+  ├─ cli/         # Published `@adriangohjw/storybranch` package (bin, bundled CLI, review assets, Storybook addon)
   ├─ review-ui/   # Vite + React review SPA (`@storybranch/review-ui`)
   └─ web/         # Marketing landing page (`@storybranch/web`, Astro)
 packages
