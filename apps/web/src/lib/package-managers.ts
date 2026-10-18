@@ -60,6 +60,10 @@ export function installCommand(
     case "installPlaywright": {
       return `${installCommand("addPackage", pm)} && ${installCommand("playwright", pm)}`;
     }
+
+    default: {
+      return "";
+    }
   }
 }
 
