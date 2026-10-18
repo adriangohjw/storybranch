@@ -1,11 +1,7 @@
 import path from "node:path";
 
-import {
-  acceptAllAttention,
-  acceptEntry,
-  readReport,
-  reportHasAttention,
-} from "@storybranch/report";
+import { acceptAllAttention, acceptEntry } from "@storybranch/core/store";
+import { readReport, reportHasAttention } from "@storybranch/report";
 import type { Report } from "@storybranch/report";
 
 const PUBLIC_DIR = path.join(import.meta.dir, "..", "review", "public");

@@ -1,8 +1,6 @@
 import type { ReportEntry, ShotStatus } from "@storybranch/report";
 
-export function needsAttention(status: ShotStatus): boolean {
-  return status !== "unchanged";
-}
+export { needsAttention } from "@storybranch/report";
 
 export function pendingApproval(status: ShotStatus): boolean {
   return status === "new" || status === "changed";

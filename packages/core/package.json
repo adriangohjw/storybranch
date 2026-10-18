@@ -8,6 +8,7 @@
     "./images": "./src/images.ts",
     "./plan": "./src/plan.ts",
     "./progress": "./src/progress.ts",
+    "./store": "./src/store.ts",
     "./project-root": "./src/project-root.ts"
   },
   "scripts": {
