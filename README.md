@@ -234,6 +234,26 @@ See [How it works](#how-it-works) for screenshots. On a run with **missing / cha
 | `npm run visual:review` | Serve the last `report.json` until Ctrl+C. Add `-- --open` to open a browser |
 | `npm run visual:review -- --once` | Exit when nothing needs attention |
 | `--port` / `STORYBRANCH_PORT` | Override default port `4321` (`npm run visual -- --port 4321`) |
+| `--only-changed` | Capture stories whose files changed since the merge base. A non-story change still captures every story |
+| `--exit-zero-on-changes` | Exit 0 when the only failures are visual (`missing baseline`, `pixels`, `size`, `stale`) |
+| `--auto-accept-changes` | Copy new and changed snapshots into `baseline/` and remove stale ones, then exit 0 unless capture failed |
+| `--exit-once` | Print the result and skip the review server |
+
+### From Chromatic
+
+Keep the Storybook URL. storybranch does not upload a build, so drop the project token.
+
+| Chromatic | storybranch |
+| --- | --- |
+| `chromatic --project-token "$CHROMATIC_PROJECT_TOKEN"` | `storybranch test --url http://127.0.0.1:6006` |
+| `chromatic --only-changed` | `storybranch test --url http://127.0.0.1:6006 --only-changed` |
+| `chromatic --exit-zero-on-changes` | `storybranch test --url http://127.0.0.1:6006 --exit-zero-on-changes` |
+| `chromatic --auto-accept-changes` | `storybranch test --url http://127.0.0.1:6006 --auto-accept-changes` |
+| `chromatic --exit-once-uploaded` | `storybranch test --url http://127.0.0.1:6006 --exit-once` |
+
+`chromatic.config.json` in the Storybook package is read for `onlyChanged`, `externals`, `untraced`, `exitZeroOnChanges`, and `autoAcceptChanges`. `storybookBuildDir` is ignored (pass `--url`). `CHROMATIC_PROJECT_TOKEN` prints a warning and is otherwise ignored.
+
+`--only-changed` diffs against `GITHUB_BASE_REF` when that is set, then `origin/HEAD`, `origin/main`, `origin/master`, `main`, or `master`. `externals` force a full capture. `untraced` paths are left out of the diff. Globs are `*` and `**` only. A partial run does not mark untouched baselines stale.
 
 ## Project structure
 
