@@ -17,9 +17,10 @@ export function InstallCtaSection() {
           <code className="text-paper/90 font-mono text-[0.9em] break-all">
             @adriangohjw/storybranch
           </code>{" "}
-          as a dev dependency. That install downloads Chrome. Add Firefox or
-          Edge with Playwright when a config or --browsers asks for them, then
-          run the script against your Storybook URL.
+          as a dev dependency. That install downloads Chrome. Add Firefox, Edge,
+          or WebKit (`safari` or `webkit`) with Playwright when a config or
+          --browsers asks for them, then run the script against your Storybook
+          URL. Linux WebKit screenshots do not match macOS.
         </p>
         <pre className="bg-terminal text-paper mt-6 max-w-2xl rounded-lg border border-white/15 px-4 py-3 font-mono text-[13px] leading-relaxed break-all whitespace-pre-wrap">
           <code>{`"visual": "storybranch test --url http://127.0.0.1:6006"`}</code>

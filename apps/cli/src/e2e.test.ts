@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 
 import { readReport } from "@storybranch/report";
-import { chromium, firefox } from "playwright";
+import { chromium, firefox, webkit } from "playwright";
 import type { Browser } from "playwright";
 import { PNG } from "pngjs";
 
@@ -511,6 +511,10 @@ async function launchE2eBrowser(): Promise<Browser> {
 
   if (name === "edge") {
     return await chromium.launch({ channel: "msedge" });
+  }
+
+  if (name === "safari") {
+    return await webkit.launch();
   }
 
   return await chromium.launch();

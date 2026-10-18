@@ -10,7 +10,7 @@ export function HowItWorksSection() {
 
   const steps = [
     {
-      body: "Start Storybook locally, or anywhere Chrome, Firefox, and Edge can reach it. Install includes Chrome. Firefox and Edge are extra Playwright browsers.",
+      body: "Start Storybook locally, or anywhere Chrome, Firefox, Edge, and Safari can reach it. Install includes Chrome. Firefox, Edge, and WebKit are extra Playwright browsers. Linux WebKit is not Apple Safari, and its screenshots do not match a macOS runner.",
       code: storybook,
       title: "Run Storybook",
     },

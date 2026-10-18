@@ -18,6 +18,14 @@ test("help prints the usage contract", async () => {
   expect(stdout).toContain(".storybranch/baseline/");
   expect(stdout).toContain("report.json");
   expect(stdout).toContain("first run");
+  expect(stdout).toContain("safari");
+  expect(stdout).toContain("webkit");
+  expect(stdout).toContain("Linux");
+  expect(stdout).toContain("--only-changed");
+  expect(stdout).toContain("--exit-zero-on-changes");
+  expect(stdout).toContain("--auto-accept-changes");
+  expect(stdout).toContain("--exit-once");
+  expect(stdout).toContain("CHROMATIC_PROJECT_TOKEN");
 });
 
 test.skipIf(!nodeStripsTypes)(
