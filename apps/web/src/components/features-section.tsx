@@ -17,8 +17,8 @@ export function FeaturesSection() {
       title: "Baselines in git",
     },
     {
-      body: `A first run exits 1 and prints missing baseline for every shot. That is the baseline set. ${approve} writes those PNGs.`,
-      command: "missing baseline …",
+      body: `A first run exits 1 with a snapshot summary (new counts). That is the baseline set. ${approve} writes those PNGs.`,
+      command: "snapshots need attention …",
       title: "First run",
     },
   ];

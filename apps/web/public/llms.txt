@@ -6,7 +6,7 @@ Storybook must already be running at a URL Chromium can reach. Chromatic `modes`
 
 Add scripts: `visual` = `storybranch test --url <storybook>`, `visual:review` = `storybranch review`, `visual:approve` = `storybranch approve`. Run `npm run visual` (`pnpm run visual` or `bun run visual`) from the package that has `package.json` and `.storybook/`, or pass `--cwd`.
 
-`npm run visual` exits **1** when a snapshot needs attention. Failure lines: `missing baseline <file.png>`, `pixels <file.png>`, `size <file.png>`, `stale <file.png>`. A clean run prints `ok`. Inventory: `.storybranch/report.json` under that package. The **first run** exits 1 with `missing baseline` for every shot — that is the baseline set, not a broken install. Monorepos: one `.storybranch/` per Storybook package.
+`npm run visual` exits **1** when a snapshot needs attention. In a terminal: scan time, a status summary, one `->` row per snapshot, and `storybranch review at …` when the review UI is available. In CI/non-TTY: `missing baseline <file.png>`, `pixels <file.png>`, `size <file.png>`, `stale <file.png>` per snapshot. A clean run prints `ok`. Inventory: `.storybranch/report.json` under that package. The **first run** marks every shot as `new` in the summary (or `missing baseline` lines in CI) — that is the baseline set, not a broken install. Monorepos: one `.storybranch/` per Storybook package.
 
 Commit only that package’s `.storybranch/baseline/`. Ignore `actual/`, `diff/`, and `report.json`. Run `npm run visual:approve` only when asked to accept shots. `visual:review` and `--open` are for a person.
 

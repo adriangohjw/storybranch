@@ -105,6 +105,83 @@ export function reportHasAttention(report: Report): boolean {
   return report.entries.some((entry) => needsAttention(entry.status));
 }
 
+export function attentionSummary(report: Report): string | null {
+  const counts = {
+    changed: 0,
+    error: 0,
+    new: 0,
+    stale: 0,
+    unchanged: 0,
+  };
+
+  for (const entry of report.entries) {
+    if (entry.status in counts) {
+      counts[entry.status] += 1;
+    }
+  }
+
+  const attention = counts.new + counts.changed + counts.stale + counts.error;
+
+  if (attention === 0) {
+    return null;
+  }
+
+  const parts = [
+    `${attention} snapshot${attention === 1 ? "" : "s"} need attention`,
+  ];
+
+  if (counts.new > 0) {
+    parts.push(`${counts.new} new`);
+  }
+
+  if (counts.changed > 0) {
+    parts.push(`${counts.changed} changed`);
+  }
+
+  if (counts.stale > 0) {
+    parts.push(`${counts.stale} stale`);
+  }
+
+  if (counts.error > 0) {
+    parts.push(`${counts.error} error`);
+  }
+
+  return parts.join(" · ");
+}
+
+export function terminalAttentionBlock(report: Report): string[] | null {
+  const summary = attentionSummary(report);
+
+  if (summary === null) {
+    return null;
+  }
+
+  const scanned = report.entries.filter(
+    (entry) =>
+      entry.status === "new" ||
+      entry.status === "changed" ||
+      entry.status === "unchanged"
+  ).length;
+
+  const seconds = ((report.durationMs ?? 0) / 1000).toFixed(1);
+
+  const lines = [
+    `${scanned} snapshot${scanned === 1 ? "" : "s"} scanned · ${seconds}s build time`,
+    summary,
+  ];
+
+  for (const entry of report.entries) {
+    if (!needsAttention(entry.status)) {
+      continue;
+    }
+
+    const name = entry.filename?.replace(/\.png$/u, "") ?? entry.storyId;
+    lines.push(`-> ${entry.status}: ${name}`);
+  }
+
+  return lines;
+}
+
 export function reportPath(root: string): string {
   return path.join(root, REPORT_PATH);
 }

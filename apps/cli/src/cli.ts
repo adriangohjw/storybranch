@@ -6,7 +6,10 @@ import {
   resolveProjectRoot,
   resolveStartDir,
 } from "@storybranch/core/project-root";
-import { reportHasAttention } from "@storybranch/report";
+import {
+  reportHasAttention,
+  terminalAttentionBlock,
+} from "@storybranch/report";
 import pc from "picocolors";
 
 import { reviewUiBuilt } from "@/review-server.ts";
@@ -33,14 +36,17 @@ Install as a dev dependency. Typical package scripts:
 Run from a package that has package.json and .storybook/, or pass --cwd.
 Baselines live in that package's .storybranch/baseline/ (not necessarily the git root).
 
-test exits 1 when a snapshot needs attention:
-  missing baseline <file.png>
-  pixels <file.png>
-  size <file.png>
-  stale <file.png>
-A clean run prints ok. Inventory: .storybranch/report.json under the package.
+test exits 1 when a snapshot needs attention.
+In a terminal:
+  N snapshots scanned · Ns build time
+  N snapshots need attention · N new · N changed
+  -> new: <snapshot>
+  -> changed: <snapshot>
+  storybranch review at … when the review UI is available.
+In CI / non-TTY: missing baseline <file.png>, pixels <file.png>, size <file.png>, stale <file.png> (one per snapshot).
+A clean run prints ok (non-TTY stdout). Inventory: .storybranch/report.json under the package.
 Commit .storybranch/baseline/. Ignore actual/, diff/, and report.json.
-The first run is missing baseline for every shot. approve copies actuals into baseline/.
+The first run marks every shot as new. approve copies actuals into baseline/.
 review and --open are for a person. Read the report and run approve only when asked to accept.
 `;
 
@@ -154,12 +160,18 @@ if (command === "test") {
   }
 
   if (failures.length > 0) {
-    if (process.stderr.isTTY) {
-      console.error(`\n${pc.bold("Failures:")}`);
-    }
+    const block = process.stderr.isTTY ? terminalAttentionBlock(report) : null;
 
-    for (const failure of failures) {
-      console.error(failure);
+    if (block === null) {
+      for (const failure of failures) {
+        console.error(failure);
+      }
+    } else {
+      console.error("");
+
+      for (const line of block) {
+        console.error(line);
+      }
     }
 
     process.exit(1);

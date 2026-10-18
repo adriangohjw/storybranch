@@ -6,12 +6,14 @@ import path from "node:path";
 import {
   acceptAllAttention,
   acceptEntry,
+  attentionSummary,
   browserFromFilename,
   needsAttention,
   readReport,
   shotLabelFromFilename,
   storyIdFromFilename,
   storyPartsFromId,
+  terminalAttentionBlock,
   writeReport,
 } from "@/report.ts";
 import type { Report } from "@/report.ts";
@@ -41,6 +43,86 @@ test("needsAttention marks non-unchanged statuses", () => {
   expect(needsAttention("unchanged")).toBe(false);
   expect(needsAttention("changed")).toBe(true);
   expect(needsAttention("stale")).toBe(true);
+});
+
+test("attentionSummary formats status counts", () => {
+  const report: Report = {
+    actualDir: "/tmp/actual",
+    commit: "abc",
+    createdAt: new Date().toISOString(),
+    entries: [
+      {
+        filename: "a.png",
+        shotLabel: "x",
+        status: "new",
+        storyId: "a",
+      },
+      {
+        filename: "b.png",
+        shotLabel: "y",
+        status: "changed",
+        storyId: "b",
+      },
+      {
+        filename: "c.png",
+        shotLabel: "z",
+        status: "unchanged",
+        storyId: "c",
+      },
+    ],
+    root: "/tmp",
+  };
+
+  expect(attentionSummary(report)).toBe(
+    "2 snapshots need attention · 1 new · 1 changed"
+  );
+  expect(
+    attentionSummary({ ...report, entries: [report.entries[2]!] })
+  ).toBeNull();
+});
+
+test("terminalAttentionBlock lists each snapshot that needs attention", () => {
+  const report: Report = {
+    actualDir: "/tmp/actual",
+    commit: "abc",
+    createdAt: new Date().toISOString(),
+    durationMs: 4200,
+    entries: [
+      {
+        filename: "button--primary__1200x900__chrome.png",
+        shotLabel: "1200x900",
+        status: "new",
+        storyId: "button--primary",
+      },
+      {
+        filename: "button--hover__1200x900__chrome.png",
+        shotLabel: "1200x900",
+        status: "changed",
+        storyId: "button--hover",
+      },
+      {
+        filename: "button--disabled__1200x900__chrome.png",
+        shotLabel: "1200x900",
+        status: "changed",
+        storyId: "button--disabled",
+      },
+      {
+        filename: "button--quiet__1200x900__chrome.png",
+        shotLabel: "1200x900",
+        status: "unchanged",
+        storyId: "button--quiet",
+      },
+    ],
+    root: "/tmp",
+  };
+
+  expect(terminalAttentionBlock(report)).toEqual([
+    "4 snapshots scanned · 4.2s build time",
+    "3 snapshots need attention · 1 new · 2 changed",
+    "-> new: button--primary__1200x900__chrome",
+    "-> changed: button--hover__1200x900__chrome",
+    "-> changed: button--disabled__1200x900__chrome",
+  ]);
 });
 
 test("acceptEntry promotes actual and clears attention", async () => {
