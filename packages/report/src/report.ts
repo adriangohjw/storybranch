@@ -18,8 +18,29 @@ export interface Report {
   actualDir: string;
   commit: string;
   createdAt: string;
+  durationMs?: number;
   entries: ReportEntry[];
   root: string;
+  storyCount?: number;
+}
+
+export const CAPTURE_BROWSER = "chromium";
+
+export function storyPartsFromId(storyId: string): {
+  component: string;
+  story: string;
+} {
+  const marker = "--";
+  const index = storyId.indexOf(marker);
+
+  if (index === -1) {
+    return { component: storyId, story: "default" };
+  }
+
+  return {
+    component: storyId.slice(0, index),
+    story: storyId.slice(index + marker.length),
+  };
 }
 
 export const REPORT_PATH = ".storybranch/report.json";
@@ -160,6 +181,22 @@ function isReport(value: unknown): value is Report {
   }
 
   if (!("root" in value) || typeof value.root !== "string") {
+    return false;
+  }
+
+  if (
+    "durationMs" in value &&
+    value.durationMs !== undefined &&
+    typeof value.durationMs !== "number"
+  ) {
+    return false;
+  }
+
+  if (
+    "storyCount" in value &&
+    value.storyCount !== undefined &&
+    typeof value.storyCount !== "number"
+  ) {
     return false;
   }
 

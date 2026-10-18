@@ -21,6 +21,22 @@ function isReport(value: unknown): value is Report {
     return false;
   }
 
+  if (
+    "durationMs" in value &&
+    value.durationMs !== undefined &&
+    typeof value.durationMs !== "number"
+  ) {
+    return false;
+  }
+
+  if (
+    "storyCount" in value &&
+    value.storyCount !== undefined &&
+    typeof value.storyCount !== "number"
+  ) {
+    return false;
+  }
+
   return "entries" in value && Array.isArray(value.entries);
 }
 
