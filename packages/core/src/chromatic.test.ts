@@ -1,10 +1,11 @@
 import { expect, test } from "bun:test";
-import { mkdtemp } from "node:fs/promises";
+import { mkdir, mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
 import {
   gitChangeSet,
+  listedChangeSet,
   loadChromaticConfig,
   pickStories,
   testShouldFail,
@@ -113,6 +114,42 @@ test("loadChromaticConfig reads the flags Chromatic projects already set", async
     onlyChanged: true,
     storybookBuildDir: "storybook-static",
     untraced: ["docs/**"],
+  });
+});
+
+test("listedChangeSet accepts a paths-filter file and package-relative paths", async () => {
+  const repo = await mkdtemp(path.join(tmpdir(), "storybranch-list-"));
+  const root = path.join(repo, "apps", "web");
+  await mkdir(root, { recursive: true });
+  await Bun.write(
+    path.join(root, "changed.txt"),
+    "src/Button.stories.tsx\napps/web/src/Icon.stories.tsx\n"
+  );
+  const git = async (...args: string[]) => {
+    const proc = Bun.spawn(["git", ...args], {
+      cwd: repo,
+      stderr: "pipe",
+      stdout: "pipe",
+    });
+    const code = await proc.exited;
+
+    if (code !== 0) {
+      throw new Error(await new Response(proc.stderr).text());
+    }
+  };
+
+  await git("init");
+
+  expect(await listedChangeSet(root, "@changed.txt")).toEqual({
+    packagePrefix: "apps/web",
+    repoPaths: [
+      "apps/web/src/Button.stories.tsx",
+      "apps/web/src/Icon.stories.tsx",
+    ],
+  });
+  expect(await listedChangeSet(root, "")).toEqual({
+    packagePrefix: "apps/web",
+    repoPaths: [],
   });
 });
 

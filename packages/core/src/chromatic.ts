@@ -1,3 +1,4 @@
+import { stat } from "node:fs/promises";
 import path from "node:path";
 
 export interface ChromaticConfig {
@@ -113,6 +114,22 @@ export async function loadChromaticConfig(
   };
 }
 
+export async function listedChangeSet(
+  root: string,
+  raw: string
+): Promise<ChangeSet> {
+  const top = await git(root, ["rev-parse", "--show-toplevel"]);
+  const gitRoot = top === null ? root : top.trim();
+  const prefix = path.relative(gitRoot, root).split(path.sep).join("/");
+  const packagePrefix = prefix === "" ? "" : prefix;
+  const listed = await readChangedList(root, raw);
+
+  return {
+    packagePrefix,
+    repoPaths: listed.map((file) => repoPath(file, gitRoot, packagePrefix)),
+  };
+}
+
 export async function gitChangeSet(root: string): Promise<ChangeSet | null> {
   const top = await git(root, ["rev-parse", "--show-toplevel"]);
 
@@ -141,6 +158,52 @@ export async function gitChangeSet(root: string): Promise<ChangeSet | null> {
     packagePrefix: prefix === "" ? "" : prefix,
     repoPaths: [...lines(tracked), ...lines(untracked)],
   };
+}
+
+async function readChangedList(root: string, raw: string): Promise<string[]> {
+  if (raw.startsWith("@") || raw.endsWith(".txt")) {
+    const name = raw.startsWith("@") ? raw.slice(1) : raw;
+    const filePath = path.resolve(root, name);
+
+    try {
+      const info = await stat(filePath);
+
+      if (info.isFile()) {
+        return splitList(await Bun.file(filePath).text());
+      }
+    } catch {
+      // The argument is a literal path that happens to end in .txt.
+    }
+  }
+
+  return splitList(raw);
+}
+
+function splitList(text: string): string[] {
+  return text
+    .split(/[\n,]/u)
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+}
+
+function repoPath(file: string, gitRoot: string, prefix: string): string {
+  const normalized = file.replaceAll("\\", "/").replace(/^\.\//u, "");
+
+  if (path.isAbsolute(file)) {
+    const relative = path.relative(gitRoot, file).split(path.sep).join("/");
+
+    return relative.startsWith("..") ? normalized : relative;
+  }
+
+  if (prefix !== "" && underPrefix(normalized, prefix)) {
+    return normalized;
+  }
+
+  if (prefix === "") {
+    return normalized;
+  }
+
+  return `${prefix}/${normalized}`;
 }
 
 async function changeBase(root: string): Promise<string | null> {
