@@ -8,7 +8,11 @@ export function TerminalDemo() {
   const lines = [
     visual,
     "storybranch review at http://127.0.0.1:4321",
-    "2 snapshots need attention · 1 new · 1 changed",
+    "12 snapshots scanned · 4.2s build time",
+    "3 snapshots need attention · 1 new · 2 changed",
+    "-> new: button--primary",
+    "-> changed: button--hover",
+    "-> changed: button--disabled",
   ];
 
   return (
@@ -31,7 +35,15 @@ export function TerminalDemo() {
         {"\n"}
         <span className="text-[#7dd3c0]">{lines[1]}</span>
         {"\n"}
-        <span className="text-warn">{lines[2]}</span>
+        <span className="text-white/70">{lines[2]}</span>
+        {"\n"}
+        <span className="text-warn">{lines[3]}</span>
+        {"\n"}
+        <span className="text-sky-300">{lines[4]}</span>
+        {"\n"}
+        <span className="text-bad">{lines[5]}</span>
+        {"\n"}
+        <span className="text-bad">{lines[6]}</span>
       </pre>
     </div>
   );
