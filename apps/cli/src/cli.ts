@@ -2,6 +2,7 @@
 import { capture } from "@storybranch/core/capture";
 import {
   gitChangeSet,
+  listedChangeSet,
   loadChromaticConfig,
   testShouldFail,
 } from "@storybranch/core/chromatic";
@@ -35,7 +36,7 @@ Install as a dev dependency. Typical package scripts:
   visual:approve  storybranch approve
 
   storybranch test --url <storybook> [--browsers chrome,firefox,edge,safari] [--parallel-browsers] [--cwd <pkg>] [--open] [--review] [--port <n>]
-    [--only-changed] [--exit-zero-on-changes] [--auto-accept-changes] [--exit-once]
+    [--only-changed] [--changed-files <list>] [--exit-zero-on-changes] [--auto-accept-changes] [--exit-once]
   storybranch review [--cwd <pkg>] [--open] [--once] [--port <n>]
   storybranch approve [--cwd <pkg>]
 
@@ -47,6 +48,8 @@ Chromatic scripts map onto the same command. Keep Storybook running and point --
     storybranch test --url http://127.0.0.1:6006
   chromatic --only-changed
     storybranch test --url http://127.0.0.1:6006 --only-changed
+  chromatic --only-changed with a paths filter
+    storybranch test --url http://127.0.0.1:6006 --changed-files @changed.txt
   chromatic --exit-zero-on-changes
     storybranch test --url http://127.0.0.1:6006 --exit-zero-on-changes
   chromatic --auto-accept-changes
@@ -58,7 +61,8 @@ chromatic.config.json next to .storybook/ is read for onlyChanged, externals, un
 test exits 1 when a snapshot needs attention.
 --exit-zero-on-changes and --auto-accept-changes exit 0 for visual diffs (missing baseline, pixels, size, stale). Capture errors still exit 1.
 --exit-once prints the result and does not start the review server.
---only-changed captures stories whose files differ from the merge base (GITHUB_BASE_REF, then origin/HEAD, origin/main, origin/master, main, master). A non-story change captures every story. externals force a full capture. untraced paths are ignored.
+--only-changed captures stories whose files differ from the merge base (GITHUB_BASE_REF, then origin/HEAD, origin/main, origin/master, main, master). --changed-files replaces that diff (comma-separated paths, or @list.txt / a .txt file, one path per line) and implies --only-changed. A non-story change captures every story. externals force a full capture. untraced paths are ignored.
+--exit-once-uploaded is an alias of --exit-once.
 In a terminal:
   N snapshots scanned · Ns build time
   N snapshots need attention · N new · N changed
@@ -129,7 +133,7 @@ if (command === "test") {
 
   if (url === undefined || url === "") {
     console.error(
-      "usage: storybranch test --url <storybook> [--browsers chrome,firefox,edge,safari] [--parallel-browsers] [--only-changed] [--exit-zero-on-changes] [--auto-accept-changes] [--exit-once] [--cwd <pkg>] [--open] [--review] [--port <n>]\nrun storybranch --help for exit codes and the files to commit"
+      "usage: storybranch test --url <storybook> [--browsers chrome,firefox,edge,safari] [--parallel-browsers] [--only-changed] [--changed-files <list>] [--exit-zero-on-changes] [--auto-accept-changes] [--exit-once] [--cwd <pkg>] [--open] [--review] [--port <n>]\nrun storybranch --help for exit codes and the files to commit"
     );
     process.exit(1);
   }
@@ -176,11 +180,29 @@ if (command === "test") {
     }
   }
 
-  const onlyChanged = flag("--only-changed") || chromatic.onlyChanged;
+  const changedFiles = option("--changed-files");
+  const passedList = flag("--changed-files");
+
+  if (
+    passedList &&
+    (changedFiles === undefined ||
+      changedFiles === "" ||
+      changedFiles.startsWith("--"))
+  ) {
+    console.error("missing value for --changed-files");
+    process.exit(1);
+  }
+
+  const onlyChanged =
+    flag("--only-changed") || passedList || chromatic.onlyChanged;
+
   let changed: Awaited<ReturnType<typeof gitChangeSet>> = null;
 
   if (onlyChanged) {
-    changed = await gitChangeSet(root);
+    changed =
+      changedFiles === undefined
+        ? await gitChangeSet(root)
+        : await listedChangeSet(root, changedFiles);
 
     if (changed === null) {
       console.error(
@@ -220,7 +242,8 @@ if (command === "test") {
   }
 
   const attention = reportHasAttention(report) && !autoAccept;
-  const offerReview = !flag("--exit-once") && (attention || flag("--review"));
+  const exitOnce = flag("--exit-once") || flag("--exit-once-uploaded");
+  const offerReview = !exitOnce && (attention || flag("--review"));
   const port = portFromArgs();
 
   if (offerReview) {
