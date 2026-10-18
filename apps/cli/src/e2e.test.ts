@@ -56,6 +56,7 @@ test(
         });
       }
       const hash = await initRepo(work);
+      await installPackedCli(work);
       const first = await run(["test", "--url", url], work);
       expect(
         await Bun.file(
@@ -165,12 +166,71 @@ async function waitForIndex(storybookUrl: string): Promise<void> {
   throw new Error(`storybook did not serve index.json: ${last}`);
 }
 
+async function installPackedCli(cwd: string): Promise<void> {
+  const destination = await mkdtemp(path.join(tmpdir(), "storybranch-pack-"));
+  const pack = Bun.spawn({
+    cmd: ["bun", "pm", "pack", "--quiet", `--destination=${destination}`],
+    cwd: path.join(root, "apps/cli"),
+    stderr: "pipe",
+    stdout: "pipe",
+  });
+  const [packOut, packErr, packCode] = await Promise.all([
+    new Response(pack.stdout).text(),
+    new Response(pack.stderr).text(),
+    pack.exited,
+  ]);
+
+  if (packCode !== 0) {
+    throw new Error(packErr.trim() || packOut.trim() || "bun pm pack failed");
+  }
+
+  const tarball = packOut.trim().split("\n").at(-1);
+
+  if (tarball === undefined || tarball.length === 0) {
+    throw new Error("bun pm pack did not print a tarball path");
+  }
+
+  const add = Bun.spawn({
+    cmd: ["bun", "add", "--ignore-scripts", tarball],
+    cwd,
+    stderr: "pipe",
+    stdout: "pipe",
+  });
+  const [addOut, addErr, addCode] = await Promise.all([
+    new Response(add.stdout).text(),
+    new Response(add.stderr).text(),
+    add.exited,
+  ]);
+
+  if (addCode !== 0) {
+    throw new Error(addErr.trim() || addOut.trim() || "bun add tarball failed");
+  }
+
+  const manifest = (await Bun.file(
+    path.join(cwd, "node_modules/@adriangohjw/storybranch/package.json")
+  ).json()) as {
+    dependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>;
+    scripts?: Record<string, string>;
+  };
+
+  expect(manifest.devDependencies).toBeUndefined();
+  expect(manifest.scripts).toEqual({
+    postinstall: "playwright install chromium",
+  });
+
+  for (const version of Object.values(manifest.dependencies ?? {})) {
+    expect(version).not.toBe("catalog:");
+    expect(version.startsWith("workspace:")).toBe(false);
+  }
+}
+
 async function run(
   args: string[],
   cwd: string
 ): Promise<{ exitCode: number; stderr: string }> {
   const proc = Bun.spawn({
-    cmd: ["bun", path.join(root, "apps/cli/src/cli.ts"), ...args],
+    cmd: [path.join(cwd, "node_modules/.bin/storybranch"), ...args],
     cwd,
     stderr: "pipe",
     stdout: "pipe",

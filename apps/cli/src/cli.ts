@@ -18,7 +18,12 @@ import {
 
 const [command, ...args] = Bun.argv.slice(2);
 
-const usage = `storybranch — local visual diffs for Storybook 10+
+const usage = `storybranch — local visual diffs for Storybook
+
+Install as a dev dependency. Typical package scripts:
+  visual          storybranch test --url <storybook>
+  visual:review   storybranch review
+  visual:approve  storybranch approve
 
   storybranch test --url <storybook> [--cwd <pkg>] [--open] [--review] [--port <n>]
   storybranch review [--cwd <pkg>] [--open] [--once] [--port <n>]

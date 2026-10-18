@@ -7,9 +7,13 @@
     "format:fix": "oxfmt .",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
-    "typecheck": "bun ../../scripts/bun-check.ts"
+    "typecheck": "bun ../../scripts/bun-check.ts",
+    "visual": "storybranch test --url http://127.0.0.1:6006",
+    "visual:approve": "storybranch approve",
+    "visual:review": "storybranch review"
   },
   "devDependencies": {
+    "@adriangohjw/storybranch": "workspace:*",
     "@storybranch/oxfmt-config": "workspace:*",
     "@storybranch/oxlint-config": "workspace:*",
     "@storybranch/tsconfig": "workspace:*"

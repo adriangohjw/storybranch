@@ -16,6 +16,11 @@
     "lint:fix": "turbo run lint:fix",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "visual": "bun run --cwd packages/fixture visual",
+    "visual:approve": "bun run --cwd packages/fixture visual:approve",
+    "visual:review": "bun run --cwd packages/fixture visual:review",
+    "pack:cli": "bun pm pack --cwd apps/cli",
+    "publish:cli": "bun publish --cwd apps/cli",
     "prepare": "lefthook install"
   },
   "catalog": {
@@ -51,6 +56,7 @@
     "turbo": "^2.5.8"
   },
   "devDependencies": {
+    "@adriangohjw/storybranch": "workspace:*",
     "@storybook/react-vite": "catalog:",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
