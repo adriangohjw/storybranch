@@ -26,10 +26,12 @@ export interface Report {
 
 export const CAPTURE_BROWSER = "chromium";
 
-export function storyPartsFromId(storyId: string): {
+export interface StoryParts {
   component: string;
   story: string;
-} {
+}
+
+export function storyPartsFromId(storyId: string): StoryParts {
   const marker = "--";
   const index = storyId.indexOf(marker);
 

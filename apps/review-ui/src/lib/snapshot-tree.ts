@@ -1,8 +1,5 @@
-import {
-  CAPTURE_BROWSER,
-  type ReportEntry,
-  storyPartsFromId,
-} from "@storybranch/report";
+import type { ReportEntry } from "@storybranch/report";
+import { CAPTURE_BROWSER, storyPartsFromId } from "@storybranch/report";
 
 import { needsAttention } from "@/lib/report-ui.ts";
 
@@ -106,6 +103,7 @@ export function buildSnapshotTree(entries: ReportEntry[]): SnapshotTree {
         const sortedLeaves = leaves.toSorted((a, b) =>
           a.browser.localeCompare(b.browser)
         );
+
         shots.push({
           hasAttention: subtreeAttention(sortedLeaves),
           label,

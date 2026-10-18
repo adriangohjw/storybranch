@@ -5,12 +5,12 @@ import { LuCheck, LuChevronDown } from "react-icons/lu";
 import { acceptShot } from "@/api.ts";
 import { cn } from "@/lib/cn.ts";
 import { badgeTone, needsAttention } from "@/lib/report-ui.ts";
-import {
-  buildSnapshotTree,
-  type ShotSizeNode,
-  type SnapshotLeaf,
-  type StoryNode,
+import type {
+  ShotSizeNode,
+  SnapshotLeaf,
+  StoryNode,
 } from "@/lib/snapshot-tree.ts";
+import { buildSnapshotTree } from "@/lib/snapshot-tree.ts";
 
 interface ShotListProps {
   entries: ReportEntry[];
@@ -26,6 +26,7 @@ export const ShotList = ({
   selectedFilename,
 }: ShotListProps) => {
   const tree = useMemo(() => buildSnapshotTree(entries), [entries]);
+
   const [openOverrides, setOpenOverrides] = useState<Map<string, boolean>>(
     () => new Map()
   );
@@ -38,6 +39,7 @@ export const ShotList = ({
       const next = new Map(prev);
       const open = isOpen(key, hasAttention);
       next.set(key, !open);
+
       return next;
     });
   };

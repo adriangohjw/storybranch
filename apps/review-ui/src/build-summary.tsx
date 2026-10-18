@@ -47,6 +47,7 @@ export const BuildSummary = ({
 }: BuildSummaryProps) => {
   const stories = storyCountFor(report);
   const buildTime = formatBuildTime(report.durationMs);
+
   const commitShort =
     report.commit.length > 0 ? report.commit.slice(0, 6) : "—";
 
