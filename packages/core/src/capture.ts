@@ -12,6 +12,8 @@ import type { Report, ReportEntry } from "@storybranch/report";
 import { chromium, firefox, webkit } from "playwright";
 import type { Browser, Page } from "playwright";
 
+import { pickStories } from "@/chromatic.ts";
+import type { OnlyChangedFilter } from "@/chromatic.ts";
 import { installHint } from "@/config.ts";
 import type { BrowserName } from "@/config.ts";
 import { actualDirectory, comparePng } from "@/images.ts";
@@ -22,6 +24,7 @@ import { captureProgressEnabled, createCaptureProgress } from "@/progress.ts";
 
 interface IndexEntry {
   id?: string;
+  importPath?: string;
   type: string;
   tags?: string[];
 }
@@ -41,6 +44,7 @@ function isStoryIndex(
 
 export interface CaptureOptions {
   browsers?: BrowserName[];
+  onlyChanged?: OnlyChangedFilter;
   parallelBrowsers?: boolean;
   progress?: boolean;
 }
@@ -48,6 +52,7 @@ export interface CaptureOptions {
 export interface CaptureResult {
   failures: string[];
   report: Report;
+  wroteReport: boolean;
 }
 
 export async function capture(
@@ -64,7 +69,7 @@ export async function capture(
       `index.json returned ${response.status} from ${indexUrl}`,
     ];
 
-    return { failures, report: emptyReport(root, "", "") };
+    return { failures, report: emptyReport(root, "", ""), wroteReport: false };
   }
 
   const body: unknown = await response.json();
@@ -72,7 +77,7 @@ export async function capture(
   if (!isStoryIndex(body)) {
     const failures = [`index.json from ${indexUrl} was not a story index`];
 
-    return { failures, report: emptyReport(root, "", "") };
+    return { failures, report: emptyReport(root, "", ""), wroteReport: false };
   }
 
   const stories: (IndexEntry & { id: string })[] = [];
@@ -86,6 +91,15 @@ export async function capture(
   }
 
   stories.sort((a, b) => a.id.localeCompare(b.id));
+
+  // ponytail: partial runs skip stale baselines. A full run still catches removed stories.
+  let partial = false;
+
+  if (options.onlyChanged !== undefined) {
+    const picked = pickStories(stories, options.onlyChanged);
+    partial = !picked.full;
+    stories.splice(0, stories.length, ...picked.stories);
+  }
 
   const actualDir = await actualDirectory(root);
   const commit = path.basename(actualDir);
@@ -201,9 +215,9 @@ export async function capture(
     baselines = [];
   }
 
-  for (const baselineFile of baselines
-    .filter((entry) => !expected.has(entry))
-    .toSorted()) {
+  for (const baselineFile of partial
+    ? []
+    : baselines.filter((entry) => !expected.has(entry)).toSorted()) {
     failures.push(`stale ${baselineFile}`);
     entries.push({
       baselinePath: path.join(baselineDir, baselineFile),
@@ -227,7 +241,7 @@ export async function capture(
 
   await writeReport(root, report);
 
-  return { failures, report };
+  return { failures, report, wroteReport: true };
 }
 
 function emptyReport(root: string, commit: string, actualDir: string): Report {
