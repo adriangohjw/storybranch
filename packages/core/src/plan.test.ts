@@ -1,5 +1,7 @@
 import { expect, test } from "bun:test";
 
+import { combineParameters } from "storybook/preview-api";
+
 import { isCapturable, planShots } from "@/plan.ts";
 import type { Shot } from "@/plan.ts";
 
@@ -173,6 +175,95 @@ test("capture flags come from chromatic parameters", () => {
     delay: 50,
     includeAA: true,
     pauseAtEnd: false,
+    threshold: 0.2,
+  });
+});
+
+test("ignore selectors and media features land on every shot", () => {
+  const plan = planShots({
+    ...base,
+    parameters: {
+      chromatic: {
+        forcedColors: "active",
+        ignoreSelectors: [".price"],
+        media: "print",
+        modes: { narrow: { viewport: 320 } },
+        prefersReducedMotion: "reduce",
+      },
+    },
+  });
+
+  const [shot] = shotsOf(plan);
+  expect(shot).toMatchObject({
+    forcedColors: "active",
+    ignoreSelectors: [".price"],
+    media: "print",
+    prefersReducedMotion: "reduce",
+    width: 320,
+  });
+});
+
+test("invalid media feature values are errors", () => {
+  expect(
+    planShots({
+      ...base,
+      parameters: { chromatic: { forcedColors: "high" } },
+    })
+  ).toEqual({ error: "invalid chromatic.forcedColors" });
+  expect(
+    planShots({
+      ...base,
+      parameters: { chromatic: { prefersReducedMotion: "off" } },
+    })
+  ).toEqual({ error: "invalid chromatic.prefersReducedMotion" });
+  expect(
+    planShots({
+      ...base,
+      parameters: { chromatic: { media: "speech" } },
+    })
+  ).toEqual({ error: "invalid chromatic.media" });
+  expect(
+    planShots({
+      ...base,
+      parameters: { chromatic: { ignoreSelectors: ".price" } },
+    })
+  ).toEqual({ error: "invalid chromatic.ignoreSelectors" });
+});
+
+test("merged chromatic parameters follow Storybook project, meta, story rules", () => {
+  const merged = combineParameters(
+    {
+      chromatic: {
+        delay: 0,
+        diffThreshold: 0.2,
+        ignoreSelectors: [".from-preview"],
+      },
+    },
+    {
+      chromatic: {
+        forcedColors: "none",
+        ignoreSelectors: [".from-meta"],
+      },
+    },
+    {
+      chromatic: {
+        delay: 15,
+        media: "print",
+      },
+    }
+  );
+
+  const plan = planShots({
+    globals: {},
+    parameters: { chromatic: merged.chromatic },
+  });
+
+  const [shot] = shotsOf(plan);
+  expect(shot).toMatchObject({
+    delay: 15,
+    forcedColors: "none",
+    ignoreSelectors: [".from-meta"],
+    media: "print",
     threshold: 0.2,
   });
 });

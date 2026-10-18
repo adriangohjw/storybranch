@@ -18,6 +18,7 @@ Install (npm): `npm install -D @adriangohjw/storybranch`. That runs `playwright 
 - [Quick start](https://github.com/adriangohjw/storybranch#quick-start): scripts, exit codes, AGENTS.md snippet
 - [Agent snippet on the site](https://storybook.adriangohjw.com/#agents): copy-paste `.gitignore` and AGENTS.md for your Storybook app
 - [How it works on the site](https://storybook.adriangohjw.com/#how): scripts in the Storybook app
+- [Chromatic compatibility](https://storybook.adriangohjw.com/chromatic): supported `parameters.chromatic` keys, ignore regions, media features, and parameter inheritance
 
 ## Optional
 
