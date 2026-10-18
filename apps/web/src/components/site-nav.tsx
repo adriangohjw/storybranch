@@ -136,13 +136,14 @@ export function SiteNav({ github }: SiteNavProps) {
             ))}
             <a
               aria-label="GitHub repository"
-              className="bg-ink text-paper hover:bg-ink/90 mt-2 inline-flex w-fit rounded-md p-2.5 transition-colors"
+              className="hover:bg-paper-2 flex items-center gap-3 rounded-md px-3 py-2.5 transition-colors"
               href={github}
               onClick={close}
               rel="noopener noreferrer"
               target="_blank"
             >
-              <FaGithub aria-hidden className="size-5" />
+              <FaGithub aria-hidden className="size-5 shrink-0" />
+              <span>GitHub</span>
             </a>
           </nav>
         </aside>
