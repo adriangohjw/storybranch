@@ -7,7 +7,7 @@ Requires [Bun](https://bun.com).
 ## Install
 
 ```bash
-bun add -d storybranch
+bun add -d @adriangohjw/storybranch
 bunx playwright install chromium
 ```
 

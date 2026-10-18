@@ -1,5 +1,5 @@
 {
-  "name": "storybranch",
+  "name": "@adriangohjw/storybranch",
   "version": "0.0.1",
   "description": "Local visual diffs for Storybook",
   "keywords": [

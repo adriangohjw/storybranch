@@ -28,7 +28,7 @@ test("published manifest drops workspace dev dependencies", () => {
     {
       dependencies: { picocolors: "catalog:" },
       devDependencies: { "@storybranch/core": "workspace:*" },
-      name: "storybranch",
+      name: "@adriangohjw/storybranch",
       scripts: { prepack: "build" },
     },
     { picocolors: "^1.1.1" }
@@ -36,6 +36,6 @@ test("published manifest drops workspace dev dependencies", () => {
 
   expect(manifest).toEqual({
     dependencies: { picocolors: "^1.1.1" },
-    name: "storybranch",
+    name: "@adriangohjw/storybranch",
   });
 });

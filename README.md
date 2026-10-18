@@ -58,7 +58,7 @@ Related behavior:
 After `storybranch` is on npm, install the [Bun](https://bun.com) CLI in the project you want to test:
 
 ```bash
-bun add -d storybranch
+bun add -d @adriangohjw/storybranch
 bunx playwright install chromium
 bunx storybranch test --url http://127.0.0.1:6006
 ```
@@ -81,7 +81,7 @@ cd /path/to/your-app
 bun /path/to/storybranch/apps/cli/src/cli.ts test --url http://127.0.0.1:6006
 ```
 
-After publish, install with `bun add -d storybranch`, then that last line is `bunx storybranch test --url http://127.0.0.1:6006`.
+After publish, install with `bun add -d @adriangohjw/storybranch`, then that last line is `bunx storybranch test --url http://127.0.0.1:6006`.
 
 `test` exits 1 when a snapshot needs attention. Failure lines are `missing baseline <file.png>`, `pixels <file.png>`, `size <file.png>`, or `stale <file.png>`. A clean run prints `ok`. The inventory is `.storybranch/report.json`. The CLI also prints `storybranch review at http://127.0.0.1:4321` when something needs a person.
 
@@ -104,7 +104,7 @@ bun apps/cli/src/cli.ts test --url http://127.0.0.1:6006
 
 ### For agents
 
-Paste this into the Storybook app’s `AGENTS.md`. Until the package is on npm, `storybranch` means `bun /path/to/storybranch/apps/cli/src/cli.ts`. After publish, `bun add -d storybranch`, then `bunx storybranch`.
+Paste this into the Storybook app’s `AGENTS.md`. Until the package is on npm, `storybranch` means `bun /path/to/storybranch/apps/cli/src/cli.ts`. After publish, `bun add -d @adriangohjw/storybranch`, then `bunx storybranch`.
 
 ```markdown
 ## storybranch
@@ -252,7 +252,7 @@ bun run test          # unit tests + Playwright e2e (install Chromium first)
 
 ### Publish
 
-The npm package is `storybranch` (`apps/cli` only). `prepack` builds the review UI, bundles the CLI (so `@storybranch/core` and `@storybranch/report` are not separate installs), and drops workspace `devDependencies` from the tarball. `postpack` restores `apps/cli/package.json`. Runtime dependency ranges match the root catalog.
+The npm package is `@adriangohjw/storybranch` (`apps/cli` only). The `storybranch` command comes from the package `bin`. `prepack` builds the review UI, bundles the CLI (so `@storybranch/core` and `@storybranch/report` are not separate installs), and drops workspace `devDependencies` from the tarball. `postpack` restores `apps/cli/package.json`. Runtime dependency ranges match the root catalog.
 
 ```bash
 cd apps/cli
