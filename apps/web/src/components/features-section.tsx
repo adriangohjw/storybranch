@@ -42,7 +42,7 @@ export function FeaturesSection() {
           and a first run that is supposed to fail.
         </p>
       </div>
-      <ol className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4 md:gap-6">
+      <ol className="mt-12 grid gap-8 sm:grid-cols-2 md:gap-6 lg:grid-cols-4">
         {features.map((feature, index) => (
           <li className="relative min-w-0" key={feature.title}>
             <p className="text-accent font-mono text-xs font-medium tracking-widest uppercase">
