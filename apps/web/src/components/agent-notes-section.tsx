@@ -33,9 +33,7 @@ export function AgentNotesSection() {
       </h2>
       <p className="text-ink-muted mt-4">
         Keep{" "}
-        <code className="text-ink font-mono text-sm">
-          .storybranch/baseline/
-        </code>{" "}
+        <code>.storybranch/baseline/</code>{" "}
         tracked.
       </p>
       <div className="mt-4">

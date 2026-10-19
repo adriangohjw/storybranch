@@ -15,7 +15,9 @@ const ciDoc = `${github}/blob/main/docs/ci.md`;
   description="Run storybranch in GitHub Actions: build Storybook, capture with --exit-once, upload artifacts, and review failures locally."
 >
   <Nav />
-  <main class="mx-auto w-full max-w-3xl px-5 py-12 sm:px-8 sm:py-16">
+  <main
+    class="doc-main mx-auto w-full max-w-3xl px-5 py-12 sm:px-8 sm:py-16"
+  >
     <p class="text-accent text-sm font-semibold tracking-wide uppercase">
       Continuous integration
     </p>
@@ -28,7 +30,7 @@ const ciDoc = `${github}/blob/main/docs/ci.md`;
       storybranch in CI is a test: build Storybook, capture snapshots, exit
       <strong class="text-ink font-semibold">1</strong> when a shot needs
       attention. Approval stays on a machine where someone can run
-      <code class="text-ink">storybranch review</code>. There is no hosted
+      <code>storybranch review</code>. There is no hosted
       review URL.
     </p>
 
@@ -74,28 +76,25 @@ const ciDoc = `${github}/blob/main/docs/ci.md`;
     </h2>
     <ol class="text-ink-muted mt-4 list-decimal space-y-3 pl-5">
       <li>
-        Check out with <code class="text-ink">fetch-depth: 0</code> so
-        <code class="text-ink">--only-changed</code> can find the merge base.
+        Check out with <code>fetch-depth: 0</code> so
+        <code>--only-changed</code> can find the merge base.
       </li>
       <li>
         Install dependencies and
-        <code class="text-ink"
-          >npx playwright install --with-deps chromium</code
-        >
+        <code>npx playwright install --with-deps chromium</code>
         (GitHub-hosted runners need system libraries).
       </li>
       <li>
-        <code class="text-ink">npx storybook build</code>, then
-        <code class="text-ink"
-          >npx storybranch test --build --exit-once</code
-        >. Pull requests add <code class="text-ink">--only-changed</code>;
-        pushes to <code class="text-ink">main</code> capture every story.
+        <code>npx storybook build</code>, then
+        <code>npx storybranch test --build --exit-once</code>. Pull requests add
+        <code>--only-changed</code>;
+        pushes to <code>main</code> capture every story.
       </li>
       <li>
         On failure, upload
-        <code class="text-ink">report.json</code>,
-        <code class="text-ink">actual/</code>, and
-        <code class="text-ink">diff/</code> as one artifact. Baselines stay in
+        <code>report.json</code>,
+        <code>actual/</code>, and
+        <code>diff/</code> as one artifact. Baselines stay in
         git.
       </li>
     </ol>
@@ -110,24 +109,23 @@ npx storybranch test --build --only-changed --exit-once</code></pre>
     </h2>
     <ul class="text-ink-muted mt-4 list-disc space-y-2 pl-5">
       <li>
-        <code class="text-ink">--exit-once</code> — print results and skip the
+        <code>--exit-once</code> — print results and skip the
         review server. Without it, a failed run can hang until the job times
         out.
       </li>
       <li>
-        Do not pass <code class="text-ink">--review</code> or
-        <code class="text-ink">--open</code> in CI.
+        Do not pass <code>--review</code> or <code>--open</code> in CI.
       </li>
       <li>
-        <code class="text-ink">--only-changed</code> uses
-        <code class="text-ink">GITHUB_BASE_REF</code> on pull requests, otherwise
-        <code class="text-ink">origin/main</code>. Lockfile or workflow edits
+        <code>--only-changed</code> uses
+        <code>GITHUB_BASE_REF</code> on pull requests, otherwise
+        <code>origin/main</code>. Lockfile or workflow edits
         still capture every story.
       </li>
       <li>
         CI does not accept snapshots. Update
-        <code class="text-ink">.storybranch/baseline/</code> locally (
-        <code class="text-ink">storybranch approve</code> or the review UI) and
+        <code>.storybranch/baseline/</code> locally (
+        <code>storybranch approve</code> or the review UI) and
         commit.
       </li>
     </ul>
@@ -137,7 +135,7 @@ npx storybranch test --build --only-changed --exit-once</code></pre>
     </h2>
     <p class="text-ink-muted mt-4">
       Download the workflow artifact, unpack it into the Storybook package, and
-      run <code class="text-ink">storybranch review</code>. The example PR
+      run <code>storybranch review</code>. The example PR
       comment lists shots that need attention and links to the workflow run.
     </p>
 
@@ -146,9 +144,9 @@ npx storybranch test --build --only-changed --exit-once</code></pre>
     </h2>
     <p class="text-ink-muted mt-4">
       Each Storybook app keeps its own
-      <code class="text-ink">.storybranch/</code>. Build and test from that
-      package with <code class="text-ink">--cwd</code> (or
-      <code class="text-ink">STORYBRANCH_ROOT</code>):
+      <code>.storybranch/</code>. Build and test from that
+      package with <code>--cwd</code> (or
+      <code>STORYBRANCH_ROOT</code>):
     </p>
     <pre
       class="border-ink/10 bg-paper-2 mt-4 overflow-x-auto rounded-lg border p-4 font-mono text-xs leading-relaxed"
