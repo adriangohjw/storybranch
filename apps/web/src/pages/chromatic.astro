@@ -1,4 +1,5 @@
 ---
+import DocInlineCode from "../components/doc-inline-code.astro";
 import Footer from "../components/footer.astro";
 import Layout from "../layouts/layout.astro";
 import Nav from "../components/nav.astro";
@@ -65,7 +66,9 @@ const keys = [
   description="Supported parameters.chromatic keys: ignore regions, forced colors, reduced motion, print media, and how Storybook merges project, meta, and story parameters."
 >
   <Nav />
-  <main class="mx-auto w-full max-w-3xl px-5 py-12 sm:px-8 sm:py-16">
+  <main
+    class="doc-main mx-auto w-full max-w-3xl px-5 py-12 sm:px-8 sm:py-16"
+  >
     <p class="text-accent text-sm font-semibold tracking-wide uppercase">
       Compatibility
     </p>
@@ -75,11 +78,11 @@ const keys = [
       Chromatic compatibility
     </h1>
     <p class="text-ink-muted mt-4 text-lg">
-      storybranch reads <code class="text-ink">parameters.chromatic</code> from
-      the story context Storybook has already merged. Keys below are applied.
-      Any other <code class="text-ink">chromatic</code> key is left
-      unused, so a block copied from Chromatic keeps the behavior below and
-      does not silently change it.
+      storybranch reads <DocInlineCode value="parameters.chromatic" /> from the
+      story context Storybook has already merged. Keys below are applied. Any
+      other <DocInlineCode value="chromatic" /> key is left unused, so a block
+      copied from Chromatic keeps the behavior below and does not silently
+      change it.
     </p>
 
     <h2 class="font-syne text-ink mt-12 text-2xl font-bold tracking-tight">
@@ -128,13 +131,13 @@ const keys = [
       Parameter inheritance
     </h2>
     <p class="text-ink-muted mt-4">
-      Capture calls <code class="text-ink">getStoryContext</code> once per
-      story. That context already follows Storybook’s merge: project parameters
-      from <code class="text-ink">.storybook/preview</code>, then the meta
-      (component) parameters, then the story. Objects deep-merge. Arrays,
-      including <code class="text-ink">ignoreSelectors</code> and
-      <code class="text-ink">viewports</code>, are replaced by the more
-      specific value rather than concatenated.
+      Capture calls <DocInlineCode value="getStoryContext" /> once per story.
+      That context already follows Storybook’s merge: project parameters from
+      <DocInlineCode value=".storybook/preview" />, then the meta (component)
+      parameters, then the story. Objects deep-merge. Arrays, including
+      <DocInlineCode value="ignoreSelectors" /> and
+      <DocInlineCode value="viewports" />, are replaced by the more specific
+      value rather than concatenated.
     </p>
     <pre
       class="border-ink/10 bg-paper-2 mt-4 overflow-x-auto rounded-lg border p-4 font-mono text-xs leading-relaxed"><code>// preview: chromatic.delay 0, ignoreSelectors [".from-preview"], diffThreshold 0.2
@@ -152,13 +155,13 @@ const keys = [
     </p>
     <ul class="text-ink-muted mt-4 list-disc space-y-2 pl-5">
       <li>
-        Class <code class="text-ink">chromatic-ignore</code>
+        Class <DocInlineCode value="chromatic-ignore" />
       </li>
       <li>
-        Attribute <code class="text-ink">data-chromatic="ignore"</code>
+        Attribute <DocInlineCode value='data-chromatic="ignore"' />
       </li>
       <li>
-        Each selector in <code class="text-ink">chromatic.ignoreSelectors</code>
+        Each selector in <DocInlineCode value="chromatic.ignoreSelectors" />
       </li>
     </ul>
     <p class="text-ink-muted mt-4">
@@ -178,16 +181,16 @@ const keys = [
       Media features
     </h2>
     <p class="text-ink-muted mt-4">
-      <code class="text-ink">forcedColors</code>,
-      <code class="text-ink">prefersReducedMotion</code>, and
-      <code class="text-ink">media</code> are story parameters. They apply to
-      every snapshot of that story, including each mode. Putting them inside a
-      mode object does not emulate them. An invalid value fails the story
-      (<code class="text-ink">invalid chromatic.forcedColors</code>,
-      <code class="text-ink">invalid chromatic.prefersReducedMotion</code>,
-      <code class="text-ink">invalid chromatic.media</code>, or
-      <code class="text-ink">invalid chromatic.ignoreSelectors</code>) instead
-      of capturing the wrong variant.
+      <DocInlineCode value="forcedColors" />,
+      <DocInlineCode value="prefersReducedMotion" />, and
+      <DocInlineCode value="media" /> are story parameters. They apply to every
+      snapshot of that story, including each mode. Putting them inside a mode
+      object does not emulate them. An invalid value fails the story (
+      <DocInlineCode value="invalid chromatic.forcedColors" />,
+      <DocInlineCode value="invalid chromatic.prefersReducedMotion" />,
+      <DocInlineCode value="invalid chromatic.media" />, or
+      <DocInlineCode value="invalid chromatic.ignoreSelectors" />) instead of
+      capturing the wrong variant.
     </p>
   </main>
   <Footer />

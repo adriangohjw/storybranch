@@ -6,6 +6,7 @@ const links = [
   { href: "/#review", label: "Review" },
   { href: "/#install", label: "Install" },
   { href: "/#how", label: "How it works" },
+  { href: "/ci", label: "CI" },
   { href: "/agents", label: "Agents" },
   { href: "/chromatic", label: "Chromatic" },
 ] as const;

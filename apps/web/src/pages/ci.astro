@@ -1,0 +1,166 @@
+---
+import DocInlineCode from "../components/doc-inline-code.astro";
+import Footer from "../components/footer.astro";
+import Layout from "../layouts/layout.astro";
+import Nav from "../components/nav.astro";
+
+const github = "https://github.com/adriangohjw/storybranch";
+
+const workflow = `${github}/blob/main/examples/github-actions/visual-regression.yml`;
+const commentScript = `${github}/blob/main/scripts/ci/storybranch-pr-comment.mjs`;
+const ciDoc = `${github}/blob/main/docs/ci.md`;
+---
+
+<Layout
+  title="CI — storybranch"
+  description="Run storybranch in GitHub Actions: build Storybook, capture with --exit-once, upload artifacts, and review failures locally."
+>
+  <Nav />
+  <main
+    class="doc-main mx-auto w-full max-w-3xl px-5 py-12 sm:px-8 sm:py-16"
+  >
+    <p class="text-accent text-sm font-semibold tracking-wide uppercase">
+      Continuous integration
+    </p>
+    <h1
+      class="font-syne text-ink mt-3 text-4xl font-bold tracking-tight sm:text-5xl"
+    >
+      GitHub Actions
+    </h1>
+    <p class="text-ink-muted mt-4 text-lg">
+      storybranch in CI is a test: build Storybook, capture snapshots, exit
+      <strong class="text-ink font-semibold">1</strong> when a shot needs
+      attention. Approval stays on a machine where someone can run
+      <DocInlineCode value="storybranch review" />. There is no hosted review
+      URL.
+    </p>
+
+    <h2 class="font-syne text-ink mt-12 text-2xl font-bold tracking-tight">
+      Copy-paste recipe
+    </h2>
+    <p class="text-ink-muted mt-4">
+      Start from the example workflow and PR comment script in the repo (Node.js
+      22.18+):
+    </p>
+    <ul class="text-ink-muted mt-4 list-disc space-y-2 pl-5">
+      <li>
+        <a
+          class="text-ink decoration-ink/20 hover:decoration-ink/50 underline underline-offset-2"
+          href={workflow}
+          rel="noopener noreferrer"
+          target="_blank"
+          >visual-regression.yml</a
+        >
+      </li>
+      <li>
+        <a
+          class="text-ink decoration-ink/20 hover:decoration-ink/50 underline underline-offset-2"
+          href={commentScript}
+          rel="noopener noreferrer"
+          target="_blank"
+          >storybranch-pr-comment.mjs</a
+        >
+      </li>
+      <li>
+        <a
+          class="text-ink decoration-ink/20 hover:decoration-ink/50 underline underline-offset-2"
+          href={ciDoc}
+          rel="noopener noreferrer"
+          target="_blank"
+          >docs/ci.md</a
+        >
+        — monorepos, extra browsers, and how this repo’s own CI job works
+      </li>
+    </ul>
+
+    <h2 class="font-syne text-ink mt-12 text-2xl font-bold tracking-tight">
+      What the job does
+    </h2>
+    <ol class="text-ink-muted mt-4 list-decimal space-y-3 pl-5">
+      <li>
+        Check out with <DocInlineCode value="fetch-depth: 0" /> so
+        <DocInlineCode value="--only-changed" /> can find the merge base.
+      </li>
+      <li>
+        Install dependencies, then run
+        <DocInlineCode
+          value="npx playwright install --with-deps chromium"
+          wrap
+        />
+        (GitHub-hosted runners need system libraries).
+      </li>
+      <li>
+        <DocInlineCode value="npx storybook build" />, then
+        <DocInlineCode value="npx storybranch test --build --exit-once" wrap />
+        .
+        <span class="mt-1 block">
+          Pull requests also pass <DocInlineCode value="--only-changed" />.
+          Pushes to <DocInlineCode value="main" /> capture every story.
+        </span>
+      </li>
+      <li>
+        On failure, upload
+        <DocInlineCode value="report.json" />,
+        <DocInlineCode value="actual/" />, and
+        <DocInlineCode value="diff/" /> as one artifact. Baselines stay in git.
+      </li>
+    </ol>
+
+    <pre
+      class="border-ink/10 bg-paper-2 mt-6 overflow-x-auto rounded-lg border p-4 font-mono text-xs leading-relaxed"
+    ><code>npx storybook build
+npx storybranch test --build --only-changed --exit-once</code></pre>
+
+    <h2 class="font-syne text-ink mt-12 text-2xl font-bold tracking-tight">
+      Flags that matter in CI
+    </h2>
+    <ul class="text-ink-muted mt-4 list-disc space-y-2 pl-5">
+      <li>
+        <DocInlineCode value="--exit-once" /> — print results and skip the
+        review server. Without it, a failed run can hang until the job times
+        out.
+      </li>
+      <li>
+        Do not pass <DocInlineCode value="--review" /> or
+        <DocInlineCode value="--open" /> in CI.
+      </li>
+      <li>
+        <DocInlineCode value="--only-changed" /> uses
+        <DocInlineCode value="GITHUB_BASE_REF" /> on pull requests, otherwise
+        <DocInlineCode value="origin/main" />. Lockfile or workflow edits still
+        capture every story.
+      </li>
+      <li>
+        CI does not accept snapshots. Update
+        <DocInlineCode value=".storybranch/baseline/" /> locally (
+        <DocInlineCode value="storybranch approve" /> or the review UI) and
+        commit.
+      </li>
+    </ul>
+
+    <h2 class="font-syne text-ink mt-12 text-2xl font-bold tracking-tight">
+      After a failed run
+    </h2>
+    <p class="text-ink-muted mt-4">
+      Download the workflow artifact, unpack it into the Storybook package, and
+      run <DocInlineCode value="storybranch review" />. The example PR comment
+      lists shots that need attention and links to the workflow run.
+    </p>
+
+    <h2 class="font-syne text-ink mt-12 text-2xl font-bold tracking-tight">
+      Monorepos
+    </h2>
+    <p class="text-ink-muted mt-4">
+      Each Storybook app keeps its own
+      <DocInlineCode value=".storybranch/" />. Build and test from that package
+      with <DocInlineCode value="--cwd" /> (or
+      <DocInlineCode value="STORYBRANCH_ROOT" />):
+    </p>
+    <pre
+      class="border-ink/10 bg-paper-2 mt-4 overflow-x-auto rounded-lg border p-4 font-mono text-xs leading-relaxed"
+    ><code>npx storybook build --config-dir apps/web/.storybook \
+  --output-dir apps/web/storybook-static
+npx storybranch test --build --cwd apps/web --exit-once</code></pre>
+  </main>
+  <Footer />
+</Layout>
