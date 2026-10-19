@@ -1,4 +1,5 @@
 ---
+import DocInlineCode from "../components/doc-inline-code.astro";
 import Footer from "../components/footer.astro";
 import Layout from "../layouts/layout.astro";
 import Nav from "../components/nav.astro";
@@ -30,8 +31,8 @@ const ciDoc = `${github}/blob/main/docs/ci.md`;
       storybranch in CI is a test: build Storybook, capture snapshots, exit
       <strong class="text-ink font-semibold">1</strong> when a shot needs
       attention. Approval stays on a machine where someone can run
-      <code>storybranch review</code>. There is no hosted
-      review URL.
+      <DocInlineCode value="storybranch review" />. There is no hosted review
+      URL.
     </p>
 
     <h2 class="font-syne text-ink mt-12 text-2xl font-bold tracking-tight">
@@ -67,7 +68,8 @@ const ciDoc = `${github}/blob/main/docs/ci.md`;
           rel="noopener noreferrer"
           target="_blank"
           >docs/ci.md</a
-        > — monorepos, extra browsers, and how this repo’s own CI job works
+        >
+        — monorepos, extra browsers, and how this repo’s own CI job works
       </li>
     </ul>
 
@@ -76,26 +78,31 @@ const ciDoc = `${github}/blob/main/docs/ci.md`;
     </h2>
     <ol class="text-ink-muted mt-4 list-decimal space-y-3 pl-5">
       <li>
-        Check out with <code>fetch-depth: 0</code> so
-        <code>--only-changed</code> can find the merge base.
+        Check out with <DocInlineCode value="fetch-depth: 0" /> so
+        <DocInlineCode value="--only-changed" /> can find the merge base.
       </li>
       <li>
-        Install dependencies and
-        <code>npx playwright install --with-deps chromium</code>
+        Install dependencies, then run
+        <DocInlineCode
+          value="npx playwright install --with-deps chromium"
+          wrap
+        />
         (GitHub-hosted runners need system libraries).
       </li>
       <li>
-        <code>npx storybook build</code>, then
-        <code>npx storybranch test --build --exit-once</code>. Pull requests add
-        <code>--only-changed</code>;
-        pushes to <code>main</code> capture every story.
+        <DocInlineCode value="npx storybook build" />, then
+        <DocInlineCode value="npx storybranch test --build --exit-once" wrap />
+        .
+        <span class="mt-1 block">
+          Pull requests also pass <DocInlineCode value="--only-changed" />.
+          Pushes to <DocInlineCode value="main" /> capture every story.
+        </span>
       </li>
       <li>
         On failure, upload
-        <code>report.json</code>,
-        <code>actual/</code>, and
-        <code>diff/</code> as one artifact. Baselines stay in
-        git.
+        <DocInlineCode value="report.json" />,
+        <DocInlineCode value="actual/" />, and
+        <DocInlineCode value="diff/" /> as one artifact. Baselines stay in git.
       </li>
     </ol>
 
@@ -109,23 +116,24 @@ npx storybranch test --build --only-changed --exit-once</code></pre>
     </h2>
     <ul class="text-ink-muted mt-4 list-disc space-y-2 pl-5">
       <li>
-        <code>--exit-once</code> — print results and skip the
+        <DocInlineCode value="--exit-once" /> — print results and skip the
         review server. Without it, a failed run can hang until the job times
         out.
       </li>
       <li>
-        Do not pass <code>--review</code> or <code>--open</code> in CI.
+        Do not pass <DocInlineCode value="--review" /> or
+        <DocInlineCode value="--open" /> in CI.
       </li>
       <li>
-        <code>--only-changed</code> uses
-        <code>GITHUB_BASE_REF</code> on pull requests, otherwise
-        <code>origin/main</code>. Lockfile or workflow edits
-        still capture every story.
+        <DocInlineCode value="--only-changed" /> uses
+        <DocInlineCode value="GITHUB_BASE_REF" /> on pull requests, otherwise
+        <DocInlineCode value="origin/main" />. Lockfile or workflow edits still
+        capture every story.
       </li>
       <li>
         CI does not accept snapshots. Update
-        <code>.storybranch/baseline/</code> locally (
-        <code>storybranch approve</code> or the review UI) and
+        <DocInlineCode value=".storybranch/baseline/" /> locally (
+        <DocInlineCode value="storybranch approve" /> or the review UI) and
         commit.
       </li>
     </ul>
@@ -135,8 +143,8 @@ npx storybranch test --build --only-changed --exit-once</code></pre>
     </h2>
     <p class="text-ink-muted mt-4">
       Download the workflow artifact, unpack it into the Storybook package, and
-      run <code>storybranch review</code>. The example PR
-      comment lists shots that need attention and links to the workflow run.
+      run <DocInlineCode value="storybranch review" />. The example PR comment
+      lists shots that need attention and links to the workflow run.
     </p>
 
     <h2 class="font-syne text-ink mt-12 text-2xl font-bold tracking-tight">
@@ -144,9 +152,9 @@ npx storybranch test --build --only-changed --exit-once</code></pre>
     </h2>
     <p class="text-ink-muted mt-4">
       Each Storybook app keeps its own
-      <code>.storybranch/</code>. Build and test from that
-      package with <code>--cwd</code> (or
-      <code>STORYBRANCH_ROOT</code>):
+      <DocInlineCode value=".storybranch/" />. Build and test from that package
+      with <DocInlineCode value="--cwd" /> (or
+      <DocInlineCode value="STORYBRANCH_ROOT" />):
     </p>
     <pre
       class="border-ink/10 bg-paper-2 mt-4 overflow-x-auto rounded-lg border p-4 font-mono text-xs leading-relaxed"

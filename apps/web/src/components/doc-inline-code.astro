@@ -1,0 +1,11 @@
+---
+interface Props {
+  value: string;
+  /** Long shell commands: allow wrapping inside one chip */
+  wrap?: boolean;
+}
+
+const { value, wrap = false } = Astro.props;
+---
+
+<code class:list={{ "doc-code--wrap": wrap }}>{value}</code>
