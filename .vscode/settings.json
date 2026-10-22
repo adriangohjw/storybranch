@@ -6,7 +6,6 @@
     "source.fixAll.oxc": "always"
   },
   "javascript.validate.enable": true,
-  "oxc.fmt.configPath": "oxfmt.config.ts",
   "oxc.typeAware": true,
   "[typescript]": {
     "editor.defaultFormatter": "oxc.oxc-vscode"

@@ -13,8 +13,6 @@
     "./project-root": "./src/project-root.ts"
   },
   "scripts": {
-    "format": "oxfmt --check .",
-    "format:fix": "oxfmt .",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "test": "bun test",
@@ -30,7 +28,6 @@
     "pngjs": "catalog:"
   },
   "devDependencies": {
-    "@storybranch/oxfmt-config": "workspace:*",
     "@storybranch/oxlint-config": "workspace:*",
     "@storybranch/tsconfig": "workspace:*",
     "@types/bun": "catalog:",

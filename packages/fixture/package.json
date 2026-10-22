@@ -3,8 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "format": "oxfmt --check .",
-    "format:fix": "oxfmt .",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "typecheck": "bun ../../scripts/bun-check.ts",
@@ -14,7 +12,6 @@
   },
   "devDependencies": {
     "@adriangohjw/storybranch": "workspace:*",
-    "@storybranch/oxfmt-config": "workspace:*",
     "@storybranch/oxlint-config": "workspace:*",
     "@storybranch/tsconfig": "workspace:*"
   }

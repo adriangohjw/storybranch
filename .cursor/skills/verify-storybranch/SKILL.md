@@ -13,7 +13,7 @@ Two runs can proceed together when each has its own `RUN_ID`. They must not shar
 
 ## Launch
 
-From the repo root, with Bun 1.4.3+:
+From the repo root, with Bun 1.4.4+:
 
 ```bash
 RUN_ID="verify-$(date +%s)-$$"

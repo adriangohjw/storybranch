@@ -10,8 +10,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev:review": "turbo run dev --filter=@storybranch/review-ui",
-    "format": "turbo run format",
-    "format:fix": "turbo run format:fix",
+    "format": "bun fmt --check .",
+    "format:fix": "bun fmt",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "typecheck": "turbo run typecheck",
@@ -44,7 +44,6 @@
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.13",
     "vite": "8",
-    "oxfmt": "^0.72.0",
     "oxlint": "^1.86.0",
     "oxlint-plugin-react-doctor": "^0.9.18",
     "oxlint-tsgolint": "^7.0.2004",
@@ -61,7 +60,6 @@
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "lefthook": "catalog:",
-    "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-plugin-react-doctor": "catalog:",
     "oxlint-tsgolint": "catalog:",
@@ -71,7 +69,7 @@
     "storybook": "catalog:",
     "turbo": "catalog:"
   },
-  "packageManager": "bun@1.4.3",
+  "packageManager": "bun@1.4.4",
   "patchedDependencies": {
     "react-docgen-typescript@2.4.0": "patches/react-docgen-typescript@2.4.0.patch"
   }
