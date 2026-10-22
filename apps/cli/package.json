@@ -43,8 +43,6 @@
     "build": "bun run build:cli && bun run build:addon",
     "build:addon": "bun build ./src/addon/preset.ts --outfile ./dist/addon/preset.js --target node --packages=external && bun build ./src/addon/manager.tsx --outfile ./dist/addon/manager.js --target browser --packages=external",
     "build:cli": "bun build ./src/cli.ts --outfile ./dist/cli.js --target node --external playwright --external picocolors --external pixelmatch --external pngjs --external ora --external log-update",
-    "format": "oxfmt --check .",
-    "format:fix": "oxfmt .",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "prepublishOnly": "bun run build && bun test src/dependencies.test.ts src/help.test.ts src/review-spawn.test.ts",
@@ -63,12 +61,10 @@
   },
   "devDependencies": {
     "@storybranch/core": "workspace:*",
-    "@storybranch/oxfmt-config": "workspace:*",
     "@storybranch/oxlint-config": "workspace:*",
     "@storybranch/report": "workspace:*",
     "@storybranch/tsconfig": "workspace:*",
-    "@types/bun": "catalog:",
-    "oxfmt": "catalog:"
+    "@types/bun": "catalog:"
   },
   "engines": {
     "node": ">=22.18.0"

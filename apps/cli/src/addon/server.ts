@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { stat, readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import path from "node:path";
 import { promisify } from "node:util";

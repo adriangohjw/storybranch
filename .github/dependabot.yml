@@ -34,7 +34,6 @@ updates:
       oxc:
         patterns:
           - oxlint
-          - oxfmt
           - oxlint-tsgolint
       image:
         patterns:

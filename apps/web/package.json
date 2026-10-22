@@ -6,8 +6,6 @@
     "astro": "astro",
     "build": "astro build",
     "dev": "astro dev",
-    "format": "oxfmt --check .",
-    "format:fix": "oxfmt .",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "preview": "astro preview",
@@ -24,7 +22,6 @@
     "tailwindcss": "catalog:"
   },
   "devDependencies": {
-    "@storybranch/oxfmt-config": "workspace:*",
     "@storybranch/oxlint-config": "workspace:*",
     "@storybranch/tsconfig": "workspace:*"
   }

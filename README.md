@@ -30,7 +30,7 @@ storybranch drives Playwright against your Storybook, saves one PNG per story, [
 
 ## Why storybranch
 
-| | Chromatic (hosted SaaS) | storybranch |
+|  | Chromatic (hosted SaaS) | storybranch |
 | --- | --- | --- |
 | **Where it runs** | Chromatic’s cloud | Your laptop, your CI runners, your servers |
 | **Baselines** | Hosted project | Committed PNGs in `.storybranch/baseline/` |
@@ -317,7 +317,6 @@ packages
 tooling
   ├─ github/      # Shared composite action (Bun install + Turborepo cache)
   ├─ oxlint/      # `@storybranch/oxlint-config` (base + composable presets)
-  ├─ oxfmt/       # `@storybranch/oxfmt-config`
   └─ typescript/  # `@storybranch/tsconfig` (`base.json`)
 patches
   └─ Bun patches for dependencies
@@ -337,9 +336,9 @@ bunx storybook dev -p 6006 --config-dir packages/fixture/.storybook
 bun run visual          # fixture app runs the built storybranch bin
 bun run lint          # turbo run lint (per-package oxlint)
 bun run lint:fix
-bun run format        # turbo run format (per-package oxfmt)
-bun run format:fix
-bun run typecheck     # turbo run typecheck (per-package `bun check`; requires Bun 1.4.3+)
+bun run format        # `bun fmt --check .` (root `bunfig.toml`)
+bun run format:fix    # `bun fmt`
+bun run typecheck     # turbo run typecheck (per-package `bun check`; requires Bun 1.4.4+)
 bun run test          # unit tests + Playwright e2e (install Chromium, Firefox, Edge, and WebKit first)
 ```
 
@@ -403,4 +402,4 @@ Structure and tooling docs follow the same ideas as [Open Government Products St
 
 ## Imports
 
-Third-party versions live in the root **`catalog`** in `package.json`; workspace packages reference them with `catalog:` (and each other with `workspace:*`). Cross-package imports use workspace names (e.g. `@storybranch/report`, `@storybranch/core/capture`). Within a package’s `src/`, import sibling modules with the `@/` alias (`paths` in that package’s `tsconfig.json`), not `./` or `../`; each package’s `oxlint.config.ts` composes `@storybranch/oxlint-config` blocks (e.g. `react-doctor` + `src-alias-imports` on CLI packages, `react-stack` on review UI). Shared lint/format/tsconfig live under `tooling/*` (`@storybranch/oxlint-config`, `@storybranch/oxfmt-config`, `@storybranch/tsconfig`).
+Third-party versions live in the root **`catalog`** in `package.json`; workspace packages reference them with `catalog:` (and each other with `workspace:*`). Cross-package imports use workspace names (e.g. `@storybranch/report`, `@storybranch/core/capture`). Within a package’s `src/`, import sibling modules with the `@/` alias (`paths` in that package’s `tsconfig.json`), not `./` or `../`; each package’s `oxlint.config.ts` composes `@storybranch/oxlint-config` blocks (e.g. `react-doctor` + `src-alias-imports` on CLI packages, `react-stack` on review UI). Shared lint/tsconfig live under `tooling/*` (`@storybranch/oxlint-config`, `@storybranch/tsconfig`). Formatting uses Bun’s built-in `bun fmt` with options in the root `bunfig.toml`.

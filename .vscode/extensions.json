@@ -1,3 +1,7 @@
 {
-  "recommendations": ["oxc.oxc-vscode", "yoavbls.pretty-ts-errors"]
+  "recommendations": [
+    "oven.bun-vscode",
+    "oxc.oxc-vscode",
+    "yoavbls.pretty-ts-errors"
+  ]
 }

@@ -1,9 +1,7 @@
 export type ShotStatus = "changed" | "error" | "new" | "stale" | "unchanged";
 
 export type SidebarStatus =
-  | "status-value:error"
-  | "status-value:success"
-  | "status-value:warning";
+  "status-value:error" | "status-value:success" | "status-value:warning";
 
 export interface ShotEntry {
   browser?: string;
