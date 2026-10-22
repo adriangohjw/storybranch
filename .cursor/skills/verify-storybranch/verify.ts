@@ -6,14 +6,7 @@
  */
 import { spawnSync } from "node:child_process";
 import { openSync } from "node:fs";
-import {
-  cp,
-  mkdir,
-  mkdtemp,
-  readFile,
-  rm,
-  writeFile,
-} from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { createServer } from "node:net";
 import path from "node:path";
 
@@ -80,7 +73,8 @@ function freePort(): Promise<number> {
     server.once("error", reject);
     server.listen(0, "127.0.0.1", () => {
       const address = server.address();
-      const port = typeof address === "object" && address !== null ? address.port : 0;
+      const port =
+        typeof address === "object" && address !== null ? address.port : 0;
       server.close((error) => {
         if (error !== undefined) {
           reject(error);
@@ -223,10 +217,11 @@ async function ensureTooling(root: string): Promise<void> {
 
   if (!(await exe.exists())) {
     console.error(`Installing Playwright Chromium at ${chromium}`);
-    const install = Bun.spawn(
-      ["bunx", "playwright", "install", "chromium"],
-      { cwd: root, stderr: "inherit", stdout: "inherit" }
-    );
+    const install = Bun.spawn(["bunx", "playwright", "install", "chromium"], {
+      cwd: root,
+      stderr: "inherit",
+      stdout: "inherit",
+    });
 
     if ((await install.exited) !== 0) {
       throw new Error("playwright install chromium failed");
@@ -281,9 +276,13 @@ async function launch(): Promise<void> {
   await mkdir(dir, { recursive: true });
 
   const work = await mkdtemp(path.join(dir, "work-"));
-  await cp(path.join(root, "packages/fixture/.storybook"), path.join(work, ".storybook"), {
-    recursive: true,
-  });
+  await cp(
+    path.join(root, "packages/fixture/.storybook"),
+    path.join(work, ".storybook"),
+    {
+      recursive: true,
+    }
+  );
   await writeFile(
     path.join(work, "package.json"),
     `${JSON.stringify({ name: "storybranch-verify", private: true }, null, 2)}\n`
@@ -375,9 +374,9 @@ async function doctor(): Promise<void> {
   passed =
     check(
       "package",
-      (await Bun.file(path.join(state.workDir, "package.json")).text()).includes(
-        "storybranch-verify"
-      ),
+      (
+        await Bun.file(path.join(state.workDir, "package.json")).text()
+      ).includes("storybranch-verify"),
       "disposable package.json"
     ) && passed;
 
@@ -406,7 +405,9 @@ async function doctor(): Promise<void> {
   let indexDetail = "unreachable";
 
   try {
-    const response = await fetch(new URL("index.json", `${state.storybookUrl}/`));
+    const response = await fetch(
+      new URL("index.json", `${state.storybookUrl}/`)
+    );
     const body = await response.text();
     indexOk = response.ok && body.includes("smoke--default");
     indexDetail = indexOk ? state.storybookUrl : `HTTP ${response.status}`;
@@ -420,8 +421,11 @@ async function doctor(): Promise<void> {
   const reviewHtml = path.join(root, "apps/cli/review/public/index.html");
   const cliBundle = path.join(root, "apps/cli/dist/cli.js");
   passed =
-    check("review-ui", await Bun.file(reviewHtml).exists(), reviewHtml) && passed;
-  passed = check("cli-bundle", await Bun.file(cliBundle).exists(), cliBundle) && passed;
+    check("review-ui", await Bun.file(reviewHtml).exists(), reviewHtml) &&
+    passed;
+  passed =
+    check("cli-bundle", await Bun.file(cliBundle).exists(), cliBundle) &&
+    passed;
 
   const repoHead = await git(root, ["rev-parse", "HEAD"]);
   passed =
@@ -433,18 +437,18 @@ async function doctor(): Promise<void> {
 
   const bun = spawnSync("bun", ["--version"], { encoding: "utf8" });
   passed =
-    check("bun", bun.stdout.trim().length > 0, bun.stdout.trim() || bun.stderr.trim()) &&
-    passed;
+    check(
+      "bun",
+      bun.stdout.trim().length > 0,
+      bun.stdout.trim() || bun.stderr.trim()
+    ) && passed;
 
   const chromiumPath = await import("playwright").then((playwright) =>
     playwright.chromium.executablePath()
   );
   passed =
-    check(
-      "chromium",
-      await Bun.file(chromiumPath).exists(),
-      chromiumPath
-    ) && passed;
+    check("chromium", await Bun.file(chromiumPath).exists(), chromiumPath) &&
+    passed;
 
   if (state.reviewPid !== null) {
     const reviewOwners = listeners(state.reviewPort);
@@ -455,7 +459,9 @@ async function doctor(): Promise<void> {
         `pid ${state.reviewPid} port ${state.reviewPort}`
       ) && passed;
   } else {
-    console.log(`ok review-server: not started (reserved port ${state.reviewPort})`);
+    console.log(
+      `ok review-server: not started (reserved port ${state.reviewPort})`
+    );
   }
 
   if (!passed) {
@@ -465,7 +471,11 @@ async function doctor(): Promise<void> {
 }
 
 async function rememberReview(state: RunState, stdout: string): Promise<void> {
-  if (!stdout.includes(`storybranch review at http://127.0.0.1:${state.reviewPort}`)) {
+  if (
+    !stdout.includes(
+      `storybranch review at http://127.0.0.1:${state.reviewPort}`
+    )
+  ) {
     return;
   }
 
@@ -476,7 +486,10 @@ async function rememberReview(state: RunState, stdout: string): Promise<void> {
 
     if (pids.length > 0) {
       state.reviewPid = pids[0] ?? null;
-      await writeFile(statePath(state.runId), `${JSON.stringify(state, null, 2)}\n`);
+      await writeFile(
+        statePath(state.runId),
+        `${JSON.stringify(state, null, 2)}\n`
+      );
       return;
     }
 
@@ -548,21 +561,33 @@ async function cli(argv: string[]): Promise<void> {
     const report = path.join(state.workDir, ".storybranch/report.json");
 
     if (await Bun.file(report).exists()) {
-      await writeFile(path.join(dest, "report.json"), await Bun.file(report).text());
+      await writeFile(
+        path.join(dest, "report.json"),
+        await Bun.file(report).text()
+      );
     }
 
     const list = async (relative: string) => {
-      const procList = Bun.spawn(["find", path.join(state.workDir, relative), "-type", "f"], {
-        stderr: "pipe",
-        stdout: "pipe",
-      });
+      const procList = Bun.spawn(
+        ["find", path.join(state.workDir, relative), "-type", "f"],
+        {
+          stderr: "pipe",
+          stdout: "pipe",
+        }
+      );
       const text = await new Response(procList.stdout).text();
       await procList.exited;
       return text;
     };
 
-    await writeFile(path.join(dest, "baseline.txt"), await list(".storybranch/baseline"));
-    await writeFile(path.join(dest, "actual.txt"), await list(".storybranch/actual"));
+    await writeFile(
+      path.join(dest, "baseline.txt"),
+      await list(".storybranch/baseline")
+    );
+    await writeFile(
+      path.join(dest, "actual.txt"),
+      await list(".storybranch/actual")
+    );
     console.error(`evidence ${dest}`);
   }
 

@@ -1,12 +1,12 @@
 {
   "name": "storybranch-repo",
   "private": true,
-  "type": "module",
   "workspaces": [
     "apps/*",
     "packages/*",
     "tooling/*"
   ],
+  "type": "module",
   "scripts": {
     "build": "turbo run build",
     "dev:review": "turbo run dev --filter=@storybranch/review-ui",
@@ -23,6 +23,22 @@
     "publish:cli": "bun publish --cwd apps/cli",
     "prepare": "lefthook install"
   },
+  "devDependencies": {
+    "@adriangohjw/storybranch": "workspace:*",
+    "@storybook/react-vite": "catalog:",
+    "@types/bun": "catalog:",
+    "@types/react": "catalog:",
+    "lefthook": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-plugin-react-doctor": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "playwright": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "storybook": "catalog:",
+    "turbo": "catalog:"
+  },
+  "packageManager": "bun@1.4.4",
   "catalog": {
     "@astrojs/react": "^7.1.0",
     "@tailwindcss/vite": "^4.1.13",
@@ -54,22 +70,6 @@
     "storybook": "10.6.1",
     "turbo": "^2.5.8"
   },
-  "devDependencies": {
-    "@adriangohjw/storybranch": "workspace:*",
-    "@storybook/react-vite": "catalog:",
-    "@types/bun": "catalog:",
-    "@types/react": "catalog:",
-    "lefthook": "catalog:",
-    "oxlint": "catalog:",
-    "oxlint-plugin-react-doctor": "catalog:",
-    "oxlint-tsgolint": "catalog:",
-    "playwright": "catalog:",
-    "react": "catalog:",
-    "react-dom": "catalog:",
-    "storybook": "catalog:",
-    "turbo": "catalog:"
-  },
-  "packageManager": "bun@1.4.4",
   "patchedDependencies": {
     "react-docgen-typescript@2.4.0": "patches/react-docgen-typescript@2.4.0.patch"
   }

@@ -13,11 +13,7 @@ const PACKAGE = "@adriangohjw/storybranch";
 export type PackageScript = "visual" | "visual:review" | "visual:approve";
 
 export type InstallCommandKind =
-  | "addPackage"
-  | "run"
-  | "runApprove"
-  | "runReview"
-  | "storybookDev";
+  "addPackage" | "run" | "runApprove" | "runReview" | "storybookDev";
 
 export function runPackageScript(
   script: PackageScript,

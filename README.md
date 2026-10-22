@@ -30,7 +30,7 @@ storybranch drives Playwright against your Storybook, saves one PNG per story, [
 
 ## Why storybranch
 
-| | Chromatic (hosted SaaS) | storybranch |
+|  | Chromatic (hosted SaaS) | storybranch |
 | --- | --- | --- |
 | **Where it runs** | Chromatic’s cloud | Your laptop, your CI runners, your servers |
 | **Baselines** | Hosted project | Committed PNGs in `.storybranch/baseline/` |

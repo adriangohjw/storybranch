@@ -9,10 +9,7 @@ import {
 import { cn } from "@/lib/cn.ts";
 
 export type ViewerEmptyKind =
-  | "attention-clear"
-  | "filter-empty"
-  | "pick-snapshot"
-  | "report-loading";
+  "attention-clear" | "filter-empty" | "pick-snapshot" | "report-loading";
 
 const copy: Record<
   ViewerEmptyKind,
