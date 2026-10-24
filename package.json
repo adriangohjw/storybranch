@@ -65,9 +65,9 @@
     "oxlint-tsgolint": "^7.0.2004",
     "lefthook": "^2.2.2",
     "ultracite": "8.0.1",
-    "@storybook/react-vite": "10.6.1",
+    "@storybook/react-vite": "10.6.2",
     "sonner": "^2.0.8",
-    "storybook": "10.6.1",
+    "storybook": "10.6.2",
     "turbo": "^2.5.8"
   },
   "patchedDependencies": {
