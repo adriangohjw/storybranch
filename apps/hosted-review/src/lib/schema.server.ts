@@ -25,11 +25,6 @@ CREATE TABLE IF NOT EXISTS runs (
   commit_sha TEXT NOT NULL,
   branch TEXT,
   pr_number INTEGER,
-  repository TEXT,
-  ci_url TEXT,
-  workflow_run_id TEXT,
-  duration_ms INTEGER,
-  story_count INTEGER,
   report JSONB NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

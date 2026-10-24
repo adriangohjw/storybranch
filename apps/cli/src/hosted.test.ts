@@ -9,7 +9,6 @@ import {
   assertSafeFilename,
   fetchHostedBaselines,
   githubContextFromEnv,
-  hashProjectToken,
   HOSTED_COMMENT_MARKER,
   prCommentBody,
   publishGitHub,
@@ -44,10 +43,6 @@ test("hosted config is off unless both token and api url are set", () => {
       { apiUrl: "http://flag.example", projectToken: "flag" }
     )
   ).toEqual({ apiUrl: "http://flag.example", token: "flag" });
-});
-
-test("token hash is sha256 hex", () => {
-  expect(hashProjectToken("sbp_test")).toHaveLength(64);
 });
 
 test("unsafe snapshot filenames are rejected", () => {

@@ -70,45 +70,19 @@ export async function createRun(
 
   const runId = newId();
   const branch = stringField(body, "branch");
-  const repository = stringField(body, "repository");
-  const ciUrl = stringField(body, "ciUrl");
-  const workflowRunId = stringField(body, "workflowRunId");
 
   const prNumber =
     "prNumber" in body && typeof body.prNumber === "number"
       ? body.prNumber
       : null;
 
-  const durationMs =
-    "durationMs" in body && typeof body.durationMs === "number"
-      ? body.durationMs
-      : null;
-
-  const storyCount =
-    "storyCount" in body && typeof body.storyCount === "number"
-      ? body.storyCount
-      : (report.storyCount ?? null);
-
   await withClient(async (client) => {
     await client.query("BEGIN");
     await client.query(
       `INSERT INTO runs (
-         id, project_id, commit_sha, branch, pr_number, repository, ci_url,
-         workflow_run_id, duration_ms, story_count, report
-       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb)`,
-      [
-        runId,
-        projectId,
-        commitSha,
-        branch,
-        prNumber,
-        repository,
-        ciUrl,
-        workflowRunId,
-        durationMs,
-        storyCount,
-        JSON.stringify(report),
-      ]
+         id, project_id, commit_sha, branch, pr_number, report
+       ) VALUES ($1,$2,$3,$4,$5,$6::jsonb)`,
+      [runId, projectId, commitSha, branch, prNumber, JSON.stringify(report)]
     );
 
     for (const entry of report.entries) {

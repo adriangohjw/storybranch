@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -100,14 +99,9 @@ export async function uploadHostedRun(
     {
       body: JSON.stringify({
         branch: process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME,
-        ciUrl: githubRunUrl(),
         commitSha: report.commit,
-        durationMs: report.durationMs,
         prNumber: prNumberFromEnv(process.env),
         report,
-        repository: process.env.GITHUB_REPOSITORY,
-        storyCount: report.storyCount,
-        workflowRunId: process.env.GITHUB_RUN_ID,
       }),
       headers: {
         ...authHeaders(hosted.token),
@@ -265,10 +259,6 @@ export function statusDescription(report: Report, url: string): string {
   return text.length <= 140 ? text : `${text.slice(0, 137)}...`;
 }
 
-export function hashProjectToken(token: string): string {
-  return createHash("sha256").update(token).digest("hex");
-}
-
 export function assertSafeFilename(filename: string): void {
   if (
     filename.length === 0 ||
@@ -301,18 +291,6 @@ function parseOptionalInt(value: string | undefined): number | undefined {
   const parsed = Number(value);
 
   return Number.isInteger(parsed) ? parsed : undefined;
-}
-
-function githubRunUrl(): string | undefined {
-  const server = process.env.GITHUB_SERVER_URL;
-  const repo = process.env.GITHUB_REPOSITORY;
-  const runId = process.env.GITHUB_RUN_ID;
-
-  if (server === undefined || repo === undefined || runId === undefined) {
-    return undefined;
-  }
-
-  return `${server}/${repo}/actions/runs/${runId}`;
 }
 
 function prNumberFromEnv(env: NodeJS.ProcessEnv): number | undefined {
