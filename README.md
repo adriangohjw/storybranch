@@ -223,7 +223,8 @@ The app is [`apps/hosted-review`](apps/hosted-review/README.md) (TanStack Start,
 
 ```bash
 bun run --cwd apps/hosted-review setup
-docker compose -f apps/hosted-review/docker-compose.yml up --build
+docker compose -f apps/hosted-review/docker-compose.yml up -d
+bun run --cwd apps/hosted-review dev
 ```
 
 See the [hosted-review README](apps/hosted-review/README.md) for env vars, dev mode, admin login, project tokens, and mail (Resend vs `STORYBRANCH_DANGEROUS_EMAIL_LOG`). CI workflow: [`examples/github-actions/hosted-visual-review.yml`](examples/github-actions/hosted-visual-review.yml).

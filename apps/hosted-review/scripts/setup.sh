@@ -77,17 +77,14 @@ cat <<EOF
 Ready. From the repo root:
 
   cd $REPO_ROOT
-  $COMPOSE up --build
+  $COMPOSE up -d
+  bun run --cwd apps/hosted-review dev
 
 Then open http://127.0.0.1:3000/login (use STORYBRANCH_ADMIN_EMAIL from .env).
 
-Dev without rebuilding the app image:
+Containerized app image (optional): $COMPOSE --profile app up -d --build
 
-  $COMPOSE up postgres floci s3-init
-  set -a && source apps/hosted-review/.env && set +a
-  bun run --cwd apps/hosted-review dev
-
-With STORYBRANCH_DANGEROUS_EMAIL_LOG=1, magic links print in the app or compose logs.
+With STORYBRANCH_DANGEROUS_EMAIL_LOG=1, magic links print in the dev server logs.
 Unset that and set RESEND_API_KEY + RESEND_FROM before production.
 
 More: apps/hosted-review/README.md

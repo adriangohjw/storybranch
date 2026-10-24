@@ -1,5 +1,6 @@
 services:
   app:
+    profiles: ["app"]
     build:
       context: ../..
       dockerfile: apps/hosted-review/Dockerfile
