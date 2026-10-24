@@ -19,9 +19,9 @@ export function matchesFilter(entry: ReportEntry, filter: string): boolean {
 }
 
 export const badgeTone: Record<ShotStatus, string> = {
-  changed: "bg-amber-500/20 text-amber-300",
-  error: "bg-red-500/20 text-red-300",
-  new: "bg-sky-500/20 text-sky-300",
-  stale: "bg-rose-500/20 text-rose-300",
-  unchanged: "bg-emerald-500/20 text-emerald-300",
+  changed: "bg-pending text-ink",
+  error: "bg-changes text-paper",
+  new: "bg-ink text-paper",
+  stale: "bg-changes text-paper",
+  unchanged: "bg-accepted text-paper",
 };

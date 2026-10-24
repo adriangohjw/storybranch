@@ -50,35 +50,25 @@ export const BuildSummary = ({
   const buildTime = formatBuildTime(report.durationMs);
 
   const commitShort =
-    report.commit.length > 0 ? report.commit.slice(0, 6) : "—";
+    report.commit.length > 0 ? report.commit.slice(0, 6) : "no commit";
 
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-300",
-        compact && "text-xs text-zinc-400",
+        "text-ink-soft flex flex-wrap items-center gap-x-4 gap-y-2 text-sm",
+        compact && "text-ink-soft text-xs",
         className
       )}
     >
       <span>
-        <span
-          className={cn(
-            "font-semibold text-zinc-100",
-            compact && "text-zinc-200"
-          )}
-        >
+        <span className={cn("text-ink font-semibold", compact && "text-ink")}>
           {stories}
         </span>{" "}
         Stories
       </span>
       {buildTime === null ? null : (
         <span>
-          <span
-            className={cn(
-              "font-semibold text-zinc-100",
-              compact && "text-zinc-200"
-            )}
-          >
+          <span className={cn("text-ink font-semibold", compact && "text-ink")}>
             {buildTime}
           </span>{" "}
           Build time
@@ -90,7 +80,9 @@ export const BuildSummary = ({
           <BrowserIcon browser={browser} key={browser} />
         ))}
       </span>
-      <span className="font-mono text-sky-400">{commitShort}</span>
+      <span className="text-ink font-semibold tracking-tight tabular-nums">
+        {commitShort}
+      </span>
     </div>
   );
 };
@@ -116,11 +108,11 @@ const BrowserIcon = ({ browser }: { browser: string }) => {
     return (
       <LuGlobe
         aria-label="Chrome"
-        className="size-4 text-zinc-300"
+        className="text-ink-soft size-4"
         title="Chrome"
       />
     );
   }
 
-  return <span className="text-zinc-400">{browser}</span>;
+  return <span className="text-ink-soft">{browser}</span>;
 };

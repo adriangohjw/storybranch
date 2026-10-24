@@ -19,30 +19,32 @@ function ProjectPage() {
   const [token, setToken] = useState<string | null>(null);
 
   return (
-    <main className="mx-auto max-w-3xl px-5 py-8">
-      <p className="text-xs text-zinc-500">
+    <main className="mx-auto max-w-3xl px-5 py-8 pl-10">
+      <p className="text-ink-soft text-xs">
         <Link to="/projects">Projects</Link>
       </p>
-      <h1 className="mt-2 text-lg font-semibold">{name}</h1>
-      <ul className="mt-4 divide-y divide-zinc-800 rounded-md border border-zinc-800">
+      <h1 className="mt-2 text-3xl font-semibold tracking-tight text-balance">
+        {name}
+      </h1>
+      <ul className="divide-line border-line mt-4 divide-y rounded-md border">
         {runs.length === 0 ? (
-          <li className="px-4 py-6 text-sm text-zinc-500">No runs yet.</li>
+          <li className="text-ink-soft px-4 py-6 text-sm">No runs yet.</li>
         ) : (
           runs.map((run) => (
             <li key={run.id}>
               <Link
-                className="block px-4 py-3 text-sm hover:bg-zinc-900"
+                className="shot-cell hover:bg-pending/30 flex flex-wrap items-center px-4 text-sm"
                 params={{ projectId, runId: run.id }}
                 to="/projects/$projectId/runs/$runId"
               >
-                <span className="font-mono text-xs">
+                <span className="text-xs tracking-tight tabular-nums">
                   {run.commitSha.slice(0, 12)}
                 </span>
-                <span className="ml-2 text-zinc-400">
+                <span className="text-ink-soft ml-2">
                   {run.branch ?? ""}
                   {run.prNumber === null ? "" : ` PR #${run.prNumber}`}
                 </span>
-                <span className="ml-2 text-zinc-600">{run.createdAt}</span>
+                <span className="text-ink-soft ml-2">{run.createdAt}</span>
               </Link>
             </li>
           ))
@@ -63,10 +65,10 @@ function ProjectPage() {
             })();
           }}
         >
-          <label className="text-sm text-zinc-400">
+          <label className="text-ink-soft text-sm">
             CI token name
             <input
-              className="mt-1 block rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100"
+              className="border-line bg-sheet text-ink mt-1 block rounded-md border px-3 py-2 text-sm"
               onChange={(event) => {
                 setTokenName(event.target.value);
               }}
@@ -74,7 +76,7 @@ function ProjectPage() {
             />
           </label>
           <button
-            className="rounded-md bg-zinc-100 px-3 py-2 text-sm font-medium text-zinc-900"
+            className="bg-ink text-paper rounded-md px-3 py-2 text-sm font-medium"
             type="submit"
           >
             Create project token
@@ -82,7 +84,7 @@ function ProjectPage() {
         </form>
       ) : null}
       {token === null ? null : (
-        <p className="mt-3 font-mono text-xs break-all text-amber-200">
+        <p className="text-ink mt-3 text-xs break-all tabular-nums">
           Copy now; it is not shown again: {token}
         </p>
       )}

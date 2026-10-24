@@ -10,7 +10,7 @@ cp apps/hosted-review/.env.example apps/hosted-review/.env
 docker compose -f apps/hosted-review/docker-compose.yml up --build
 ```
 
-Open `http://127.0.0.1:3000/login`. The admin email in `STORYBRANCH_ADMIN_EMAIL` is invited as admin. Without `SMTP_HOST`, magic links print to the app logs.
+Open `http://127.0.0.1:3000/login`. The admin email in `STORYBRANCH_ADMIN_EMAIL` is invited as admin. Magic links use Resend when `RESEND_API_KEY` and `RESEND_FROM` are set, otherwise SMTP when `SMTP_HOST` is set. With neither, the link prints in the app logs.
 
 Dev (compose for Postgres + MinIO, Vite for the app):
 

@@ -56,15 +56,15 @@ export const ViewerEmptyState = ({
     >
       <span
         aria-hidden
-        className="flex size-14 items-center justify-center rounded-full border border-zinc-800 bg-zinc-900/80 text-zinc-300"
+        className="border-line bg-paper-deep text-ink-soft flex size-14 items-center justify-center rounded-full border"
       >
         <Icon
           className={cn("size-7", kind === "report-loading" && "animate-spin")}
         />
       </span>
-      <p className="text-lg font-semibold text-zinc-100">{title}</p>
+      <p className="text-ink text-lg font-semibold">{title}</p>
       {subtitle === undefined ? null : (
-        <p className="max-w-sm text-sm leading-relaxed text-zinc-400">
+        <p className="text-ink-soft max-w-sm text-sm leading-relaxed">
           {subtitle}
         </p>
       )}

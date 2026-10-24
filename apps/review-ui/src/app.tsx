@@ -1,5 +1,6 @@
 import type { Report, ReportEntry } from "@storybranch/report";
 import { useEffect, useMemo, useState } from "react";
+import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 
 import { acceptAll, fetchReport } from "@/api.ts";
 import { BuildSummary } from "@/build-summary.tsx";
@@ -86,7 +87,7 @@ export const App = () => {
 
   return (
     <div className="min-h-full font-sans leading-normal">
-      <header className="border-b border-zinc-800 px-5 py-4">
+      <header className="border-line border-b px-5 py-4">
         <h1 className="text-lg font-semibold tracking-tight">
           storybranch review
         </h1>
@@ -94,13 +95,13 @@ export const App = () => {
           <BuildSummary className="mt-2" report={report} />
         )}
         {error === null ? null : (
-          <p className="mt-2 text-sm text-red-400">{error}</p>
+          <p className="text-changes mt-2 text-sm">{error}</p>
         )}
         <div className="mt-3 flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-2 text-sm text-zinc-300">
+          <label className="text-ink-soft flex items-center gap-2 text-sm">
             Filter
             <select
-              className="rounded-md border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm text-zinc-100"
+              className="border-line bg-sheet text-ink rounded-md border px-2 py-1 text-sm"
               onChange={(event) => {
                 setFilter(event.target.value);
               }}
@@ -114,7 +115,7 @@ export const App = () => {
             </select>
           </label>
           <button
-            className="rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-900 hover:bg-white"
+            className="bg-ink text-paper hover:bg-ink/90 rounded-md px-3 py-1.5 text-sm font-medium"
             onClick={() => {
               void (async () => {
                 setReport(await acceptAll());
@@ -136,20 +137,20 @@ export const App = () => {
       >
         <aside
           className={cn(
-            "flex flex-col border-b border-zinc-800 lg:border-r lg:border-b-0",
+            "border-line flex flex-col border-b lg:border-r lg:border-b-0",
             shotListCollapsed ? "lg:w-9" : "lg:max-w-72"
           )}
         >
           <div
             className={cn(
-              "flex shrink-0 items-center border-b border-zinc-800 px-1.5 py-1.5",
+              "border-line flex shrink-0 items-center border-b px-1.5 py-1.5",
               shotListCollapsed
                 ? "justify-center"
                 : "justify-between gap-2 px-2"
             )}
           >
             {shotListCollapsed ? null : (
-              <span className="truncate text-xs font-medium text-zinc-400">
+              <span className="text-ink-soft truncate text-xs font-medium">
                 Snapshots
               </span>
             )}
@@ -160,15 +161,17 @@ export const App = () => {
                   ? "Expand snapshot list"
                   : "Collapse snapshot list"
               }
-              className="rounded p-1 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+              className="text-ink-soft hover:bg-pending/40 hover:text-ink rounded p-1"
               onClick={() => {
                 setShotListCollapsed((collapsed) => !collapsed);
               }}
               type="button"
             >
-              <span aria-hidden className="block text-sm leading-none">
-                {shotListCollapsed ? "⟩" : "⟨"}
-              </span>
+              {shotListCollapsed ? (
+                <LuChevronRight aria-hidden className="size-4" />
+              ) : (
+                <LuChevronLeft aria-hidden className="size-4" />
+              )}
             </button>
           </div>
           {shotListCollapsed ? null : (

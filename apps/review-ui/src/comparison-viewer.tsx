@@ -100,9 +100,9 @@ export const ComparisonViewer = ({
 
   if (entry.filename === undefined) {
     return (
-      <div className="rounded-md border border-red-900/50 bg-red-950/30 px-4 py-3">
-        <p className="text-sm font-medium text-red-200">Capture error</p>
-        <p className="mt-1 text-sm text-red-300/90">
+      <div className="border-changes bg-changes/15 rounded-md border px-4 py-3">
+        <p className="text-changes text-sm font-medium">Capture error</p>
+        <p className="text-changes mt-1 text-sm">
           {entry.message ?? "This snapshot could not be captured."}
         </p>
       </div>
@@ -167,8 +167,8 @@ const ShotCompare = ({
   setDiffOverlay,
   story,
 }: ShotCompareProps) => (
-  <div className="space-y-5">
-    <header className="flex flex-wrap items-start justify-between gap-4 border-b border-zinc-800 pb-4">
+  <div className="specimen space-y-5 px-4 pb-4">
+    <header className="border-line flex flex-wrap items-start justify-between gap-4 border-b pb-4">
       <div className="min-w-0 space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <span
@@ -179,21 +179,21 @@ const ShotCompare = ({
           >
             {entry.status}
           </span>
-          <span className="text-xs text-zinc-500 capitalize">{browser}</span>
+          <span className="text-ink-soft text-xs capitalize">{browser}</span>
         </div>
-        <h2 className="text-base font-semibold tracking-tight text-zinc-100">
-          <span className="text-zinc-400">{component}</span>
-          <span className="text-zinc-600"> / </span>
+        <h2 className="text-ink text-base font-semibold tracking-tight">
+          <span className="text-ink-soft">{component}</span>
+          <span className="text-ink-soft"> / </span>
           {story}
         </h2>
-        <p className="text-sm text-zinc-400">{label}</p>
-        <p className="font-mono text-xs break-all text-zinc-500">
+        <p className="text-ink-soft text-sm">{label}</p>
+        <p className="text-ink-soft text-xs tracking-tight break-all tabular-nums">
           {entry.filename}
         </p>
       </div>
       {canAccept ? (
         <button
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+          className="bg-ink text-paper hover:bg-ink/90 focus-visible:outline-ink inline-flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           onClick={() => {
             const { filename } = entry;
 
@@ -217,13 +217,13 @@ const ShotCompare = ({
     <div className="grid gap-5 xl:grid-cols-2">
       <figure className="m-0 space-y-2">
         <div className="flex min-h-8 items-center justify-between gap-3">
-          <figcaption className="text-xs font-medium tracking-wide text-zinc-500 uppercase">
+          <figcaption className="text-ink-soft text-xs font-medium tracking-wide uppercase">
             Baseline
           </figcaption>
           <div
             aria-hidden
             className={cn(
-              "flex shrink-0 items-center gap-2 text-xs text-zinc-400",
+              "text-ink-soft flex shrink-0 items-center gap-2 text-xs",
               !hasDiff && "invisible"
             )}
           >
@@ -243,12 +243,12 @@ const ShotCompare = ({
       </figure>
       <figure className="m-0 space-y-2">
         <div className="flex min-h-8 items-center justify-between gap-3">
-          <figcaption className="text-xs font-medium tracking-wide text-zinc-500 uppercase">
+          <figcaption className="text-ink-soft text-xs font-medium tracking-wide uppercase">
             This scan
           </figcaption>
           <div
             className={cn(
-              "flex shrink-0 items-center gap-2 text-xs text-zinc-400",
+              "text-ink-soft flex shrink-0 items-center gap-2 text-xs",
               !hasDiff && "invisible"
             )}
           >
@@ -257,8 +257,8 @@ const ShotCompare = ({
               aria-labelledby="diff-overlay-label"
               aria-pressed={diffOverlay}
               className={cn(
-                "relative h-5 w-9 rounded-full transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500",
-                diffOverlay ? "bg-sky-600" : "bg-zinc-700"
+                "focus-visible:outline-ink relative h-5 w-9 rounded-full transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
+                diffOverlay ? "bg-ink" : "bg-ink/25"
               )}
               disabled={!hasDiff}
               onClick={() => {
@@ -295,8 +295,8 @@ const ShotCompare = ({
         className={cn(
           "rounded-md border px-3 py-2 text-sm",
           entry.status === "error"
-            ? "border-red-900/60 bg-red-950/40 text-red-200"
-            : "border-zinc-800 bg-zinc-900/50 text-zinc-300"
+            ? "border-changes bg-changes/15 text-changes"
+            : "border-line bg-paper-deep text-ink-soft"
         )}
         role={entry.status === "error" ? "alert" : undefined}
       >

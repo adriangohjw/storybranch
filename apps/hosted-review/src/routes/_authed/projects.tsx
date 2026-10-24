@@ -27,16 +27,18 @@ function ProjectsPage() {
   const [role, setRole] = useState("member");
 
   return (
-    <main className="mx-auto max-w-3xl px-5 py-8">
-      <h1 className="text-lg font-semibold">Projects</h1>
-      <ul className="mt-4 divide-y divide-zinc-800 rounded-md border border-zinc-800">
+    <main className="mx-auto max-w-3xl px-5 py-8 pl-10">
+      <h1 className="text-3xl font-semibold tracking-tight text-balance">
+        Projects
+      </h1>
+      <ul className="divide-line border-line mt-6 divide-y border-y">
         {projects.length === 0 ? (
-          <li className="px-4 py-6 text-sm text-zinc-500">No projects yet.</li>
+          <li className="text-ink-soft px-4 py-6 text-sm">No projects yet.</li>
         ) : (
           projects.map((project) => (
             <li key={project.id}>
               <Link
-                className="block px-4 py-3 text-sm hover:bg-zinc-900"
+                className="shot-cell hover:bg-pending/30 flex items-center px-4 text-sm"
                 params={{ projectId: project.id }}
                 to="/projects/$projectId"
               >
@@ -59,7 +61,7 @@ function ProjectsPage() {
           }}
         >
           <input
-            className="flex-1 rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm"
+            className="border-line bg-sheet flex-1 rounded-md border px-3 py-2 text-sm"
             onChange={(event) => {
               setName(event.target.value);
             }}
@@ -67,7 +69,7 @@ function ProjectsPage() {
             value={name}
           />
           <button
-            className="rounded-md bg-zinc-100 px-3 py-2 text-sm font-medium text-zinc-900"
+            className="bg-ink text-paper rounded-md px-3 py-2 text-sm font-medium"
             type="submit"
           >
             Create
@@ -76,12 +78,12 @@ function ProjectsPage() {
       ) : null}
       {admin ? (
         <section className="mt-10">
-          <h2 className="text-sm font-semibold text-zinc-200">Team</h2>
-          <p className="mt-1 text-xs text-zinc-500">
+          <h2 className="text-ink text-sm font-semibold">Team</h2>
+          <p className="text-ink-soft mt-1 text-xs">
             Default invite role is member. Org-wide roles apply to every
             project.
           </p>
-          <ul className="mt-3 space-y-1 text-sm text-zinc-400">
+          <ul className="text-ink-soft mt-3 space-y-1 text-sm">
             {invites.map((invite) => (
               <li key={invite.email}>
                 {invite.email} · {invite.role}
@@ -100,7 +102,7 @@ function ProjectsPage() {
             }}
           >
             <input
-              className="min-w-48 flex-1 rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm"
+              className="border-line bg-sheet min-w-48 flex-1 rounded-md border px-3 py-2 text-sm"
               onChange={(event) => {
                 setEmail(event.target.value);
               }}
@@ -109,7 +111,7 @@ function ProjectsPage() {
               value={email}
             />
             <select
-              className="rounded-md border border-zinc-700 bg-zinc-900 px-2 py-2 text-sm"
+              className="border-line bg-sheet rounded-md border px-2 py-2 text-sm"
               onChange={(event) => {
                 setRole(event.target.value);
               }}
@@ -120,7 +122,7 @@ function ProjectsPage() {
               <option value="admin">admin</option>
             </select>
             <button
-              className="rounded-md border border-zinc-600 px-3 py-2 text-sm"
+              className="border-line rounded-md border px-3 py-2 text-sm"
               type="submit"
             >
               Invite

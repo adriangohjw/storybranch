@@ -26,16 +26,17 @@ function AuthedLayout() {
 
   return (
     <div>
-      <header className="flex items-center justify-between border-b border-zinc-800 px-5 py-3">
+      <div aria-hidden className="swatch-rail" />
+      <header className="app-header flex items-center justify-between px-5 py-3 pl-8 text-inherit">
         <Link className="text-sm font-semibold" to="/projects">
           storybranch
         </Link>
-        <div className="flex items-center gap-3 text-sm text-zinc-400">
+        <div className="flex items-center gap-3 text-sm">
           <span>
             {user.email} · {user.role}
           </span>
           <button
-            className="rounded-md border border-zinc-700 px-2 py-1 text-zinc-200"
+            className="chip-button-quiet"
             onClick={() => {
               void authClient.signOut({
                 fetchOptions: {

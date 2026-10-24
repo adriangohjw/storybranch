@@ -33,8 +33,8 @@ storybranch drives Playwright against your Storybook, saves one PNG per story, [
 |  | Chromatic (hosted SaaS) | storybranch |
 | --- | --- | --- |
 | **Where it runs** | Chromatic’s cloud | Your laptop, your CI runners, your servers |
-| **Baselines** | Hosted project | Committed PNGs in `.storybranch/baseline/` |
-| **Review** | chromatic.com | Review UI you serve (`npm run visual:review` on localhost by default) |
+| **Baselines** | Hosted project | Committed PNGs in `.storybranch/baseline/` for local work. Optional: one baseline set per project in object storage you run |
+| **Review** | chromatic.com | Local review UI (`npm run visual:review`). Optional: [`apps/hosted-review`](apps/hosted-review/README.md) on your own server. Not a storybranch SaaS |
 | **Storybook** | Chromatic build pipeline | `storybook build && storybranch test --build` (serves `storybook-static/`), or `--url` while developing |
 | **License / cost** | Commercial product | Open source ([LICENSE](LICENSE)) |
 
@@ -209,9 +209,24 @@ The same notes are on the site at [/chromatic](https://storybook.adriangohjw.com
 
 Run storybranch in CI as a test: build Storybook, capture, exit **1** when a snapshot needs attention. Use **`--exit-once`** so the job does not start the local review server (without it, a failed run can hang until timeout). Pull requests can pass **`--only-changed`**; pushes to `main` typically capture every story.
 
-Copy [`examples/github-actions/visual-regression.yml`](examples/github-actions/visual-regression.yml) and [`scripts/ci/storybranch-pr-comment.mjs`](scripts/ci/storybranch-pr-comment.mjs) for git baselines, or [`examples/github-actions/hosted-visual-review.yml`](examples/github-actions/hosted-visual-review.yml) for the self-hosted review app. Full notes are in [docs/ci.md](docs/ci.md). The marketing site summarizes the git-baseline recipe at [/ci](https://storybook.adriangohjw.com/ci).
+Copy [`examples/github-actions/visual-regression.yml`](examples/github-actions/visual-regression.yml) and [`scripts/ci/storybranch-pr-comment.mjs`](scripts/ci/storybranch-pr-comment.mjs) for git baselines. Full notes are in [docs/ci.md](docs/ci.md). The marketing site summarizes that recipe at [/ci](https://storybook.adriangohjw.com/ci).
 
-CI does not accept baselines — update `.storybranch/baseline/` locally (`storybranch approve` or the review UI) and commit. On failure, download the workflow artifact and run `storybranch review` in the Storybook package.
+CI does not accept baselines. Update `.storybranch/baseline/` locally (`storybranch approve` or the review UI) and commit. On failure, download the workflow artifact and run `storybranch review` in the Storybook package.
+
+### Hosted team review
+
+Optional, and separate from the local loop. `storybranch test` and `storybranch review` keep using git baselines when no project token is set.
+
+With both `STORYBRANCH_PROJECT_TOKEN` (or `--project-token`) and `STORYBRANCH_API_URL` (or `--api-url`), `storybranch test` downloads that project's baselines, diffs on the CI machine, uploads the run, and exits 0 after a successful upload even when pixels differ. Humans sign in with an invite-only magic link. Accept overwrites that snapshot's baseline in object storage.
+
+The app is [`apps/hosted-review`](apps/hosted-review/README.md) (TanStack Start, Postgres, S3). Local stack:
+
+```bash
+cp apps/hosted-review/.env.example apps/hosted-review/.env
+docker compose -f apps/hosted-review/docker-compose.yml up --build
+```
+
+Set `STORYBRANCH_APP_URL`, `STORYBRANCH_ADMIN_EMAIL`, `BETTER_AUTH_SECRET`, `DATABASE_URL`, and `S3_*`. Mail is Resend (`RESEND_API_KEY`, `RESEND_FROM`) or SMTP (`SMTP_*`). An admin creates a project and a CI token in the UI. Point CI at that token and the app URL. Workflow: [`examples/github-actions/hosted-visual-review.yml`](examples/github-actions/hosted-visual-review.yml).
 
 ## Features
 
@@ -224,6 +239,7 @@ CI does not accept baselines — update `.storybranch/baseline/` locally (`story
   - ✅ Workflow linting with [jactionlint](https://github.com/rhysd/actionlint)
 - 📖 [Storybook](https://storybook.js.org/) fixture for development and e2e coverage
 - 🖼️ Local **review UI** (Vite + React) to compare baseline / actual / diff and accept snapshots in the browser
+- 🏢 Optional **hosted team review** ([`apps/hosted-review`](apps/hosted-review/README.md)): invite-only, one baseline set per project, CI upload. You run the server
 - 🌐 **Marketing site** (`apps/web`, Astro + Tailwind) — deploy details in [`apps/web/README.md`](apps/web/README.md)
 - ⚙️ VS Code extension recommendations
 

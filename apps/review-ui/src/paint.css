@@ -1,0 +1,138 @@
+@theme {
+  --font-sans: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --color-paper: #f3eee4;
+  --color-paper-deep: #e7e0d2;
+  --color-sheet: #fffdf8;
+  --color-ink: #1a1714;
+  --color-ink-soft: #4a4338;
+  --color-pending: #f5c518;
+  --color-accepted: #1f7a4d;
+  --color-changes: #e23b2f;
+  --color-line: #1a171426;
+}
+
+.checker-surface {
+  background-color: #e7e0d2;
+  background-image:
+    linear-gradient(45deg, #f3eee4 25%, transparent 25%),
+    linear-gradient(-45deg, #f3eee4 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #f3eee4 75%),
+    linear-gradient(-45deg, transparent 75%, #f3eee4 75%);
+  background-position:
+    0 0,
+    0 10px,
+    10px -10px,
+    -10px 0;
+  background-size: 20px 20px;
+}
+
+.specimen {
+  background: #fffdf8;
+  color: #1a1714;
+  mask-image: radial-gradient(
+    circle 16px at 50% 0,
+    transparent 15px,
+    #000 16px
+  );
+  padding-top: 1.25rem;
+}
+
+.chip-button {
+  background: #1a1714;
+  color: #f3eee4;
+  border-radius: 2px;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.chip-button:hover {
+  background: #3a332c;
+}
+
+.chip-button:disabled {
+  opacity: 0.45;
+}
+
+.chip-button-quiet {
+  background: transparent;
+  color: inherit;
+  border: 1px solid currentcolor;
+  border-radius: 2px;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.chip-button-quiet:hover {
+  background: #1a171414;
+}
+
+.swatch-rail {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 14px;
+  background: #f5c518;
+}
+
+body[data-review] .swatch-rail {
+  display: none;
+}
+
+.work-sheet {
+  background: #f3eee4;
+  color: #1a1714;
+}
+
+.shot-cell {
+  min-height: 4.5rem;
+}
+
+body {
+  background: #f3eee4;
+  color: #1a1714;
+  margin: 0;
+  caret-color: #1a1714;
+  transition: background-color 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body[data-review="pending"] {
+  background: #f5c518;
+}
+
+body[data-review="accepted"] {
+  background: #1f7a4d;
+  color: #f3eee4;
+}
+
+body[data-review="changes_requested"] {
+  background: #e23b2f;
+  color: #f3eee4;
+}
+
+::selection {
+  background: #f5c518;
+  color: #1a1714;
+}
+
+:focus-visible {
+  outline: 2px solid #1a1714;
+  outline-offset: 2px;
+}
+
+input,
+select,
+textarea {
+  accent-color: #1a1714;
+  caret-color: #1a1714;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1a171455;
+  border-radius: 2px;
+}

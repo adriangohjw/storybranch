@@ -19,6 +19,8 @@ services:
       S3_FORCE_PATH_STYLE: "true"
       S3_REGION: us-east-1
       S3_SECRET_KEY: minio-minio
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM: ${RESEND_FROM:-}
       SMTP_FROM: ${SMTP_FROM:-storybranch@localhost}
       SMTP_HOST: ${SMTP_HOST:-}
       SMTP_PASS: ${SMTP_PASS:-}

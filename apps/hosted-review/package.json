@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "catalog:",
+    "@fontsource/archivo": "catalog:",
     "@storybranch/report": "workspace:*",
     "@storybranch/review-ui": "workspace:*",
     "@tanstack/react-router": "catalog:",

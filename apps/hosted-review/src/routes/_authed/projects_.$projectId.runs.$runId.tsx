@@ -4,7 +4,7 @@ import { ComparisonViewer } from "@storybranch/review-ui/comparison-viewer";
 import { matchesFilter } from "@storybranch/review-ui/lib/report-ui";
 import { ShotList } from "@storybranch/review-ui/shot-list";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   acceptSnapshot,
@@ -87,19 +87,28 @@ function RunPage() {
   const comments =
     selectedKey === undefined ? [] : (data.comments[selectedKey] ?? []);
 
+  const shellState = reviewState ?? "pending";
+
+  useEffect(() => {
+    document.body.dataset.review = shellState;
+
+    return () => {
+      delete document.body.dataset.review;
+    };
+  }, [shellState]);
+
   return (
     <div>
-      <div className="border-b border-zinc-800 px-5 py-3">
-        <p className="text-xs text-zinc-500">
+      <div className="px-5 py-3 pl-8">
+        <p className="text-sm">
           <Link params={{ projectId }} to="/projects/$projectId">
             Back to runs
           </Link>
         </p>
-        <BuildSummary className="mt-2" report={data.report} />
-        <label className="mt-3 flex items-center gap-2 text-sm text-zinc-300">
+        <label className="mt-3 flex items-center gap-2 text-sm">
           Filter
           <select
-            className="rounded-md border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
+            className="border-line bg-sheet rounded-md border px-2 py-1 text-sm"
             onChange={(event) => {
               setFilter(event.target.value);
             }}
@@ -113,8 +122,8 @@ function RunPage() {
           </select>
         </label>
       </div>
-      <main className="grid min-h-[calc(100vh-8rem)] grid-cols-1 lg:grid-cols-[minmax(14rem,18rem)_1fr]">
-        <aside className="border-b border-zinc-800 p-2 lg:border-r lg:border-b-0">
+      <main className="work-sheet mx-3 mb-3 grid min-h-[calc(100vh-8rem)] grid-cols-1 lg:grid-cols-[minmax(14rem,18rem)_1fr]">
+        <aside className="border-line border-b p-2 lg:border-r lg:border-b-0">
           <ShotList
             acceptShot={acceptShot}
             entries={visible}
@@ -125,6 +134,7 @@ function RunPage() {
           />
         </aside>
         <section className="min-w-0 space-y-4 p-4">
+          <BuildSummary report={data.report} />
           <ComparisonViewer
             acceptShot={acceptShot}
             entry={selected}
@@ -136,13 +146,13 @@ function RunPage() {
             visibleCount={visible.length}
           />
           {selectedKey === undefined ? null : (
-            <div className="space-y-3 border-t border-zinc-800 pt-4">
-              <p className="text-xs text-zinc-500">
+            <div className="border-line space-y-3 border-t pt-4">
+              <p className="text-ink-soft text-xs">
                 Review: {reviewState ?? "pending"}
               </p>
               {reviewer ? (
                 <button
-                  className="rounded-md border border-zinc-600 px-3 py-1.5 text-sm"
+                  className="chip-button-quiet"
                   onClick={() => {
                     void (async () => {
                       await requestChanges({
@@ -158,14 +168,11 @@ function RunPage() {
               ) : null}
               <ul className="space-y-2 text-sm">
                 {comments.map((item) => (
-                  <li
-                    className="rounded-md bg-zinc-900 px-3 py-2"
-                    key={item.id}
-                  >
-                    <p className="text-xs text-zinc-500">
+                  <li className="bg-sheet rounded-md px-3 py-2" key={item.id}>
+                    <p className="text-ink-soft text-xs">
                       {item.authorEmail} · {item.createdAt}
                     </p>
-                    <p className="mt-1 text-zinc-200">{item.body}</p>
+                    <p className="text-ink mt-1">{item.body}</p>
                   </li>
                 ))}
               </ul>
@@ -188,7 +195,7 @@ function RunPage() {
                 }}
               >
                 <input
-                  className="flex-1 rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm"
+                  className="border-line bg-sheet flex-1 rounded-md border px-3 py-2 text-sm"
                   onChange={(event) => {
                     setComment(event.target.value);
                   }}
@@ -196,7 +203,7 @@ function RunPage() {
                   value={comment}
                 />
                 <button
-                  className="rounded-md bg-zinc-100 px-3 py-2 text-sm font-medium text-zinc-900"
+                  className="bg-ink text-paper rounded-md px-3 py-2 text-sm font-medium"
                   type="submit"
                 >
                   Comment
