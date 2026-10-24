@@ -29,8 +29,8 @@ export interface TokenRow {
   createdAt: string;
   id: string;
   name: string;
-  prefix: string | null;
-  suffix: string | null;
+  prefix: string;
+  suffix: string;
 }
 
 function isReviewState(value: string): value is ReviewState {

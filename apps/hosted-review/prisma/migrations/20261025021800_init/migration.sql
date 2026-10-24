@@ -84,6 +84,8 @@ CREATE TABLE "project_tokens" (
     "project_id" UUID NOT NULL,
     "name" TEXT NOT NULL,
     "token_hash" TEXT NOT NULL,
+    "prefix" TEXT NOT NULL,
+    "suffix" TEXT NOT NULL,
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "project_tokens_pkey" PRIMARY KEY ("id")

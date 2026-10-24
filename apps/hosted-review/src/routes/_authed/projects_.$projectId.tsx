@@ -80,11 +80,9 @@ function ProjectPage() {
                   key={item.id}
                 >
                   <span>{item.name}</span>
-                  {item.prefix === null || item.suffix === null ? null : (
-                    <span className="text-ink-soft text-xs tabular-nums">
-                      sbp_{item.prefix}…{item.suffix}
-                    </span>
-                  )}
+                  <span className="text-ink-soft text-xs tabular-nums">
+                    sbp_{item.prefix}…{item.suffix}
+                  </span>
                   <span className="text-ink-soft text-xs tabular-nums">
                     {item.createdAt}
                   </span>
