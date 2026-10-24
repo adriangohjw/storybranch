@@ -1,7 +1,7 @@
 FROM oven/bun:1.4.4 AS build
 WORKDIR /repo
 COPY . .
-RUN bun install --frozen-lockfile
+RUN bun install --frozen-lockfile --ignore-scripts
 RUN bun run --filter @storybranch/hosted-review build
 
 FROM node:22-bookworm-slim
