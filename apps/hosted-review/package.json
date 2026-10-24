@@ -8,7 +8,7 @@
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "start": "node .output/server/index.mjs",
-    "test": "bun test",
+    "test": "bun test --preload ./test/setup-env.ts",
     "typecheck": "bun ../../scripts/bun-check.ts"
   },
   "dependencies": {
@@ -17,13 +17,15 @@
     "@storybranch/mail": "workspace:*",
     "@storybranch/report": "workspace:*",
     "@storybranch/review-ui": "workspace:*",
+    "@t3-oss/env-core": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-start": "catalog:",
     "better-auth": "catalog:",
     "nitro": "catalog:",
     "pg": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@storybranch/oxlint-config": "workspace:*",

@@ -3,7 +3,7 @@ import { magicLink } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 
 import { db, inviteRole, query } from "~/lib/db.server";
-import { appUrl, requiredEnv } from "~/lib/env";
+import { appUrl, env } from "~/lib/env";
 import { sendLoginEmail } from "~/lib/mail.server";
 
 type Auth = ReturnType<typeof createAuth>;
@@ -48,7 +48,7 @@ function createAuth() {
       }),
       tanstackStartCookies(),
     ],
-    secret: requiredEnv("BETTER_AUTH_SECRET"),
+    secret: env.BETTER_AUTH_SECRET,
     trustedOrigins: [appUrl()],
     user: {
       additionalFields: {

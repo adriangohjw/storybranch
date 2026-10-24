@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { Pool } from "pg";
 import type { PoolClient, QueryResult, QueryResultRow } from "pg";
 
-import { optionalEnv, requiredEnv } from "~/lib/env";
+import { env } from "~/lib/env";
 import { isRole } from "~/lib/roles";
 import type { Role } from "~/lib/roles";
 import { APP_SCHEMA } from "~/lib/schema.server";
@@ -14,7 +14,7 @@ let schemaReady: Promise<void> | undefined;
 export type ReviewState = "pending" | "accepted" | "changes_requested";
 
 export function db(): Pool {
-  pool ??= new Pool({ connectionString: requiredEnv("DATABASE_URL") });
+  pool ??= new Pool({ connectionString: env.DATABASE_URL });
 
   return pool;
 }
@@ -44,7 +44,7 @@ export async function withClient<T>(
 export async function ensureSchema(): Promise<void> {
   schemaReady ??= (async () => {
     await db().query(APP_SCHEMA);
-    const adminEmail = optionalEnv("STORYBRANCH_ADMIN_EMAIL")?.toLowerCase();
+    const adminEmail = env.STORYBRANCH_ADMIN_EMAIL?.toLowerCase();
 
     await db()
       .query(

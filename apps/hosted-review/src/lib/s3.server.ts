@@ -5,7 +5,7 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 
-import { optionalEnv, requiredEnv } from "~/lib/env";
+import { env } from "~/lib/env";
 import type { ObjectStore } from "~/lib/keys";
 
 let store: ObjectStore | undefined;
@@ -17,18 +17,17 @@ export function objects(): ObjectStore {
 }
 
 export function createS3Store(): ObjectStore {
-  const bucket = requiredEnv("S3_BUCKET");
-  const endpoint = optionalEnv("S3_ENDPOINT");
+  const bucket = env.S3_BUCKET;
+  const endpoint = env.S3_ENDPOINT;
 
   const client = new S3Client({
     credentials: {
-      accessKeyId: requiredEnv("S3_ACCESS_KEY"),
-      secretAccessKey: requiredEnv("S3_SECRET_KEY"),
+      accessKeyId: env.S3_ACCESS_KEY,
+      secretAccessKey: env.S3_SECRET_KEY,
     },
     endpoint,
-    forcePathStyle:
-      optionalEnv("S3_FORCE_PATH_STYLE") === "true" || endpoint !== undefined,
-    region: optionalEnv("S3_REGION") ?? "us-east-1",
+    forcePathStyle: env.S3_FORCE_PATH_STYLE === "true" || endpoint !== undefined,
+    region: env.S3_REGION,
   });
 
   return {
