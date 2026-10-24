@@ -12,10 +12,12 @@ docker compose -f apps/hosted-review/docker-compose.yml up --build
 
 Open `http://127.0.0.1:3000/login`. The admin email in `STORYBRANCH_ADMIN_EMAIL` is invited as admin. Mail goes through Resend (`RESEND_API_KEY`, `RESEND_FROM`). `STORYBRANCH_DANGEROUS_EMAIL_LOG=1` logs the message and does not send. Leave that unset in production. Compose defaults it to `1`.
 
-Dev (compose for Postgres + MinIO, Vite for the app):
+Local object storage is [Floci](https://floci.io) on port `4566` (S3-compatible). Production should use a real bucket (AWS S3, R2, Garage, etc.) via the same `S3_*` variables.
+
+Dev (compose for Postgres + Floci S3, Vite for the app):
 
 ```bash
-docker compose -f apps/hosted-review/docker-compose.yml up postgres minio minio-init
+docker compose -f apps/hosted-review/docker-compose.yml up postgres floci s3-init
 set -a && source apps/hosted-review/.env && set +a
 bun run --cwd apps/hosted-review dev
 ```
