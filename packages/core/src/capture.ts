@@ -45,6 +45,7 @@ function isStoryIndex(
 }
 
 export interface CaptureOptions {
+  baselineDir?: string;
   browsers?: BrowserName[];
   onlyChanged?: OnlyChangedFilter;
   parallelBrowsers?: boolean;
@@ -110,7 +111,10 @@ export async function capture(
   const actualDir = await actualDirectory(root);
   const commit = path.basename(actualDir);
   const diffDir = path.join(root, ".storybranch", "diff");
-  const baselineDir = path.join(root, ".storybranch", "baseline");
+
+  const baselineDir =
+    options.baselineDir ?? path.join(root, ".storybranch", "baseline");
+
   await mkdir(actualDir, { recursive: true });
   await mkdir(diffDir, { recursive: true });
 

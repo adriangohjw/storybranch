@@ -20,6 +20,13 @@ import {
 } from "@storybranch/report";
 import pc from "picocolors";
 
+import {
+  fetchHostedBaselines,
+  githubContextFromEnv,
+  publishGitHub,
+  resolveHostedConfig,
+  uploadHostedRun,
+} from "@/hosted.ts";
 import { reviewUiBuilt } from "@/review-server.ts";
 import {
   openBrowser,
@@ -32,7 +39,7 @@ import { startStorybookStatic } from "@/static-server.ts";
 const [command, ...args] = process.argv.slice(2);
 
 const testCommand =
-  "storybranch test (--url <storybook> | --build | --storybook-build-dir <dir>) [--browsers chrome,firefox,edge,safari] [--parallel-browsers] [--only-changed] [--changed-files <list>] [--exit-zero-on-changes] [--auto-accept-changes] [--exit-once] [--cwd <pkg>] [--open] [--review] [--port <n>]";
+  "storybranch test (--url <storybook> | --build | --storybook-build-dir <dir>) [--browsers chrome,firefox,edge,safari] [--parallel-browsers] [--only-changed] [--changed-files <list>] [--exit-zero-on-changes] [--auto-accept-changes] [--exit-once] [--cwd <pkg>] [--open] [--review] [--port <n>] [--project-token <token>] [--api-url <url>]";
 
 const usage = `storybranch — local visual diffs for Storybook
 
@@ -65,6 +72,7 @@ Chromatic scripts map onto the same command. Keep Storybook running and point --
   chromatic --exit-once-uploaded
     storybranch test --url http://127.0.0.1:6006 --exit-once
 chromatic.config.json next to .storybook/ is read for onlyChanged, externals, untraced, exitZeroOnChanges, and autoAcceptChanges. Other keys are ignored. CHROMATIC_PROJECT_TOKEN is ignored.
+Hosted CI: STORYBRANCH_PROJECT_TOKEN or --project-token plus STORYBRANCH_API_URL or --api-url. Git baselines are ignored, the run is uploaded, and a successful capture/upload exits 0 even when pixels differ.
 
 test exits 1 when a snapshot needs attention.
 --exit-zero-on-changes and --auto-accept-changes exit 0 for visual diffs (missing baseline, pixels, size, stale). Capture errors still exit 1.
@@ -165,7 +173,18 @@ if (command === "test") {
     process.exit(1);
   }
 
+  const hosted = resolveHostedConfig(process.env, {
+    apiUrl: option("--api-url"),
+    projectToken: option("--project-token"),
+  });
+
+  if (hosted !== null && "error" in hosted) {
+    console.error(hosted.error);
+    process.exit(1);
+  }
+
   if (
+    hosted === null &&
     process.env.CHROMATIC_PROJECT_TOKEN !== undefined &&
     process.env.CHROMATIC_PROJECT_TOKEN !== ""
   ) {
@@ -242,9 +261,20 @@ if (command === "test") {
   let failures: string[];
   let report: Awaited<ReturnType<typeof capture>>["report"];
   let wroteReport: boolean;
+  let hostedBaselineDir: string | undefined;
+
+  if (hosted !== null) {
+    try {
+      hostedBaselineDir = await fetchHostedBaselines(hosted);
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  }
 
   try {
     ({ failures, report, wroteReport } = await capture(url, root, {
+      baselineDir: hostedBaselineDir,
       browsers,
       onlyChanged:
         changed === null
@@ -259,6 +289,51 @@ if (command === "test") {
     }));
   } finally {
     stopStatic?.();
+  }
+
+  if (hosted !== null) {
+    if (!wroteReport) {
+      for (const failure of failures) {
+        console.error(failure);
+      }
+
+      process.exit(1);
+    }
+
+    try {
+      const uploaded = await uploadHostedRun(hosted, report);
+      console.log(`storybranch review at ${uploaded.url}`);
+      const github = githubContextFromEnv(process.env);
+
+      if (github !== undefined) {
+        await publishGitHub(github, uploaded, report);
+      }
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+
+    if (failures.length > 0) {
+      const block = process.stderr.isTTY
+        ? terminalAttentionBlock(report)
+        : null;
+
+      if (block === null) {
+        for (const failure of failures) {
+          console.error(failure);
+        }
+      } else {
+        console.error("");
+
+        for (const line of block) {
+          console.error(line);
+        }
+      }
+    } else if (!process.stderr.isTTY) {
+      console.log("ok");
+    }
+
+    process.exit(0);
   }
 
   const autoAccept =

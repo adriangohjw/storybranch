@@ -2,6 +2,14 @@
   "name": "@storybranch/review-ui",
   "private": true,
   "type": "module",
+  "exports": {
+    "./build-summary": "./src/build-summary.tsx",
+    "./comparison-viewer": "./src/comparison-viewer.tsx",
+    "./lib/cn": "./src/lib/cn.ts",
+    "./lib/report-ui": "./src/lib/report-ui.ts",
+    "./shot-list": "./src/shot-list.tsx",
+    "./styles.css": "./src/index.css"
+  },
   "scripts": {
     "build": "vite build && touch ../cli/review/public/.gitkeep",
     "dev": "vite",

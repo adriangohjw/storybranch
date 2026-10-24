@@ -1,0 +1,43 @@
+# Hosted review: upload runs even when pixels differ (job exits 0 after a successful upload).
+# Store STORYBRANCH_PROJECT_TOKEN as a repository secret. Point STORYBRANCH_API_URL at your install.
+name: Hosted visual review
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions: {}
+
+concurrency:
+  group: hosted-visual-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22.18
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Build Storybook
+        run: npx storybook build
+      - name: Capture and upload
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          STORYBRANCH_API_URL: ${{ vars.STORYBRANCH_API_URL }}
+          STORYBRANCH_PROJECT_TOKEN: ${{ secrets.STORYBRANCH_PROJECT_TOKEN }}
+        run: npx storybranch test --build --exit-once

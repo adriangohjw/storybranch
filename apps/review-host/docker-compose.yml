@@ -1,0 +1,75 @@
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: apps/review-host/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      minio-init:
+        condition: service_completed_successfully
+    environment:
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-secret-change-me-please-32ch}
+      DATABASE_URL: postgres://storybranch:storybranch@postgres:5432/storybranch
+      S3_ACCESS_KEY: minio
+      S3_BUCKET: storybranch
+      S3_ENDPOINT: http://minio:9000
+      S3_FORCE_PATH_STYLE: "true"
+      S3_REGION: us-east-1
+      S3_SECRET_KEY: minio-minio
+      SMTP_FROM: ${SMTP_FROM:-storybranch@localhost}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      STORYBRANCH_ADMIN_EMAIL: ${STORYBRANCH_ADMIN_EMAIL:-admin@localhost}
+      STORYBRANCH_APP_URL: ${STORYBRANCH_APP_URL:-http://127.0.0.1:3000}
+    ports:
+      - "3000:3000"
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: storybranch
+      POSTGRES_PASSWORD: storybranch
+      POSTGRES_USER: storybranch
+    healthcheck:
+      interval: 2s
+      retries: 20
+      test: ["CMD-SHELL", "pg_isready -U storybranch"]
+      timeout: 5s
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_PASSWORD: minio-minio
+      MINIO_ROOT_USER: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - miniodata:/data
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        sleep 3
+        mc alias set local http://minio:9000 minio minio-minio
+        mc mb -p local/storybranch
+        exit 0
+
+volumes:
+  miniodata:
+  pgdata:

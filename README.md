@@ -209,7 +209,7 @@ The same notes are on the site at [/chromatic](https://storybook.adriangohjw.com
 
 Run storybranch in CI as a test: build Storybook, capture, exit **1** when a snapshot needs attention. Use **`--exit-once`** so the job does not start the local review server (without it, a failed run can hang until timeout). Pull requests can pass **`--only-changed`**; pushes to `main` typically capture every story.
 
-Copy [`examples/github-actions/visual-regression.yml`](examples/github-actions/visual-regression.yml) and [`scripts/ci/storybranch-pr-comment.mjs`](scripts/ci/storybranch-pr-comment.mjs). Full notes (monorepos, artifacts, extra browsers, Node 22.18+) are in [docs/ci.md](docs/ci.md). The marketing site summarizes the same recipe at [/ci](https://storybook.adriangohjw.com/ci).
+Copy [`examples/github-actions/visual-regression.yml`](examples/github-actions/visual-regression.yml) and [`scripts/ci/storybranch-pr-comment.mjs`](scripts/ci/storybranch-pr-comment.mjs) for git baselines, or [`examples/github-actions/hosted-visual-review.yml`](examples/github-actions/hosted-visual-review.yml) for the self-hosted review app. Full notes are in [docs/ci.md](docs/ci.md). The marketing site summarizes the git-baseline recipe at [/ci](https://storybook.adriangohjw.com/ci).
 
 CI does not accept baselines — update `.storybranch/baseline/` locally (`storybranch approve` or the review UI) and commit. On failure, download the workflow artifact and run `storybranch review` in the Storybook package.
 
@@ -308,6 +308,7 @@ The sidebar testing widget runs `storybranch test` against that dev server. Stor
   └─ Recommended extensions and editor settings
 apps
   ├─ cli/         # Published `@adriangohjw/storybranch` package (bin, bundled CLI, review assets, Storybook addon)
+  ├─ review-host/ # Self-hosted team review (TanStack Start, Postgres, S3)
   ├─ review-ui/   # Vite + React review SPA (`@storybranch/review-ui`)
   └─ web/         # Marketing landing page (`@storybranch/web`, Astro)
 packages
