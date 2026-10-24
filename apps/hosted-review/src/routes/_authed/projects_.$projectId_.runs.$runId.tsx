@@ -15,7 +15,7 @@ import {
 import { canReview } from "~/lib/roles";
 
 export const Route = createFileRoute(
-  "/_authed/projects_/$projectId/runs/$runId"
+  "/_authed/projects_/$projectId_/runs/$runId"
 )({
   component: RunPage,
   loader: async ({ params }) =>

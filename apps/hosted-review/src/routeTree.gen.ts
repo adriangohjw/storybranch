@@ -13,12 +13,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedProjectsRouteImport } from './routes/_authed/projects'
-import { Route as AuthedProjectsProjectIdRouteImport } from './routes/_authed/projects.$projectId'
+import { Route as AuthedProjectsProjectIdRouteImport } from './routes/_authed/projects_.$projectId'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiCiBaselinesRouteImport } from './routes/api/ci/baselines'
 import { Route as ApiCiRunsRouteImport } from './routes/api/ci/runs'
 import { Route as ApiCiBaselinesFilenameRouteImport } from './routes/api/ci/baselines.$filename'
-import { Route as AuthedProjectsProjectIdRunsRunIdRouteImport } from './routes/_authed/projects_.$projectId.runs.$runId'
+import { Route as AuthedProjectsProjectIdRunsRunIdRouteImport } from './routes/_authed/projects_.$projectId_.runs.$runId'
 import { Route as ApiCiRunsRunIdFilesKindFilenameRouteImport } from './routes/api/ci/runs.$runId.files.$kind.$filename'
 import { Route as ApiProjectsProjectIdRunsRunIdImagesKindFilenameRouteImport } from './routes/api/projects.$projectId.runs.$runId.images.$kind.$filename'
 
@@ -42,9 +42,9 @@ const AuthedProjectsRoute = AuthedProjectsRouteImport.update({
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedProjectsProjectIdRoute = AuthedProjectsProjectIdRouteImport.update({
-  id: '/$projectId',
-  path: '/$projectId',
-  getParentRoute: () => AuthedProjectsRoute,
+  id: '/projects_/$projectId',
+  path: '/projects/$projectId',
+  getParentRoute: () => AuthedRoute,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
@@ -68,7 +68,7 @@ const ApiCiBaselinesFilenameRoute = ApiCiBaselinesFilenameRouteImport.update({
 } as any)
 const AuthedProjectsProjectIdRunsRunIdRoute =
   AuthedProjectsProjectIdRunsRunIdRouteImport.update({
-    id: '/projects_/$projectId/runs/$runId',
+    id: '/projects_/$projectId_/runs/$runId',
     path: '/projects/$projectId/runs/$runId',
     getParentRoute: () => AuthedRoute,
   } as any)
@@ -88,7 +88,7 @@ const ApiProjectsProjectIdRunsRunIdImagesKindFilenameRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/projects': typeof AuthedProjectsRouteWithChildren
+  '/projects': typeof AuthedProjectsRoute
   '/projects/$projectId': typeof AuthedProjectsProjectIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/ci/baselines': typeof ApiCiBaselinesRouteWithChildren
@@ -101,7 +101,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/projects': typeof AuthedProjectsRouteWithChildren
+  '/projects': typeof AuthedProjectsRoute
   '/projects/$projectId': typeof AuthedProjectsProjectIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/ci/baselines': typeof ApiCiBaselinesRouteWithChildren
@@ -116,13 +116,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authed': typeof AuthedRouteWithChildren
   '/login': typeof LoginRoute
-  '/_authed/projects': typeof AuthedProjectsRouteWithChildren
-  '/_authed/projects/$projectId': typeof AuthedProjectsProjectIdRoute
+  '/_authed/projects': typeof AuthedProjectsRoute
+  '/_authed/projects_/$projectId': typeof AuthedProjectsProjectIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/ci/baselines': typeof ApiCiBaselinesRouteWithChildren
   '/api/ci/runs': typeof ApiCiRunsRouteWithChildren
   '/api/ci/baselines/$filename': typeof ApiCiBaselinesFilenameRoute
-  '/_authed/projects_/$projectId/runs/$runId': typeof AuthedProjectsProjectIdRunsRunIdRoute
+  '/_authed/projects_/$projectId_/runs/$runId': typeof AuthedProjectsProjectIdRunsRunIdRoute
   '/api/ci/runs/$runId/files/$kind/$filename': typeof ApiCiRunsRunIdFilesKindFilenameRoute
   '/api/projects/$projectId/runs/$runId/images/$kind/$filename': typeof ApiProjectsProjectIdRunsRunIdImagesKindFilenameRoute
 }
@@ -159,12 +159,12 @@ export interface FileRouteTypes {
     | '/_authed'
     | '/login'
     | '/_authed/projects'
-    | '/_authed/projects/$projectId'
+    | '/_authed/projects_/$projectId'
     | '/api/auth/$'
     | '/api/ci/baselines'
     | '/api/ci/runs'
     | '/api/ci/baselines/$filename'
-    | '/_authed/projects_/$projectId/runs/$runId'
+    | '/_authed/projects_/$projectId_/runs/$runId'
     | '/api/ci/runs/$runId/files/$kind/$filename'
     | '/api/projects/$projectId/runs/$runId/images/$kind/$filename'
   fileRoutesById: FileRoutesById
@@ -209,12 +209,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedProjectsRouteImport
       parentRoute: typeof AuthedRoute
     }
-    '/_authed/projects/$projectId': {
-      id: '/_authed/projects/$projectId'
-      path: '/$projectId'
+    '/_authed/projects_/$projectId': {
+      id: '/_authed/projects_/$projectId'
+      path: '/projects/$projectId'
       fullPath: '/projects/$projectId'
       preLoaderRoute: typeof AuthedProjectsProjectIdRouteImport
-      parentRoute: typeof AuthedProjectsRoute
+      parentRoute: typeof AuthedRoute
     }
     '/api/auth/$': {
       id: '/api/auth/$'
@@ -244,8 +244,8 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCiBaselinesFilenameRouteImport
       parentRoute: typeof ApiCiBaselinesRoute
     }
-    '/_authed/projects_/$projectId/runs/$runId': {
-      id: '/_authed/projects_/$projectId/runs/$runId'
+    '/_authed/projects_/$projectId_/runs/$runId': {
+      id: '/_authed/projects_/$projectId_/runs/$runId'
       path: '/projects/$projectId/runs/$runId'
       fullPath: '/projects/$projectId/runs/$runId'
       preLoaderRoute: typeof AuthedProjectsProjectIdRunsRunIdRouteImport
@@ -268,25 +268,15 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AuthedProjectsRouteChildren {
-  AuthedProjectsProjectIdRoute: typeof AuthedProjectsProjectIdRoute
-}
-
-const AuthedProjectsRouteChildren: AuthedProjectsRouteChildren = {
-  AuthedProjectsProjectIdRoute: AuthedProjectsProjectIdRoute,
-}
-
-const AuthedProjectsRouteWithChildren = AuthedProjectsRoute._addFileChildren(
-  AuthedProjectsRouteChildren,
-)
-
 interface AuthedRouteChildren {
-  AuthedProjectsRoute: typeof AuthedProjectsRouteWithChildren
+  AuthedProjectsRoute: typeof AuthedProjectsRoute
+  AuthedProjectsProjectIdRoute: typeof AuthedProjectsProjectIdRoute
   AuthedProjectsProjectIdRunsRunIdRoute: typeof AuthedProjectsProjectIdRunsRunIdRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
-  AuthedProjectsRoute: AuthedProjectsRouteWithChildren,
+  AuthedProjectsRoute: AuthedProjectsRoute,
+  AuthedProjectsProjectIdRoute: AuthedProjectsProjectIdRoute,
   AuthedProjectsProjectIdRunsRunIdRoute: AuthedProjectsProjectIdRunsRunIdRoute,
 }
 

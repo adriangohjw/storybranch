@@ -4,7 +4,7 @@ import { useState } from "react";
 import { createToken, listRuns } from "~/lib/app.functions";
 import { canAdmin } from "~/lib/roles";
 
-export const Route = createFileRoute("/_authed/projects/$projectId")({
+export const Route = createFileRoute("/_authed/projects_/$projectId")({
   component: ProjectPage,
   loader: async ({ params }) =>
     listRuns({ data: { projectId: params.projectId } }),
