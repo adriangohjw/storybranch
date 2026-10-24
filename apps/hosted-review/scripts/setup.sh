@@ -80,7 +80,7 @@ Ready. From the repo root:
   $COMPOSE up -d
   bun run --cwd apps/hosted-review dev
 
-Then open http://127.0.0.1:3000/login (use STORYBRANCH_ADMIN_EMAIL from .env).
+dev applies Prisma migrations before Vite. Then open http://127.0.0.1:3000/login (use STORYBRANCH_ADMIN_EMAIL from .env).
 
 Containerized app image (optional): $COMPOSE --profile app up -d --build
 

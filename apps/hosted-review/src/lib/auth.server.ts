@@ -2,13 +2,13 @@ import { betterAuth } from "better-auth";
 import { magicLink } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 
-import { db, inviteRole, query } from "~/lib/db.server";
-import { appUrl, env } from "~/lib/env";
+import { db, ensureAdmin, inviteRole, kysely } from "~/lib/db.server";
+import { appUrl, env, trustedAppOrigins } from "~/lib/env";
 import { sendLoginEmail } from "~/lib/mail.server";
 
 type Auth = ReturnType<typeof createAuth>;
 
-let cached: Auth | undefined;
+let cached: Promise<Auth> | undefined;
 
 function createAuth() {
   return betterAuth({
@@ -32,14 +32,16 @@ function createAuth() {
     plugins: [
       magicLink({
         sendMagicLink: async ({ email, url }) => {
-          const invited = await inviteRole(email);
+          const [invited, existing] = await Promise.all([
+            inviteRole(email),
+            kysely()
+              .selectFrom("user")
+              .select("id")
+              .where("email", "=", email.toLowerCase())
+              .executeTakeFirst(),
+          ]);
 
-          const { rows } = await query<{ id: string }>(
-            `SELECT id FROM "user" WHERE email = $1`,
-            [email.toLowerCase()]
-          );
-
-          if (invited === undefined && rows[0] === undefined) {
+          if (invited === undefined && existing === undefined) {
             return;
           }
 
@@ -49,7 +51,7 @@ function createAuth() {
       tanstackStartCookies(),
     ],
     secret: env.BETTER_AUTH_SECRET,
-    trustedOrigins: [appUrl()],
+    trustedOrigins: trustedAppOrigins(),
     user: {
       additionalFields: {
         role: {
@@ -63,8 +65,12 @@ function createAuth() {
   });
 }
 
-export function getAuth(): Auth {
-  cached ??= createAuth();
+export async function getAuth(): Promise<Auth> {
+  cached ??= (async () => {
+    await ensureAdmin();
+
+    return createAuth();
+  })();
 
   return cached;
 }

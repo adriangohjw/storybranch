@@ -1,15 +1,16 @@
 import { randomUUID } from "node:crypto";
 
+import { Kysely, PostgresDialect } from "kysely";
 import { Pool } from "pg";
-import type { PoolClient, QueryResult, QueryResultRow } from "pg";
 
+import type { DB } from "~/generated/types";
 import { env } from "~/lib/env";
 import { isRole } from "~/lib/roles";
 import type { Role } from "~/lib/roles";
-import { APP_SCHEMA } from "~/lib/schema.server";
 
 let pool: Pool | undefined;
-let schemaReady: Promise<void> | undefined;
+let database: Kysely<DB> | undefined;
+let adminReady: Promise<void> | undefined;
 
 export type ReviewState = "pending" | "accepted" | "changes_requested";
 
@@ -19,72 +20,50 @@ export function db(): Pool {
   return pool;
 }
 
-export async function query<T extends QueryResultRow>(
-  text: string,
-  params: unknown[] = []
-): Promise<QueryResult<T>> {
-  await ensureSchema();
+export function kysely(): Kysely<DB> {
+  database ??= new Kysely<DB>({
+    dialect: new PostgresDialect({ pool: db() }),
+  });
 
-  return db().query<T>(text, params);
+  return database;
 }
 
-export async function withClient<T>(
-  fn: (client: PoolClient) => Promise<T>
-): Promise<T> {
-  await ensureSchema();
-  const client = await db().connect();
-
-  try {
-    return await fn(client);
-  } finally {
-    client.release();
-  }
-}
-
-export async function ensureSchema(): Promise<void> {
-  schemaReady ??= (async () => {
-    await db().query(APP_SCHEMA);
+export async function ensureAdmin(): Promise<void> {
+  adminReady ??= (async () => {
     const adminEmail = env.STORYBRANCH_ADMIN_EMAIL?.toLowerCase();
 
-    await db()
-      .query(
-        `ALTER TABLE IF EXISTS "user"
-         ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'member'`
-      )
-      .catch(() => {});
-
-    if (adminEmail !== undefined) {
-      await db().query(
-        `INSERT INTO invites (email, role) VALUES ($1, 'admin')
-         ON CONFLICT (email) DO NOTHING`,
-        [adminEmail]
-      );
+    if (adminEmail === undefined) {
+      return;
     }
+
+    await kysely()
+      .insertInto("invites")
+      .values({ email: adminEmail, role: "admin" })
+      .onConflict((oc) => oc.column("email").doNothing())
+      .execute();
   })();
 
-  await schemaReady;
+  await adminReady;
 }
 
 export async function inviteRole(email: string): Promise<Role | undefined> {
-  const { rows } = await query<{ role: string }>(
-    "SELECT role FROM invites WHERE email = $1",
-    [email.toLowerCase()]
-  );
+  const row = await kysely()
+    .selectFrom("invites")
+    .select("role")
+    .where("email", "=", email.toLowerCase())
+    .executeTakeFirst();
 
-  const role = rows[0]?.role;
-
-  return isRole(role) ? role : undefined;
+  return isRole(row?.role) ? row.role : undefined;
 }
 
 export async function userRole(userId: string): Promise<Role> {
-  const { rows } = await query<{ role: string | null }>(
-    `SELECT role FROM "user" WHERE id = $1`,
-    [userId]
-  );
+  const row = await kysely()
+    .selectFrom("user")
+    .select("role")
+    .where("id", "=", userId)
+    .executeTakeFirst();
 
-  const role = rows[0]?.role;
-
-  return isRole(role) ? role : "member";
+  return isRole(row?.role) ? row.role : "member";
 }
 
 export function newId(): string {

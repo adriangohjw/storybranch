@@ -2,7 +2,7 @@ import { createHash, randomBytes } from "node:crypto";
 
 import { isReport } from "@storybranch/report";
 
-import { newId, query, withClient } from "~/lib/db.server";
+import { kysely, newId } from "~/lib/db.server";
 import { appUrl } from "~/lib/env";
 import { actualKey, baselineKey, diffKey, safeFilename } from "~/lib/keys";
 import type { ObjectStore } from "~/lib/keys";
@@ -29,15 +29,12 @@ export async function projectForBearer(
     return undefined;
   }
 
-  const { rows } = await query<CiProject>(
-    `SELECT p.id, p.name
-     FROM project_tokens t
-     JOIN projects p ON p.id = t.project_id
-     WHERE t.token_hash = $1`,
-    [hashToken(header.slice("Bearer ".length))]
-  );
-
-  return rows[0];
+  return kysely()
+    .selectFrom("project_tokens as t")
+    .innerJoin("projects as p", "p.id", "t.project_id")
+    .select(["p.id", "p.name"])
+    .where("t.token_hash", "=", hashToken(header.slice("Bearer ".length)))
+    .executeTakeFirst();
 }
 
 export async function listBaselineNames(
@@ -76,29 +73,37 @@ export async function createRun(
       ? body.prNumber
       : null;
 
-  await withClient(async (client) => {
-    await client.query("BEGIN");
-    await client.query(
-      `INSERT INTO runs (
-         id, project_id, commit_sha, branch, pr_number, report
-       ) VALUES ($1,$2,$3,$4,$5,$6::jsonb)`,
-      [runId, projectId, commitSha, branch, prNumber, JSON.stringify(report)]
-    );
+  const snapshots = report.entries.flatMap((entry) =>
+    entry.filename !== undefined && safeFilename(entry.filename)
+      ? [
+          {
+            review_state: "pending",
+            run_id: runId,
+            snapshot_id: entry.filename,
+          },
+        ]
+      : []
+  );
 
-    for (const entry of report.entries) {
-      if (entry.filename === undefined || !safeFilename(entry.filename)) {
-        continue;
+  await kysely()
+    .transaction()
+    .execute(async (trx) => {
+      await trx
+        .insertInto("runs")
+        .values({
+          branch,
+          commit_sha: commitSha,
+          id: runId,
+          pr_number: prNumber,
+          project_id: projectId,
+          report,
+        })
+        .execute();
+
+      if (snapshots.length > 0) {
+        await trx.insertInto("run_snapshots").values(snapshots).execute();
       }
-
-      await client.query(
-        `INSERT INTO run_snapshots (run_id, snapshot_id, review_state)
-         VALUES ($1, $2, 'pending')`,
-        [runId, entry.filename]
-      );
-    }
-
-    await client.query("COMMIT");
-  });
+    });
 
   return {
     projectId,
@@ -119,12 +124,14 @@ export async function putRunFile(
     throw new Error("invalid file");
   }
 
-  const { rows } = await query<{ id: string }>(
-    "SELECT id FROM runs WHERE id = $1 AND project_id = $2",
-    [runId, projectId]
-  );
+  const run = await kysely()
+    .selectFrom("runs")
+    .select("id")
+    .where("id", "=", runId)
+    .where("project_id", "=", projectId)
+    .executeTakeFirst();
 
-  if (rows[0] === undefined) {
+  if (run === undefined) {
     throw new Error("unknown run");
   }
 

@@ -3,7 +3,7 @@ import { isReport } from "@storybranch/report";
 import { createServerFn } from "@tanstack/react-start";
 
 import { mintProjectToken } from "~/lib/ci.server";
-import { newId, query } from "~/lib/db.server";
+import { kysely, newId } from "~/lib/db.server";
 import type { ReviewState } from "~/lib/db.server";
 import { acceptActualAsBaseline, safeFilename } from "~/lib/keys";
 import { canAdmin, canReview, isRole } from "~/lib/roles";
@@ -25,6 +25,12 @@ export interface RunRow {
   prNumber: number | null;
 }
 
+function isReviewState(value: string): value is ReviewState {
+  return (
+    value === "pending" || value === "accepted" || value === "changes_requested"
+  );
+}
+
 export interface CommentRow {
   authorEmail: string;
   body: string;
@@ -36,11 +42,11 @@ export const listProjects = createServerFn({ method: "GET" }).handler(
   async (): Promise<ProjectRow[]> => {
     await requireUser();
 
-    const { rows } = await query<{
-      created_at: Date;
-      id: string;
-      name: string;
-    }>("SELECT id, name, created_at FROM projects ORDER BY name");
+    const rows = await kysely()
+      .selectFrom("projects")
+      .select(["id", "name", "created_at"])
+      .orderBy("name")
+      .execute();
 
     return rows.map((row) => ({
       createdAt: row.created_at.toISOString(),
@@ -67,13 +73,14 @@ export const createProject = createServerFn({ method: "POST" })
 
     const id = newId();
 
-    const { rows } = await query<{ created_at: Date }>(
-      "INSERT INTO projects (id, name) VALUES ($1, $2) RETURNING created_at",
-      [id, name]
-    );
+    const row = await kysely()
+      .insertInto("projects")
+      .values({ id, name })
+      .returning("created_at")
+      .executeTakeFirstOrThrow();
 
     return {
-      createdAt: rows[0]?.created_at.toISOString() ?? new Date().toISOString(),
+      createdAt: row.created_at.toISOString(),
       id,
       name,
     };
@@ -84,30 +91,25 @@ export const listRuns = createServerFn({ method: "GET" })
   .handler(async ({ data }): Promise<{ name: string; runs: RunRow[] }> => {
     await requireUser();
 
-    const project = await query<{ name: string }>(
-      "SELECT name FROM projects WHERE id = $1",
-      [data.projectId]
-    );
+    const project = await kysely()
+      .selectFrom("projects")
+      .select("name")
+      .where("id", "=", data.projectId)
+      .executeTakeFirst();
 
-    if (project.rows[0] === undefined) {
+    if (project === undefined) {
       throw new Error("unknown project");
     }
 
-    const { rows } = await query<{
-      branch: string | null;
-      commit_sha: string;
-      created_at: Date;
-      id: string;
-      pr_number: number | null;
-    }>(
-      `SELECT id, commit_sha, branch, pr_number, created_at
-       FROM runs WHERE project_id = $1
-       ORDER BY created_at DESC`,
-      [data.projectId]
-    );
+    const rows = await kysely()
+      .selectFrom("runs")
+      .select(["id", "commit_sha", "branch", "pr_number", "created_at"])
+      .where("project_id", "=", data.projectId)
+      .orderBy("created_at", "desc")
+      .execute();
 
     return {
-      name: project.rows[0].name,
+      name: project.name,
       runs: rows.map((row) => ({
         branch: row.branch,
         commitSha: row.commit_sha,
@@ -130,54 +132,53 @@ export const loadRun = createServerFn({ method: "GET" })
     }> => {
       await requireUser();
 
-      const { rows } = await query<{ report: unknown }>(
-        "SELECT report FROM runs WHERE id = $1 AND project_id = $2",
-        [data.runId, data.projectId]
-      );
+      const row = await kysely()
+        .selectFrom("runs")
+        .select("report")
+        .where("id", "=", data.runId)
+        .where("project_id", "=", data.projectId)
+        .executeTakeFirst();
 
-      const report = rows[0]?.report;
+      const report = row?.report;
 
       if (!isReport(report)) {
         throw new Error("unknown run");
       }
 
-      const snapshots = await query<{
-        review_state: ReviewState;
-        snapshot_id: string;
-      }>(
-        "SELECT snapshot_id, review_state FROM run_snapshots WHERE run_id = $1",
-        [data.runId]
-      );
+      const snapshots = await kysely()
+        .selectFrom("run_snapshots")
+        .select(["snapshot_id", "review_state"])
+        .where("run_id", "=", data.runId)
+        .execute();
 
-      const comments = await query<{
-        author_email: string;
-        body: string;
-        created_at: Date;
-        id: string;
-        snapshot_id: string;
-      }>(
-        `SELECT id, snapshot_id, author_email, body, created_at
-         FROM comments WHERE run_id = $1 ORDER BY created_at`,
-        [data.runId]
-      );
+      const comments = await kysely()
+        .selectFrom("comments")
+        .select(["id", "snapshot_id", "author_email", "body", "created_at"])
+        .where("run_id", "=", data.runId)
+        .orderBy("created_at")
+        .execute();
 
       const review: Record<string, ReviewState> = {};
 
-      for (const row of snapshots.rows) {
-        review[row.snapshot_id] = row.review_state;
+      for (const shot of snapshots) {
+        if (!isReviewState(shot.review_state)) {
+          continue;
+        }
+
+        review[shot.snapshot_id] = shot.review_state;
       }
 
       const byShot: Record<string, CommentRow[]> = {};
 
-      for (const row of comments.rows) {
-        const list = byShot[row.snapshot_id] ?? [];
+      for (const comment of comments) {
+        const list = byShot[comment.snapshot_id] ?? [];
         list.push({
-          authorEmail: row.author_email,
-          body: row.body,
-          createdAt: row.created_at.toISOString(),
-          id: row.id,
+          authorEmail: comment.author_email,
+          body: comment.body,
+          createdAt: comment.created_at.toISOString(),
+          id: comment.id,
         });
-        byShot[row.snapshot_id] = list;
+        byShot[comment.snapshot_id] = list;
       }
 
       return { comments: byShot, report, review };
@@ -205,11 +206,12 @@ export const acceptSnapshot = createServerFn({ method: "POST" })
       data.runId,
       data.filename
     );
-    await query(
-      `UPDATE run_snapshots SET review_state = 'accepted'
-       WHERE run_id = $1 AND snapshot_id = $2`,
-      [data.runId, data.filename]
-    );
+    await kysely()
+      .updateTable("run_snapshots")
+      .set({ review_state: "accepted" })
+      .where("run_id", "=", data.runId)
+      .where("snapshot_id", "=", data.filename)
+      .execute();
   });
 
 export const requestChanges = createServerFn({ method: "POST" })
@@ -223,11 +225,12 @@ export const requestChanges = createServerFn({ method: "POST" })
       throw new Error("Forbidden");
     }
 
-    await query(
-      `UPDATE run_snapshots SET review_state = 'changes_requested'
-       WHERE run_id = $1 AND snapshot_id = $2`,
-      [data.runId, data.filename]
-    );
+    await kysely()
+      .updateTable("run_snapshots")
+      .set({ review_state: "changes_requested" })
+      .where("run_id", "=", data.runId)
+      .where("snapshot_id", "=", data.filename)
+      .execute();
   });
 
 export const addComment = createServerFn({ method: "POST" })
@@ -247,11 +250,17 @@ export const addComment = createServerFn({ method: "POST" })
       throw new Error("invalid comment");
     }
 
-    await query(
-      `INSERT INTO comments (id, run_id, snapshot_id, user_id, author_email, body)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      [newId(), data.runId, data.filename, user.id, user.email, body]
-    );
+    await kysely()
+      .insertInto("comments")
+      .values({
+        author_email: user.email,
+        body,
+        id: newId(),
+        run_id: data.runId,
+        snapshot_id: data.filename,
+        user_id: user.id,
+      })
+      .execute();
   });
 
 export const inviteUser = createServerFn({ method: "POST" })
@@ -273,11 +282,11 @@ export const inviteUser = createServerFn({ method: "POST" })
       throw new Error("invalid email");
     }
 
-    await query(
-      `INSERT INTO invites (email, role) VALUES ($1, $2)
-       ON CONFLICT (email) DO UPDATE SET role = EXCLUDED.role`,
-      [email, data.role]
-    );
+    await kysely()
+      .insertInto("invites")
+      .values({ email, role: data.role })
+      .onConflict((oc) => oc.column("email").doUpdateSet({ role: data.role }))
+      .execute();
   });
 
 export const createToken = createServerFn({ method: "POST" })
@@ -290,11 +299,15 @@ export const createToken = createServerFn({ method: "POST" })
     }
 
     const minted = mintProjectToken();
-    await query(
-      `INSERT INTO project_tokens (id, project_id, name, token_hash)
-       VALUES ($1, $2, $3, $4)`,
-      [newId(), data.projectId, data.name.trim() || "ci", minted.hash]
-    );
+    await kysely()
+      .insertInto("project_tokens")
+      .values({
+        id: newId(),
+        name: data.name.trim() || "ci",
+        project_id: data.projectId,
+        token_hash: minted.hash,
+      })
+      .execute();
 
     return { token: minted.token };
   });
@@ -307,10 +320,14 @@ export const listInvites = createServerFn({ method: "GET" }).handler(
       return [];
     }
 
-    const { rows } = await query<{ email: string; role: Role }>(
-      "SELECT email, role FROM invites ORDER BY email"
-    );
+    const rows = await kysely()
+      .selectFrom("invites")
+      .select(["email", "role"])
+      .orderBy("email")
+      .execute();
 
-    return rows;
+    return rows.flatMap((row) =>
+      isRole(row.role) ? [{ email: row.email, role: row.role }] : []
+    );
   }
 );

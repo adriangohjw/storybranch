@@ -1,0 +1,140 @@
+generator kysely {
+  provider = "prisma-kysely"
+  output   = "../src/generated"
+  fileName = "types.ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime  @default(now()) @db.Timestamptz(6)
+  role          String    @default("member")
+  sessions      Session[]
+  accounts      Account[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime @db.Timestamptz(6)
+  token     String   @unique
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "session_userId_idx")
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime? @db.Timestamptz(6)
+  refreshTokenExpiresAt DateTime? @db.Timestamptz(6)
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt             DateTime  @db.Timestamptz(6)
+
+  @@index([userId], map: "account_userId_idx")
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime @db.Timestamptz(6)
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([identifier], map: "verification_identifier_idx")
+  @@map("verification")
+}
+
+model Invite {
+  email     String   @id
+  role      String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("invites")
+}
+
+model Project {
+  id        String         @id @db.Uuid
+  name      String
+  createdAt DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  tokens    ProjectToken[]
+  runs      Run[]
+
+  @@map("projects")
+}
+
+model ProjectToken {
+  id        String   @id @db.Uuid
+  projectId String   @map("project_id") @db.Uuid
+  name      String
+  tokenHash String   @unique @map("token_hash")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("project_tokens")
+}
+
+model Run {
+  id         String        @id @db.Uuid
+  projectId  String        @map("project_id") @db.Uuid
+  commitSha  String        @map("commit_sha")
+  branch     String?
+  prNumber   Int?          @map("pr_number")
+  report     Json          @db.JsonB
+  createdAt  DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  project    Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  snapshots  RunSnapshot[]
+  comments   Comment[]
+
+  @@index([projectId, createdAt(sort: Desc)], map: "runs_project_created")
+  @@map("runs")
+}
+
+model RunSnapshot {
+  runId       String @map("run_id") @db.Uuid
+  snapshotId  String @map("snapshot_id")
+  reviewState String @map("review_state")
+  run         Run    @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@id([runId, snapshotId])
+  @@map("run_snapshots")
+}
+
+model Comment {
+  id          String   @id @db.Uuid
+  runId       String   @map("run_id") @db.Uuid
+  snapshotId  String   @map("snapshot_id")
+  userId      String   @map("user_id")
+  authorEmail String   @map("author_email")
+  body        String
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  run         Run      @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId, snapshotId, createdAt], map: "comments_snapshot")
+  @@map("comments")
+}

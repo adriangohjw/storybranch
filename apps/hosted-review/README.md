@@ -18,7 +18,7 @@ docker compose -f apps/hosted-review/docker-compose.yml up -d
 bun run --cwd apps/hosted-review dev
 ```
 
-Open [http://127.0.0.1:3000/login](http://127.0.0.1:3000/login). Sign in with the admin email from `.env` (`STORYBRANCH_ADMIN_EMAIL`). Bun loads that file.
+`dev` applies the Prisma migrations, then starts Vite. Open [http://127.0.0.1:3000/login](http://127.0.0.1:3000/login). Sign in with the admin email from `.env` (`STORYBRANCH_ADMIN_EMAIL`). Bun loads that file.
 
 Setup copies [`.env.example`](./.env.example) → `.env` if needed and replaces the placeholder `BETTER_AUTH_SECRET`. Flags: `./apps/hosted-review/scripts/setup.sh --email you@company.com`.
 
@@ -77,5 +77,7 @@ With `GITHUB_TOKEN` and a PR number (`STORYBRANCH_PR_NUMBER` or `refs/pull/N/mer
 | Command                   | Action                                       |
 | ------------------------- | -------------------------------------------- |
 | `bun run setup`           | Run [`scripts/setup.sh`](./scripts/setup.sh) |
-| `bun run dev`             | Vite dev server                              |
+| `bun run dev`             | Apply migrations, then the Vite dev server   |
+| `bun run db:migrate`      | Apply Prisma migrations                      |
+| `bun run db:generate`     | Regenerate Kysely types from `schema.prisma` |
 | `bun run build` / `start` | Production build                             |

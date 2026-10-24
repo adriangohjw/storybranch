@@ -72,6 +72,22 @@ export function appUrl(): string {
   return env.STORYBRANCH_APP_URL.replace(/\/$/u, "");
 }
 
+export function trustedAppOrigins(): string[] {
+  const url = appUrl();
+  const { hostname, port, protocol } = new URL(url);
+  const host = port.length > 0 ? `:${port}` : "";
+
+  if (hostname === "127.0.0.1") {
+    return [url, `${protocol}//localhost${host}`];
+  }
+
+  if (hostname === "localhost") {
+    return [url, `${protocol}//127.0.0.1${host}`];
+  }
+
+  return [url];
+}
+
 export function dangerousEmailLog(): boolean {
   return env.STORYBRANCH_DANGEROUS_EMAIL_LOG === "1";
 }

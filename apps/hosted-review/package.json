@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "dev": "vite dev",
+    "db:generate": "prisma generate && bun fmt src/generated/types.ts",
+    "db:migrate": "prisma migrate deploy",
+    "dev": "prisma migrate deploy && vite dev",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "setup": "bash ./scripts/setup.sh",
@@ -22,6 +24,7 @@
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-start": "catalog:",
     "better-auth": "catalog:",
+    "kysely": "catalog:",
     "nitro": "catalog:",
     "pg": "catalog:",
     "react": "catalog:",
@@ -36,6 +39,9 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "dotenv": "catalog:",
+    "prisma": "catalog:",
+    "prisma-kysely": "catalog:",
     "tailwindcss": "catalog:",
     "vite": "catalog:"
   }
