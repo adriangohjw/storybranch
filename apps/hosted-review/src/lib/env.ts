@@ -8,12 +8,12 @@ const server = {
   RESEND_FROM: z.string().min(1).optional(),
   S3_ACCESS_KEY: z.string().min(1),
   S3_BUCKET: z.string().min(1),
-  S3_ENDPOINT: z.string().url().optional(),
+  S3_ENDPOINT: z.url().optional(),
   S3_FORCE_PATH_STYLE: z.enum(["true", "false"]).optional(),
   S3_REGION: z.string().min(1).default("us-east-1"),
   S3_SECRET_KEY: z.string().min(1),
   STORYBRANCH_ADMIN_EMAIL: z.string().min(1).optional(),
-  STORYBRANCH_APP_URL: z.string().url(),
+  STORYBRANCH_APP_URL: z.url(),
   STORYBRANCH_DANGEROUS_EMAIL_LOG: z.enum(["1"]).optional(),
 };
 
@@ -21,8 +21,8 @@ export function createHostedReviewEnv(
   runtimeEnv: Record<string, string | undefined> = process.env
 ) {
   return createEnv({
-    createFinalSchema: (shape) =>
-      z.object(shape).superRefine((data, ctx) => {
+    createFinalSchema: (serverFieldSchemas) =>
+      z.object(serverFieldSchemas).superRefine((data, ctx) => {
         if (data.STORYBRANCH_DANGEROUS_EMAIL_LOG === "1") {
           return;
         }
@@ -59,7 +59,8 @@ export function createHostedReviewEnv(
       S3_SECRET_KEY: runtimeEnv.S3_SECRET_KEY,
       STORYBRANCH_ADMIN_EMAIL: runtimeEnv.STORYBRANCH_ADMIN_EMAIL,
       STORYBRANCH_APP_URL: runtimeEnv.STORYBRANCH_APP_URL,
-      STORYBRANCH_DANGEROUS_EMAIL_LOG: runtimeEnv.STORYBRANCH_DANGEROUS_EMAIL_LOG,
+      STORYBRANCH_DANGEROUS_EMAIL_LOG:
+        runtimeEnv.STORYBRANCH_DANGEROUS_EMAIL_LOG,
     },
     server,
   });

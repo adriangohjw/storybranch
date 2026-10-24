@@ -26,7 +26,8 @@ export function createS3Store(): ObjectStore {
       secretAccessKey: env.S3_SECRET_KEY,
     },
     endpoint,
-    forcePathStyle: env.S3_FORCE_PATH_STYLE === "true" || endpoint !== undefined,
+    forcePathStyle:
+      env.S3_FORCE_PATH_STYLE === "true" || endpoint !== undefined,
     region: env.S3_REGION,
   });
 
