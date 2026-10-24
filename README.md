@@ -226,7 +226,7 @@ cp apps/hosted-review/.env.example apps/hosted-review/.env
 docker compose -f apps/hosted-review/docker-compose.yml up --build
 ```
 
-Set `STORYBRANCH_APP_URL`, `STORYBRANCH_ADMIN_EMAIL`, `BETTER_AUTH_SECRET`, `DATABASE_URL`, and `S3_*`. Mail is Resend (`RESEND_API_KEY`, `RESEND_FROM`) or SMTP (`SMTP_*`). An admin creates a project and a CI token in the UI. Point CI at that token and the app URL. Workflow: [`examples/github-actions/hosted-visual-review.yml`](examples/github-actions/hosted-visual-review.yml).
+Set `STORYBRANCH_APP_URL`, `STORYBRANCH_ADMIN_EMAIL`, `BETTER_AUTH_SECRET`, `DATABASE_URL`, and `S3_*`. Mail is Resend (`RESEND_API_KEY`, `RESEND_FROM`) from `@storybranch/mail`. `STORYBRANCH_DANGEROUS_EMAIL_LOG=1` logs the link instead of sending. Do not set that in production. An admin creates a project and a CI token in the UI. Point CI at that token and the app URL. Workflow: [`examples/github-actions/hosted-visual-review.yml`](examples/github-actions/hosted-visual-review.yml).
 
 ## Features
 
@@ -330,6 +330,7 @@ apps
 packages
   ├─ core/        # Capture engine (`@storybranch/core`)
   ├─ fixture/     # Minimal Storybook app for tests and manual runs
+  ├─ mail/        # Resend sender (`@storybranch/mail`)
   └─ report/      # Report types and JSON I/O (`@storybranch/report`)
 tooling
   ├─ github/      # Shared composite action (Bun install + Turborepo cache)

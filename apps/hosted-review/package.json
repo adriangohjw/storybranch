@@ -14,13 +14,13 @@
   "dependencies": {
     "@aws-sdk/client-s3": "catalog:",
     "@fontsource/archivo": "catalog:",
+    "@storybranch/mail": "workspace:*",
     "@storybranch/report": "workspace:*",
     "@storybranch/review-ui": "workspace:*",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-start": "catalog:",
     "better-auth": "catalog:",
     "nitro": "catalog:",
-    "nodemailer": "catalog:",
     "pg": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"
@@ -29,7 +29,6 @@
     "@storybranch/oxlint-config": "workspace:*",
     "@storybranch/tsconfig": "workspace:*",
     "@tailwindcss/vite": "catalog:",
-    "@types/nodemailer": "catalog:",
     "@types/pg": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

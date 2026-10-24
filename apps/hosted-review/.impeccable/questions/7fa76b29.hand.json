@@ -1,0 +1,38 @@
+{
+  "id": "b536feebf4d4c7ac",
+  "digest": "eb118c4ccd659919",
+  "comps": [],
+  "pre": {},
+  "worlds": [
+    {
+      "id": "aww2-zoo-gardens-guide-map",
+      "board": "https://impeccable.style/worlds/cards/aww2-zoo-gardens-guide-map.webp",
+      "hero": "https://impeccable.style/worlds/cards/aww2-zoo-gardens-guide-map-hero.webp"
+    },
+    {
+      "id": "editorial-sequence-montage-botanical-folio-season",
+      "board": "https://impeccable.style/worlds/cards/editorial-sequence-montage-botanical-folio-season.webp",
+      "hero": "https://impeccable.style/worlds/cards/editorial-sequence-montage-botanical-folio-season-hero.webp"
+    },
+    {
+      "id": "crouwel-grid-specimen",
+      "board": "https://impeccable.style/worlds/cards/crouwel-grid-specimen.webp",
+      "hero": "https://impeccable.style/worlds/cards/crouwel-grid-specimen-hero.webp"
+    },
+    {
+      "id": "pop-culture-shelf-character-goods-catalog",
+      "board": "https://impeccable.style/worlds/cards/pop-culture-shelf-character-goods-catalog.webp",
+      "hero": "https://impeccable.style/worlds/cards/pop-culture-shelf-character-goods-catalog-hero.webp"
+    },
+    {
+      "id": "digital-design-canon-monochrome-product-marketing",
+      "board": "https://impeccable.style/worlds/cards/digital-design-canon-monochrome-product-marketing.webp",
+      "hero": "https://impeccable.style/worlds/cards/digital-design-canon-monochrome-product-marketing-hero.webp"
+    },
+    {
+      "id": "signals-instruments-split-flap-concourse",
+      "board": "https://impeccable.style/worlds/cards/signals-instruments-split-flap-concourse.webp",
+      "hero": "https://impeccable.style/worlds/cards/signals-instruments-split-flap-concourse-hero.webp"
+    }
+  ]
+}

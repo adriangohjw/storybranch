@@ -47,13 +47,13 @@
       "dependencies": {
         "@aws-sdk/client-s3": "catalog:",
         "@fontsource/archivo": "catalog:",
+        "@storybranch/mail": "workspace:*",
         "@storybranch/report": "workspace:*",
         "@storybranch/review-ui": "workspace:*",
         "@tanstack/react-router": "catalog:",
         "@tanstack/react-start": "catalog:",
         "better-auth": "catalog:",
         "nitro": "catalog:",
-        "nodemailer": "catalog:",
         "pg": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
@@ -62,7 +62,6 @@
         "@storybranch/oxlint-config": "workspace:*",
         "@storybranch/tsconfig": "workspace:*",
         "@tailwindcss/vite": "catalog:",
-        "@types/nodemailer": "catalog:",
         "@types/pg": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
@@ -135,6 +134,14 @@
         "@storybranch/tsconfig": "workspace:*",
       },
     },
+    "packages/mail": {
+      "name": "@storybranch/mail",
+      "devDependencies": {
+        "@storybranch/oxlint-config": "workspace:*",
+        "@storybranch/tsconfig": "workspace:*",
+        "@types/bun": "catalog:",
+      },
+    },
     "packages/report": {
       "name": "@storybranch/report",
       "devDependencies": {
@@ -169,7 +176,6 @@
     "@tanstack/react-router": "^1.170.46",
     "@tanstack/react-start": "^1.169.4",
     "@types/bun": "^1.4.3",
-    "@types/nodemailer": "^7.0.2",
     "@types/pg": "^8.15.5",
     "@types/pngjs": "^6.0.5",
     "@types/react": "^19.3.0",
@@ -180,7 +186,6 @@
     "lefthook": "^2.2.2",
     "log-update": "^8.0.0",
     "nitro": "3.0.260903-beta",
-    "nodemailer": "^7.0.6",
     "ora": "^9.4.1",
     "oxlint": "^1.86.0",
     "oxlint-plugin-react-doctor": "^0.9.18",
@@ -718,6 +723,8 @@
 
     "@storybranch/hosted-review": ["@storybranch/hosted-review@workspace:apps/hosted-review"],
 
+    "@storybranch/mail": ["@storybranch/mail@workspace:packages/mail"],
+
     "@storybranch/oxlint-config": ["@storybranch/oxlint-config@workspace:tooling/oxlint"],
 
     "@storybranch/report": ["@storybranch/report@workspace:packages/report"],
@@ -845,8 +852,6 @@
     "@types/nlcst": ["@types/nlcst@2.0.3", "", { "dependencies": { "@types/unist": "*" } }, "sha512-vSYNSDe6Ix3q+6Z7ri9lyWqgGhJTmzRjZRqyq15N0Z/1/UnVsno9G/N40NBijoYx2seFDIl0+B2mgAb9mezUCA=="],
 
     "@types/node": ["@types/node@26.6.5", "", { "dependencies": { "undici-types": "~8.9.0" } }, "sha512-uMzsv9stDdofIZBx4UGh4Z9ZgXnGC9seRDscilBcTHAeOFk67MZg/k9bWVfO+bk4qZmG+l52hRnLwUiH2LnJTg=="],
-
-    "@types/nodemailer": ["@types/nodemailer@7.0.12", "", { "dependencies": { "@types/node": "*" } }, "sha512-80vKwiIsVSyFA1rRovH59jNPLBOuc6dRZIHEu40gXTkBkZnQv8vog1xSGEb9j5q/tdMAs5ivvDR2pLTU0hGHXA=="],
 
     "@types/pg": ["@types/pg@8.23.1", "", { "dependencies": { "@types/node": "*", "pg-protocol": "*", "pg-types": "^2.2.0" } }, "sha512-fKVHpikPdg4GKks3JuLEhvwSyvwzF23hnabPy6DD8ljVbC7+6J5dQzdv4arV6jqq57djnMgs1HKBxX4P8aBI3A=="],
 
@@ -1297,8 +1302,6 @@
     "node-mock-http": ["node-mock-http@1.0.5", "", {}, "sha512-KQyt/wLjG3TAc7DOUhpqWzgd4ERxR80JOlTK5VE5R1S12IaPVN5qkj4klBce9HPG1Njuup4Sb5bljaT34lIyjw=="],
 
     "node-releases": ["node-releases@2.0.59", "", {}, "sha512-5qr2okC4ItAI0hG5SaV0HoYMpnM/Y6+Oqr7AmPYy/2uEoGvS+GbSKLeRxSS1uAdu59yz0ouzcuXievSgg///WA=="],
-
-    "nodemailer": ["nodemailer@7.0.13", "", {}, "sha512-PNDFSJdP+KFgdsG3ZzMXCgquO7I6McjY2vlqILjtJd0hy8wEvtugS9xKRF2NWlPNGxvLCXlTNIae4serI7dinw=="],
 
     "normalize-path": ["normalize-path@3.0.0", "", {}, "sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA=="],
 
