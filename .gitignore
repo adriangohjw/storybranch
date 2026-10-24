@@ -3,7 +3,3 @@ node_modules/
 
 # turbo
 .turbo/
-
-# review-host
-apps/review-host/.output/
-apps/review-host/.env

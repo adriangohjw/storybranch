@@ -1,0 +1,7 @@
+# nitro / vite build
+.output/
+
+# environment
+.env
+.env.local
+.env.production
