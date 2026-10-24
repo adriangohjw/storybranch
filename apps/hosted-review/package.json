@@ -1,5 +1,5 @@
 {
-  "name": "@storybranch/review-host",
+  "name": "@storybranch/hosted-review",
   "private": true,
   "type": "module",
   "scripts": {

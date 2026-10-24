@@ -308,7 +308,7 @@ The sidebar testing widget runs `storybranch test` against that dev server. Stor
   └─ Recommended extensions and editor settings
 apps
   ├─ cli/         # Published `@adriangohjw/storybranch` package (bin, bundled CLI, review assets, Storybook addon)
-  ├─ review-host/ # Self-hosted team review (TanStack Start, Postgres, S3)
+  ├─ hosted-review/ # Self-hosted team review (TanStack Start, Postgres, S3)
   ├─ review-ui/   # Vite + React review SPA (`@storybranch/review-ui`)
   └─ web/         # Marketing landing page (`@storybranch/web`, Astro)
 packages

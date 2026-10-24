@@ -5,9 +5,9 @@ TanStack Start app for team review of CI visual runs. Local `storybranch test` /
 ## Run locally
 
 ```bash
-cp apps/review-host/.env.example apps/review-host/.env
+cp apps/hosted-review/.env.example apps/hosted-review/.env
 # set STORYBRANCH_ADMIN_EMAIL, BETTER_AUTH_SECRET (>= 32 chars), SMTP_* if you want real mail
-docker compose -f apps/review-host/docker-compose.yml up --build
+docker compose -f apps/hosted-review/docker-compose.yml up --build
 ```
 
 Open `http://127.0.0.1:3000/login`. The admin email in `STORYBRANCH_ADMIN_EMAIL` is invited as admin. Without `SMTP_HOST`, magic links print to the app logs.
@@ -15,9 +15,9 @@ Open `http://127.0.0.1:3000/login`. The admin email in `STORYBRANCH_ADMIN_EMAIL`
 Dev (compose for Postgres + MinIO, Vite for the app):
 
 ```bash
-docker compose -f apps/review-host/docker-compose.yml up postgres minio minio-init
-set -a && source apps/review-host/.env && set +a
-bun run --cwd apps/review-host dev
+docker compose -f apps/hosted-review/docker-compose.yml up postgres minio minio-init
+set -a && source apps/hosted-review/.env && set +a
+bun run --cwd apps/hosted-review dev
 ```
 
 ## CI

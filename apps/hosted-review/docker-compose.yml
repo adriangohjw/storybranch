@@ -2,7 +2,7 @@ services:
   app:
     build:
       context: ../..
-      dockerfile: apps/review-host/Dockerfile
+      dockerfile: apps/hosted-review/Dockerfile
     depends_on:
       postgres:
         condition: service_healthy

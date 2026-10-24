@@ -42,8 +42,8 @@
         "@types/bun": "catalog:",
       },
     },
-    "apps/review-host": {
-      "name": "@storybranch/review-host",
+    "apps/hosted-review": {
+      "name": "@storybranch/hosted-review",
       "dependencies": {
         "@aws-sdk/client-s3": "catalog:",
         "@storybranch/report": "workspace:*",
@@ -711,11 +711,11 @@
 
     "@storybranch/fixture": ["@storybranch/fixture@workspace:packages/fixture"],
 
+    "@storybranch/hosted-review": ["@storybranch/hosted-review@workspace:apps/hosted-review"],
+
     "@storybranch/oxlint-config": ["@storybranch/oxlint-config@workspace:tooling/oxlint"],
 
     "@storybranch/report": ["@storybranch/report@workspace:packages/report"],
-
-    "@storybranch/review-host": ["@storybranch/review-host@workspace:apps/review-host"],
 
     "@storybranch/review-ui": ["@storybranch/review-ui@workspace:apps/review-ui"],
 

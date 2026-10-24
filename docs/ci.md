@@ -54,7 +54,7 @@ Download `storybranch-visual`, unpack it into the Storybook package, and run `st
 
 When `STORYBRANCH_PROJECT_TOKEN` (or `--project-token`) **and** `STORYBRANCH_API_URL` (or `--api-url`) are set, `storybranch test` fetches that project's hosted baselines, diffs locally, uploads the run, and **exits 0** after a successful capture/upload even if pixels differ. Git `.storybranch/baseline/` is not read on this path.
 
-Copy [`examples/github-actions/hosted-visual-review.yml`](../examples/github-actions/hosted-visual-review.yml). The check name is `storybranch / visual`. The workflow updates one PR comment in place. Run the app with [`apps/review-host/README.md`](../apps/review-host/README.md).
+Copy [`examples/github-actions/hosted-visual-review.yml`](../examples/github-actions/hosted-visual-review.yml). The check name is `storybranch / visual`. The workflow updates one PR comment in place. Run the app with [`apps/hosted-review/README.md`](../apps/hosted-review/README.md).
 
 A shareable review server and a static HTML report are not part of the **git-baseline** recipe above.
 
