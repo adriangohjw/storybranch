@@ -7,6 +7,7 @@
     "dev": "vite dev",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
+    "setup": "bash ./scripts/setup.sh",
     "start": "node .output/server/index.mjs",
     "test": "bun test --preload ./test/setup-env.ts",
     "typecheck": "bun ../../scripts/bun-check.ts"

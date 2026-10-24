@@ -219,14 +219,14 @@ Optional, and separate from the local loop. `storybranch test` and `storybranch 
 
 With both `STORYBRANCH_PROJECT_TOKEN` (or `--project-token`) and `STORYBRANCH_API_URL` (or `--api-url`), `storybranch test` downloads that project's baselines, diffs on the CI machine, uploads the run, and exits 0 after a successful upload even when pixels differ. Humans sign in with an invite-only magic link. Accept overwrites that snapshot's baseline in object storage.
 
-The app is [`apps/hosted-review`](apps/hosted-review/README.md) (TanStack Start, Postgres, S3). Local stack:
+The app is [`apps/hosted-review`](apps/hosted-review/README.md) (TanStack Start, Postgres, S3). First-time local setup:
 
 ```bash
-cp apps/hosted-review/.env.example apps/hosted-review/.env
+bun run --cwd apps/hosted-review setup
 docker compose -f apps/hosted-review/docker-compose.yml up --build
 ```
 
-Set `STORYBRANCH_APP_URL`, `STORYBRANCH_ADMIN_EMAIL`, `BETTER_AUTH_SECRET`, `DATABASE_URL`, and `S3_*`. Mail is Resend (`RESEND_API_KEY`, `RESEND_FROM`) from `@storybranch/mail`. `STORYBRANCH_DANGEROUS_EMAIL_LOG=1` logs the link instead of sending. Do not set that in production. An admin creates a project and a CI token in the UI. Point CI at that token and the app URL. Workflow: [`examples/github-actions/hosted-visual-review.yml`](examples/github-actions/hosted-visual-review.yml).
+See the [hosted-review README](apps/hosted-review/README.md) for env vars, dev mode, admin login, project tokens, and mail (Resend vs `STORYBRANCH_DANGEROUS_EMAIL_LOG`). CI workflow: [`examples/github-actions/hosted-visual-review.yml`](examples/github-actions/hosted-visual-review.yml).
 
 ## Features
 
