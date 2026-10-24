@@ -223,9 +223,7 @@ test("GitHub status without a PR number skips the comment", async () => {
     fetchFn
   );
 
-  expect(calls).toEqual([
-    "https://api.github.com/repos/acme/app/statuses/abc",
-  ]);
+  expect(calls).toEqual(["https://api.github.com/repos/acme/app/statuses/abc"]);
 });
 
 test("status description stays within GitHub's 140 character cap", () => {

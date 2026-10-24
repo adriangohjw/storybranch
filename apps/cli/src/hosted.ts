@@ -222,14 +222,11 @@ export async function publishGitHub(
   );
 
   if (existing === undefined) {
-    const created = await fetchFn(
-      `${api}/issues/${github.prNumber}/comments`,
-      {
-        body: JSON.stringify({ body }),
-        headers,
-        method: "POST",
-      }
-    );
+    const created = await fetchFn(`${api}/issues/${github.prNumber}/comments`, {
+      body: JSON.stringify({ body }),
+      headers,
+      method: "POST",
+    });
 
     if (!created.ok) {
       throw new Error(`GitHub comment returned ${created.status}`);
@@ -376,4 +373,3 @@ async function jsonRequest<T>(
 
   return (await response.json()) as T;
 }
-
