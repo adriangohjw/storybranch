@@ -55,7 +55,7 @@ services:
       - flocidata:/app/data
 
   s3-init:
-    image: amazon/aws-cli:2
+    image: amazon/aws-cli:latest
     depends_on:
       - floci
     entrypoint:
