@@ -5,3 +5,7 @@
 .env
 .env.local
 .env.production
+
+# impeccable decision session
+.impeccable/questions/
+.impeccable/decision-payload.json
