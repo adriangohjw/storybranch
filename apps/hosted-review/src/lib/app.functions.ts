@@ -25,6 +25,12 @@ export interface RunRow {
   prNumber: number | null;
 }
 
+export interface TokenRow {
+  createdAt: string;
+  id: string;
+  name: string;
+}
+
 function isReviewState(value: string): value is ReviewState {
   return (
     value === "pending" || value === "accepted" || value === "changes_requested"
@@ -310,6 +316,45 @@ export const createToken = createServerFn({ method: "POST" })
       .execute();
 
     return { token: minted.token };
+  });
+
+export const listTokens = createServerFn({ method: "GET" })
+  .validator((data: { projectId: string }) => data)
+  .handler(async ({ data }): Promise<TokenRow[]> => {
+    const user = await requireUser();
+
+    if (!canAdmin(user.role)) {
+      return [];
+    }
+
+    const rows = await kysely()
+      .selectFrom("project_tokens")
+      .select(["id", "name", "created_at"])
+      .where("project_id", "=", data.projectId)
+      .orderBy("created_at", "desc")
+      .execute();
+
+    return rows.map((row) => ({
+      createdAt: row.created_at.toISOString(),
+      id: row.id,
+      name: row.name,
+    }));
+  });
+
+export const revokeToken = createServerFn({ method: "POST" })
+  .validator((data: { projectId: string; tokenId: string }) => data)
+  .handler(async ({ data }) => {
+    const user = await requireUser();
+
+    if (!canAdmin(user.role)) {
+      throw new Error("Forbidden");
+    }
+
+    await kysely()
+      .deleteFrom("project_tokens")
+      .where("id", "=", data.tokenId)
+      .where("project_id", "=", data.projectId)
+      .execute();
   });
 
 export const listInvites = createServerFn({ method: "GET" }).handler(
