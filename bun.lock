@@ -50,6 +50,7 @@
         "@storybranch/mail": "workspace:*",
         "@storybranch/report": "workspace:*",
         "@storybranch/review-ui": "workspace:*",
+        "@t3-oss/env-core": "catalog:",
         "@tanstack/react-router": "catalog:",
         "@tanstack/react-start": "catalog:",
         "better-auth": "catalog:",
@@ -57,6 +58,7 @@
         "pg": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@storybranch/oxlint-config": "workspace:*",
@@ -172,6 +174,7 @@
     "@aws-sdk/client-s3": "^3.901.0",
     "@fontsource/archivo": "^5.2.8",
     "@storybook/react-vite": "10.6.2",
+    "@t3-oss/env-core": "^0.13.11",
     "@tailwindcss/vite": "^4.1.13",
     "@tanstack/react-router": "^1.170.46",
     "@tanstack/react-start": "^1.169.4",
@@ -205,6 +208,7 @@
     "turbo": "^2.5.8",
     "ultracite": "8.0.1",
     "vite": "8",
+    "zod": "^4.6.7",
   },
   "packages": {
     "@adobe/css-tools": ["@adobe/css-tools@4.5.0", "", {}, "sha512-6OzddxPio9UiWTCemp4N8cYLV2ZN1ncRnV1cVGtve7dhPOtRkleRyx32GQCYSwDYgaHU3USMm84tNsvKzRCa1Q=="],
@@ -734,6 +738,8 @@
     "@storybranch/tsconfig": ["@storybranch/tsconfig@workspace:tooling/typescript"],
 
     "@storybranch/web": ["@storybranch/web@workspace:apps/web"],
+
+    "@t3-oss/env-core": ["@t3-oss/env-core@0.13.11", "", { "peerDependencies": { "arktype": "^2.1.0", "typescript": ">=5.0.0", "valibot": "^1.0.0-beta.7 || ^1.0.0", "zod": "^3.24.0 || ^4.0.0" }, "optionalPeers": ["arktype", "typescript", "valibot", "zod"] }, "sha512-sM7GYY+KL7H/Hl0BE0inWfk3nRHZOLhmVn7sHGxaZt9FAR6KqREXAE+6TqKfiavfXmpRxO/OZ2QgKRd+oiBYRQ=="],
 
     "@tailwindcss/node": ["@tailwindcss/node@4.3.3", "", { "dependencies": { "@jridgewell/remapping": "^2.3.5", "enhanced-resolve": "^5.24.1", "jiti": "^2.7.0", "lightningcss": "1.32.0", "magic-string": "^0.30.21", "source-map-js": "^1.2.1", "tailwindcss": "4.3.3" } }, "sha512-/T8IKEsf9VTU6tLjgC7+sv2mOPtQxzE2jMw7u4Tt40Tx+QSZxpzh95/H6cMKoja9XuW7iMdLJYBB0o9G1CaAgg=="],
 
