@@ -43,6 +43,8 @@ export type ProjectToken = {
     project_id: string;
     name: string;
     token_hash: string;
+    prefix: string | null;
+    suffix: string | null;
     created_at: Generated<Timestamp>;
 };
 export type Run = {

@@ -16,10 +16,21 @@ export function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
 
-export function mintProjectToken(): { hash: string; token: string } {
-  const token = `sbp_${randomBytes(24).toString("hex")}`;
+export function mintProjectToken(): {
+  hash: string;
+  prefix: string;
+  suffix: string;
+  token: string;
+} {
+  const secret = randomBytes(24).toString("hex");
+  const token = `sbp_${secret}`;
 
-  return { hash: hashToken(token), token };
+  return {
+    hash: hashToken(token),
+    prefix: secret.slice(0, 4),
+    suffix: secret.slice(-4),
+    token,
+  };
 }
 
 export async function projectForBearer(

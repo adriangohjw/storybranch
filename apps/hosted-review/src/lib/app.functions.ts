@@ -29,6 +29,8 @@ export interface TokenRow {
   createdAt: string;
   id: string;
   name: string;
+  prefix: string | null;
+  suffix: string | null;
 }
 
 function isReviewState(value: string): value is ReviewState {
@@ -310,7 +312,9 @@ export const createToken = createServerFn({ method: "POST" })
       .values({
         id: newId(),
         name: data.name.trim() || "ci",
+        prefix: minted.prefix,
         project_id: data.projectId,
+        suffix: minted.suffix,
         token_hash: minted.hash,
       })
       .execute();
@@ -329,7 +333,7 @@ export const listTokens = createServerFn({ method: "GET" })
 
     const rows = await kysely()
       .selectFrom("project_tokens")
-      .select(["id", "name", "created_at"])
+      .select(["id", "name", "prefix", "suffix", "created_at"])
       .where("project_id", "=", data.projectId)
       .orderBy("created_at", "desc")
       .execute();
@@ -338,6 +342,8 @@ export const listTokens = createServerFn({ method: "GET" })
       createdAt: row.created_at.toISOString(),
       id: row.id,
       name: row.name,
+      prefix: row.prefix,
+      suffix: row.suffix,
     }));
   });
 
