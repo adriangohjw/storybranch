@@ -6,6 +6,7 @@
     "build": "vite build",
     "db:generate": "prisma generate && bun fmt src/generated/types.ts",
     "db:migrate": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset --force",
     "dev": "prisma migrate deploy && vite dev",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",

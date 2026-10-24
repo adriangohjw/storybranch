@@ -79,5 +79,6 @@ With `GITHUB_TOKEN` and a PR number (`STORYBRANCH_PR_NUMBER` or `refs/pull/N/mer
 | `bun run setup`           | Run [`scripts/setup.sh`](./scripts/setup.sh) |
 | `bun run dev`             | Apply migrations, then the Vite dev server   |
 | `bun run db:migrate`      | Apply Prisma migrations                      |
+| `bun run db:reset`        | Drop DB, reapply migrations (uses `.env`)    |
 | `bun run db:generate`     | Regenerate Kysely types from `schema.prisma` |
 | `bun run build` / `start` | Production build                             |
