@@ -103,7 +103,7 @@ export async function uploadHostedRun(
         ciUrl: githubRunUrl(),
         commitSha: report.commit,
         durationMs: report.durationMs,
-        prNumber: await prNumberFromEnv(),
+        prNumber: prNumberFromEnv(process.env),
         report,
         repository: process.env.GITHUB_REPOSITORY,
         storyCount: report.storyCount,
@@ -165,15 +165,9 @@ export function githubContextFromEnv(
     return undefined;
   }
 
-  const prFromRef = /^refs\/pull\/(?<n>\d+)\//u.exec(env.GITHUB_REF ?? "");
-
   return {
     owner,
-    prNumber:
-      parseOptionalInt(env.STORYBRANCH_PR_NUMBER) ??
-      (prFromRef?.groups?.n === undefined
-        ? undefined
-        : Number(prFromRef.groups.n)),
+    prNumber: prNumberFromEnv(env),
     repo,
     sha,
     token,
@@ -211,11 +205,7 @@ export async function publishGitHub(
     throw new Error(`GitHub status returned ${status.status}`);
   }
 
-  const prNumber =
-    github.prNumber ??
-    (await lookupPullRequest(api, github.sha, headers, fetchFn));
-
-  if (prNumber === undefined) {
+  if (github.prNumber === undefined) {
     return;
   }
 
@@ -223,7 +213,7 @@ export async function publishGitHub(
 
   const comments = await jsonRequest<{ body: string; id: number }[]>(
     fetchFn,
-    `${api}/issues/${prNumber}/comments?per_page=100`,
+    `${api}/issues/${github.prNumber}/comments?per_page=100`,
     { headers }
   );
 
@@ -232,11 +222,14 @@ export async function publishGitHub(
   );
 
   if (existing === undefined) {
-    const created = await fetchFn(`${api}/issues/${prNumber}/comments`, {
-      body: JSON.stringify({ body }),
-      headers,
-      method: "POST",
-    });
+    const created = await fetchFn(
+      `${api}/issues/${github.prNumber}/comments`,
+      {
+        body: JSON.stringify({ body }),
+        headers,
+        method: "POST",
+      }
+    );
 
     if (!created.ok) {
       throw new Error(`GitHub comment returned ${created.status}`);
@@ -262,7 +255,7 @@ export function prCommentBody(report: Report, url: string): string {
   const summary = attentionSummary(report) ?? "No snapshots need attention";
 
   return `${HOSTED_COMMENT_MARKER}
-**storybranch visual** — ${summary}
+storybranch visual. ${summary}
 
 [Open run](${url})
 `;
@@ -325,38 +318,20 @@ function githubRunUrl(): string | undefined {
   return `${server}/${repo}/actions/runs/${runId}`;
 }
 
-async function prNumberFromEnv(): Promise<number | undefined> {
-  const direct = parseOptionalInt(process.env.STORYBRANCH_PR_NUMBER);
+function prNumberFromEnv(env: NodeJS.ProcessEnv): number | undefined {
+  const direct = parseOptionalInt(env.STORYBRANCH_PR_NUMBER);
 
   if (direct !== undefined) {
     return direct;
   }
 
-  const eventPath = process.env.GITHUB_EVENT_PATH;
+  const prFromRef = /^refs\/pull\/(?<n>\d+)\//u.exec(env.GITHUB_REF ?? "");
 
-  if (eventPath === undefined) {
+  if (prFromRef?.groups?.n === undefined) {
     return undefined;
   }
 
-  try {
-    const event: unknown = JSON.parse(await readFile(eventPath, "utf-8"));
-
-    if (
-      typeof event === "object" &&
-      event !== null &&
-      "pull_request" in event &&
-      typeof event.pull_request === "object" &&
-      event.pull_request !== null &&
-      "number" in event.pull_request &&
-      typeof event.pull_request.number === "number"
-    ) {
-      return event.pull_request.number;
-    }
-  } catch {
-    return undefined;
-  }
-
-  return undefined;
+  return Number(prFromRef.groups.n);
 }
 
 async function putFile(
@@ -402,34 +377,3 @@ async function jsonRequest<T>(
   return (await response.json()) as T;
 }
 
-async function lookupPullRequest(
-  api: string,
-  sha: string,
-  headers: Record<string, string>,
-  fetchFn: FetchFn
-): Promise<number | undefined> {
-  const response = await fetchFn(`${api}/commits/${sha}/pulls`, { headers });
-
-  if (!response.ok) {
-    return undefined;
-  }
-
-  const pulls: unknown = await response.json();
-
-  if (!Array.isArray(pulls) || pulls[0] === undefined) {
-    return undefined;
-  }
-
-  const first: unknown = pulls[0];
-
-  if (
-    typeof first === "object" &&
-    first !== null &&
-    "number" in first &&
-    typeof first.number === "number"
-  ) {
-    return first.number;
-  }
-
-  return undefined;
-}

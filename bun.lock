@@ -56,8 +56,6 @@
         "pg": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
-        "react-icons": "catalog:",
-        "tailwind-merge": "catalog:",
       },
       "devDependencies": {
         "@storybranch/oxlint-config": "workspace:*",

@@ -22,9 +22,7 @@
     "nodemailer": "catalog:",
     "pg": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:",
-    "react-icons": "catalog:",
-    "tailwind-merge": "catalog:"
+    "react-dom": "catalog:"
   },
   "devDependencies": {
     "@storybranch/oxlint-config": "workspace:*",

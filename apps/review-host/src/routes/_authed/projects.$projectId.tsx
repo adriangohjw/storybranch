@@ -39,8 +39,8 @@ function ProjectPage() {
                   {run.commitSha.slice(0, 12)}
                 </span>
                 <span className="ml-2 text-zinc-400">
-                  {run.branch ?? "—"}
-                  {run.prNumber === null ? "" : ` · PR #${run.prNumber}`}
+                  {run.branch ?? ""}
+                  {run.prNumber === null ? "" : ` PR #${run.prNumber}`}
                 </span>
                 <span className="ml-2 text-zinc-600">{run.createdAt}</span>
               </Link>

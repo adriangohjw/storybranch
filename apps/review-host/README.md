@@ -10,7 +10,7 @@ cp apps/review-host/.env.example apps/review-host/.env
 docker compose -f apps/review-host/docker-compose.yml up --build
 ```
 
-Open `http://127.0.0.1:3000/login`. The admin email in `STORYBRANCH_ADMIN_EMAIL` is invited as **admin**. Without `SMTP_HOST`, magic links print to the app logs.
+Open `http://127.0.0.1:3000/login`. The admin email in `STORYBRANCH_ADMIN_EMAIL` is invited as admin. Without `SMTP_HOST`, magic links print to the app logs.
 
 Dev (compose for Postgres + MinIO, Vite for the app):
 
@@ -28,4 +28,4 @@ storybranch test --build --exit-once \
   --api-url "https://review.example"
 ```
 
-Same flags via `STORYBRANCH_PROJECT_TOKEN` and `STORYBRANCH_API_URL`. GitHub commit status `storybranch / visual` and one updatable PR comment need `GITHUB_TOKEN` plus the usual `GITHUB_*` context. Template: [`examples/github-actions/hosted-visual-review.yml`](../../examples/github-actions/hosted-visual-review.yml).
+Same flags via `STORYBRANCH_PROJECT_TOKEN` and `STORYBRANCH_API_URL`. GitHub commit status `storybranch / visual` and one updatable PR comment need `GITHUB_TOKEN` and a PR number (`STORYBRANCH_PR_NUMBER` or `GITHUB_REF` like `refs/pull/12/merge`). Template: [`examples/github-actions/hosted-visual-review.yml`](../../examples/github-actions/hosted-visual-review.yml).

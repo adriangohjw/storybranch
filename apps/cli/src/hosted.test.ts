@@ -176,6 +176,56 @@ test("GitHub context stays unset without GITHUB_TOKEN", () => {
     sha: "abc",
     token: "gh",
   });
+  expect(
+    githubContextFromEnv({
+      GITHUB_REF: "refs/heads/main",
+      GITHUB_REPOSITORY: "acme/app",
+      GITHUB_SHA: "abc",
+      GITHUB_TOKEN: "gh",
+      STORYBRANCH_PR_NUMBER: "12",
+    })
+  ).toEqual({
+    owner: "acme",
+    prNumber: 12,
+    repo: "app",
+    sha: "abc",
+    token: "gh",
+  });
+});
+
+test("GitHub status without a PR number skips the comment", async () => {
+  const report = sampleReport("/tmp/a.png");
+  const calls: string[] = [];
+  const fetchFn: typeof fetch = async (input) => {
+    calls.push(String(input));
+
+    if (String(input).includes("/statuses/")) {
+      return new Response(null, { status: 201 });
+    }
+
+    return new Response("unexpected", { status: 500 });
+  };
+
+  await publishGitHub(
+    {
+      owner: "acme",
+      prNumber: undefined,
+      repo: "app",
+      sha: "abc",
+      token: "gh",
+    },
+    {
+      projectId: "proj",
+      runId: "run-1",
+      url: "http://review.example/run",
+    },
+    report,
+    fetchFn
+  );
+
+  expect(calls).toEqual([
+    "https://api.github.com/repos/acme/app/statuses/abc",
+  ]);
 });
 
 test("status description stays within GitHub's 140 character cap", () => {

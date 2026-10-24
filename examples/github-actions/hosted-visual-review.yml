@@ -39,5 +39,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           STORYBRANCH_API_URL: ${{ vars.STORYBRANCH_API_URL }}
+          STORYBRANCH_PR_NUMBER: ${{ github.event.pull_request.number }}
           STORYBRANCH_PROJECT_TOKEN: ${{ secrets.STORYBRANCH_PROJECT_TOKEN }}
         run: npx storybranch test --build --exit-once
