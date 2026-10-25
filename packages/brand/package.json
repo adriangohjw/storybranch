@@ -14,9 +14,9 @@
   "devDependencies": {
     "@storybranch/oxlint-config": "workspace:*",
     "@storybranch/tsconfig": "workspace:*",
-    "@types/react": "catalog:"
+    "@types/react": "catalog:react"
   },
   "peerDependencies": {
-    "react": "catalog:"
+    "react": "catalog:react"
   }
 }

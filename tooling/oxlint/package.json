@@ -19,6 +19,6 @@
   },
   "devDependencies": {
     "@storybranch/tsconfig": "workspace:*",
-    "oxlint": "catalog:"
+    "oxlint": "catalog:oxlint"
   }
 }

@@ -12,18 +12,21 @@
     "typecheck": "bun ../../scripts/bun-check.ts"
   },
   "dependencies": {
-    "@astrojs/react": "catalog:",
+    "@astrojs/react": "catalog:astro",
     "@storybranch/brand": "workspace:*",
-    "@tailwindcss/vite": "catalog:",
-    "astro": "catalog:",
-    "react": "catalog:",
-    "react-dom": "catalog:",
+    "@tailwindcss/vite": "catalog:tailwind",
+    "astro": "catalog:astro",
+    "react": "catalog:react",
+    "react-dom": "catalog:react",
     "react-icons": "catalog:",
     "sonner": "catalog:",
-    "tailwindcss": "catalog:"
+    "tailwindcss": "catalog:tailwind"
   },
   "devDependencies": {
     "@storybranch/oxlint-config": "workspace:*",
     "@storybranch/tsconfig": "workspace:*"
+  },
+  "engines": {
+    "node": ">=22.23.4"
   }
 }

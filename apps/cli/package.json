@@ -57,7 +57,7 @@
     "picocolors": "catalog:",
     "pixelmatch": "catalog:",
     "playwright": "catalog:",
-    "pngjs": "catalog:"
+    "pngjs": "catalog:png"
   },
   "devDependencies": {
     "@storybranch/core": "workspace:*",

@@ -22,19 +22,19 @@
     "@fontsource/archivo": "catalog:",
     "@storybranch/brand": "workspace:*",
     "@storybranch/report": "workspace:*",
-    "react": "catalog:",
-    "react-dom": "catalog:",
+    "react": "catalog:react",
+    "react-dom": "catalog:react",
     "react-icons": "catalog:",
-    "tailwind-merge": "catalog:"
+    "tailwind-merge": "catalog:tailwind"
   },
   "devDependencies": {
     "@storybranch/oxlint-config": "workspace:*",
     "@storybranch/tsconfig": "workspace:*",
-    "@tailwindcss/vite": "catalog:",
-    "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
-    "@vitejs/plugin-react": "catalog:",
-    "tailwindcss": "catalog:",
-    "vite": "catalog:"
+    "@tailwindcss/vite": "catalog:tailwind",
+    "@types/react": "catalog:react",
+    "@types/react-dom": "catalog:react",
+    "@vitejs/plugin-react": "catalog:vite",
+    "tailwindcss": "catalog:tailwind",
+    "vite": "catalog:vite"
   }
 }

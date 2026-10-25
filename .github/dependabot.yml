@@ -8,38 +8,52 @@ updates:
     cooldown:
       default-days: 7
     groups:
-      storybook:
-        patterns:
-          - storybook
-          - "@storybook/*"
       astro:
         patterns:
           - astro
           - "@astrojs/*"
+      aws:
+        patterns:
+          - "@aws-sdk/*"
+      oxlint:
+        patterns:
+          - oxlint*
+      pg:
+        patterns:
+          - pg
+          - "@types/pg"
+      png:
+        patterns:
+          - pngjs
+          - "@types/pngjs"
+      prisma:
+        patterns:
+          - prisma*
       react:
         patterns:
           - react
           - react-dom
           - "@types/react"
           - "@types/react-dom"
-      vite:
+      storybook:
         patterns:
-          - vite
-          - "@vitejs/*"
+          - storybook
+          - "@storybook/*"
+      t3:
+        patterns:
+          - "@t3-oss/*"
       tailwind:
         patterns:
           - tailwindcss
           - "@tailwindcss/*"
           - tailwind-merge
-      oxc:
+      tanstack:
         patterns:
-          - oxlint
-          - oxlint-tsgolint
-      image:
+          - "@tanstack/*"
+      vite:
         patterns:
-          - pixelmatch
-          - pngjs
-          - "@types/pngjs"
+          - vite
+          - "@vitejs/*"
     commit-message:
       prefix: chore(deps)
 

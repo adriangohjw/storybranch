@@ -3,7 +3,8 @@ import { expect, test } from "bun:test";
 import { publishedManifest } from "../scripts/published-manifest.mjs";
 
 interface RootManifest {
-  catalog: Record<string, string>;
+  catalog?: Record<string, string>;
+  catalogs: Record<string, Record<string, string>>;
 }
 
 interface CliManifest {
@@ -50,8 +51,15 @@ test("cli runtime dependencies use the root catalog", async () => {
   ).json()) as CliManifest;
 
   for (const [name, version] of Object.entries(cli.dependencies)) {
-    expect(version).toBe("catalog:");
-    expect(root.catalog[name]).toBeDefined();
+    if (version === "catalog:") {
+      expect(root.catalog?.[name]).toBeDefined();
+      continue;
+    }
+
+    const match = /^catalog:(?<family>.+)$/.exec(version);
+    expect(match).not.toBeNull();
+    const family = match?.groups?.family ?? "";
+    expect(root.catalogs[family]?.[name]).toBeDefined();
   }
 });
 

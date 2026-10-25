@@ -6,7 +6,7 @@ export function collectIgnoreRects(selectors: string[]): IgnoreRect[] {
   const root = document.querySelector("#storybook-root");
 
   if (!(root instanceof Element)) {
-    throw new Error("missing #storybook-root");
+    throw new TypeError("missing #storybook-root");
   }
 
   const origin = root.getBoundingClientRect();
