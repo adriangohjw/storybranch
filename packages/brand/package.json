@@ -11,12 +11,12 @@
     "lint:fix": "oxlint --fix .",
     "typecheck": "bun ../../scripts/bun-check.ts"
   },
-  "peerDependencies": {
-    "react": "catalog:"
-  },
   "devDependencies": {
     "@storybranch/oxlint-config": "workspace:*",
     "@storybranch/tsconfig": "workspace:*",
     "@types/react": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "catalog:"
   }
 }

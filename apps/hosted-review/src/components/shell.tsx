@@ -1,9 +1,9 @@
+import { Mark } from "@storybranch/brand";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import type { ReactNode } from "react";
 
-import { Mark } from "@storybranch/brand";
 import {
   Breadcrumb,
   BreadcrumbItem,

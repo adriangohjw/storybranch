@@ -1,7 +1,7 @@
+import { Mark } from "@storybranch/brand";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 
-import { Mark } from "@storybranch/brand";
 import { Button } from "~/components/ui/button";
 import {
   Card,
