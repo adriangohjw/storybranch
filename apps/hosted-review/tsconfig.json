@@ -1,0 +1,14 @@
+{
+  "extends": "@storybranch/tsconfig/base.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": ["../review-ui/src/*"],
+      "~/*": ["./src/*"]
+    },
+    "types": ["bun", "vite/client"],
+    "verbatimModuleSyntax": false
+  },
+  "include": ["./**/*.ts", "./**/*.tsx"]
+}

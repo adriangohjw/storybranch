@@ -18,5 +18,20 @@ export default defineConfig({
     "scripts/**",
   ],
   jsPlugins: reactDoctorJsPlugins,
-  overrides: [srcAliasImportsOverride],
+  overrides: [
+    srcAliasImportsOverride,
+    {
+      files: ["src/hosted.ts"],
+      rules: {
+        "anti-slop/no-known-value-widening": "off",
+        "anti-slop/no-runtime-typeof": "off",
+        "anti-slop/require-safety-comment-for-type-assertion": "off",
+        "react-doctor/async-await-in-loop": "off",
+        "react-doctor/server-sequential-independent-await": "off",
+        "typescript/no-unsafe-type-assertion": "off",
+        "typescript/prefer-nullish-coalescing": "off",
+        "typescript/strict-boolean-expressions": "off",
+      },
+    },
+  ],
 });

@@ -1,0 +1,85 @@
+services:
+  app:
+    profiles: ["app"]
+    build:
+      context: ../..
+      dockerfile: apps/hosted-review/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+      floci:
+        condition: service_started
+      s3-init:
+        condition: service_completed_successfully
+    environment:
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-secret-change-me-please-32ch}
+      DATABASE_URL: postgres://storybranch:storybranch@postgres:5432/storybranch
+      S3_ACCESS_KEY: test
+      S3_BUCKET: storybranch
+      S3_ENDPOINT: http://floci:4566
+      S3_FORCE_PATH_STYLE: "true"
+      S3_REGION: us-east-1
+      S3_SECRET_KEY: test
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM: ${RESEND_FROM:-}
+      STORYBRANCH_DANGEROUS_EMAIL_LOG: ${STORYBRANCH_DANGEROUS_EMAIL_LOG:-1}
+      STORYBRANCH_ADMIN_EMAIL: ${STORYBRANCH_ADMIN_EMAIL:-admin@localhost}
+      STORYBRANCH_APP_URL: ${STORYBRANCH_APP_URL:-http://127.0.0.1:3000}
+    ports:
+      - "3000:3000"
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: storybranch
+      POSTGRES_PASSWORD: storybranch
+      POSTGRES_USER: storybranch
+    healthcheck:
+      interval: 2s
+      retries: 20
+      test: ["CMD-SHELL", "pg_isready -U storybranch"]
+      timeout: 5s
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  floci:
+    image: floci/floci:latest
+    environment:
+      FLOCI_HOSTNAME: floci
+      FLOCI_STORAGE_MODE: persistent
+      FLOCI_STORAGE_PERSISTENT_PATH: /app/data
+    ports:
+      - "4566:4566"
+    volumes:
+      - flocidata:/app/data
+
+  s3-init:
+    image: amazon/aws-cli:latest
+    depends_on:
+      - floci
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        for i in 1 2 3 4 5 6 7 8 9 10; do
+          if aws s3api head-bucket --bucket storybranch --endpoint-url http://floci:4566 2>/dev/null; then
+            exit 0
+          fi
+          if aws s3 mb s3://storybranch --endpoint-url http://floci:4566 2>/dev/null; then
+            exit 0
+          fi
+          sleep 2
+        done
+        echo "could not create storybranch bucket on Floci"
+        exit 1
+    environment:
+      AWS_ACCESS_KEY_ID: test
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_SECRET_ACCESS_KEY: test
+
+volumes:
+  flocidata:
+  pgdata:

@@ -34,7 +34,7 @@ export const SnapshotFrame = ({
     return (
       <div
         className={cn(
-          "flex min-h-32 items-center justify-center rounded-md border border-dashed border-zinc-700 bg-zinc-900/40 px-4 py-8 text-center text-xs text-zinc-500",
+          "border-line bg-paper-deep text-ink-soft flex min-h-32 items-center justify-center rounded-md border border-dashed px-4 py-8 text-center text-xs",
           className
         )}
       >
@@ -46,7 +46,7 @@ export const SnapshotFrame = ({
   return (
     <div
       className={cn(
-        "checker-surface relative min-h-32 w-full overflow-hidden rounded-md border border-zinc-800",
+        "checker-surface border-line relative min-h-32 w-full overflow-hidden rounded-md border",
         className
       )}
       style={aspectRatio === undefined ? undefined : { aspectRatio }}

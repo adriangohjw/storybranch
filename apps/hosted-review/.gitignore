@@ -1,0 +1,11 @@
+# nitro / vite build
+.output/
+
+# environment
+.env
+.env.local
+.env.production
+
+# impeccable decision session
+.impeccable/questions/
+.impeccable/decision-payload.json

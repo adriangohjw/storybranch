@@ -7,6 +7,7 @@ import Nav from "../components/nav.astro";
 const github = "https://github.com/adriangohjw/storybranch";
 
 const workflow = `${github}/blob/main/examples/github-actions/visual-regression.yml`;
+const hostedWorkflow = `${github}/blob/main/examples/github-actions/hosted-visual-review.yml`;
 const commentScript = `${github}/blob/main/scripts/ci/storybranch-pr-comment.mjs`;
 const ciDoc = `${github}/blob/main/docs/ci.md`;
 ---
@@ -28,11 +29,11 @@ const ciDoc = `${github}/blob/main/docs/ci.md`;
       GitHub Actions
     </h1>
     <p class="text-ink-muted mt-4 text-lg">
-      storybranch in CI is a test: build Storybook, capture snapshots, exit
+      The default CI job is a test: build Storybook, capture snapshots, exit
       <strong class="text-ink font-semibold">1</strong> when a shot needs
       attention. Approval stays on a machine where someone can run
-      <DocInlineCode value="storybranch review" />. There is no hosted review
-      URL.
+      <DocInlineCode value="storybranch review" />. That git-baseline recipe
+      has no hosted review URL.
     </p>
 
     <h2 class="font-syne text-ink mt-12 text-2xl font-bold tracking-tight">
@@ -145,6 +146,37 @@ npx storybranch test --build --only-changed --exit-once</code></pre>
       Download the workflow artifact, unpack it into the Storybook package, and
       run <DocInlineCode value="storybranch review" />. The example PR comment
       lists shots that need attention and links to the workflow run.
+    </p>
+
+    <h2 class="font-syne text-ink mt-12 text-2xl font-bold tracking-tight">
+      Optional self-hosted review
+    </h2>
+    <p class="text-ink-muted mt-4">
+      A separate app, <DocInlineCode value="apps/hosted-review" />, stores one
+      baseline set per project in Postgres and S3 that you run. It is not a
+      storybranch SaaS. Local <DocInlineCode value="storybranch test" /> and
+      <DocInlineCode value="storybranch review" /> are unchanged unless CI sets
+      both <DocInlineCode value="STORYBRANCH_PROJECT_TOKEN" /> and
+      <DocInlineCode value="STORYBRANCH_API_URL" />. Then the job uploads the
+      run and exits 0 after a successful upload, even when pixels differ.
+      Teammates review on your server.
+    </p>
+    <p class="text-ink-muted mt-4">
+      <a
+        class="text-ink decoration-ink/20 hover:decoration-ink/50 underline underline-offset-2"
+        href={hostedWorkflow}
+        rel="noopener noreferrer"
+        target="_blank"
+        >hosted-visual-review.yml</a
+      >
+      and the setup notes in
+      <a
+        class="text-ink decoration-ink/20 hover:decoration-ink/50 underline underline-offset-2"
+        href={ciDoc}
+        rel="noopener noreferrer"
+        target="_blank"
+        >docs/ci.md</a
+      >.
     </p>
 
     <h2 class="font-syne text-ink mt-12 text-2xl font-bold tracking-tight">

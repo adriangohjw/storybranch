@@ -2,7 +2,7 @@ import type { ReportEntry } from "@storybranch/report";
 import { useMemo, useState } from "react";
 import { LuCheck, LuChevronDown } from "react-icons/lu";
 
-import { acceptShot } from "@/api.ts";
+import { acceptShot as postAcceptShot } from "@/api.ts";
 import { cn } from "@/lib/cn.ts";
 import { badgeTone, needsAttention } from "@/lib/report-ui.ts";
 import type {
@@ -13,18 +13,28 @@ import type {
 import { buildSnapshotTree } from "@/lib/snapshot-tree.ts";
 
 interface ShotListProps {
+  acceptShot?: (filename: string) => Promise<void>;
   entries: ReportEntry[];
   onAccept: () => void;
   onSelect: (filename: string | null) => void;
   selectedFilename: string | null;
+  showAccept?: boolean;
 }
 
 export const ShotList = ({
+  acceptShot,
   entries,
   onAccept,
   onSelect,
   selectedFilename,
+  showAccept = true,
 }: ShotListProps) => {
+  const postAccept =
+    acceptShot ??
+    (async (filename: string) => {
+      await postAcceptShot(filename);
+    });
+
   const tree = useMemo(() => buildSnapshotTree(entries), [entries]);
 
   const [openOverrides, setOpenOverrides] = useState<Map<string, boolean>>(
@@ -46,7 +56,7 @@ export const ShotList = ({
 
   if (tree.components.length === 0) {
     return (
-      <p className="px-1 text-xs text-zinc-500">No snapshots in this filter.</p>
+      <p className="text-ink-soft px-1 text-xs">No snapshots in this filter.</p>
     );
   }
 
@@ -67,9 +77,10 @@ export const ShotList = ({
               tone="component"
             />
             {componentOpen ? (
-              <div className="mt-0.5 space-y-1 border-l border-zinc-800 pl-2">
+              <div className="border-line mt-0.5 space-y-1 border-l pl-2">
                 {component.stories.map((story) => (
                   <StoryBranch
+                    acceptShot={postAccept}
                     component={component.component}
                     isOpen={isOpen}
                     key={`${component.component}/${story.story}`}
@@ -77,6 +88,7 @@ export const ShotList = ({
                     onSelect={onSelect}
                     onToggle={toggle}
                     selectedFilename={selectedFilename}
+                    showAccept={showAccept}
                     story={story}
                   />
                 ))}
@@ -90,22 +102,26 @@ export const ShotList = ({
 };
 
 interface StoryBranchProps {
+  acceptShot: (filename: string) => Promise<void>;
   component: string;
   isOpen: (key: string, hasAttention: boolean) => boolean;
   onAccept: () => void;
   onSelect: (filename: string | null) => void;
   onToggle: (key: string, hasAttention: boolean) => void;
   selectedFilename: string | null;
+  showAccept: boolean;
   story: StoryNode;
 }
 
 const StoryBranch = ({
+  acceptShot,
   component,
   isOpen,
   onAccept,
   onSelect,
   onToggle,
   selectedFilename,
+  showAccept,
   story,
 }: StoryBranchProps) => {
   const storyKey = `s:${component}/${story.story}`;
@@ -122,9 +138,10 @@ const StoryBranch = ({
         tone="story"
       />
       {storyOpen ? (
-        <div className="mt-0.5 space-y-1 border-l border-zinc-800 pl-2">
+        <div className="border-line mt-0.5 space-y-1 border-l pl-2">
           {story.shots.map((shot) => (
             <ShotSizeBranch
+              acceptShot={acceptShot}
               component={component}
               isOpen={isOpen}
               key={`${story.story}/${shot.label}`}
@@ -133,6 +150,7 @@ const StoryBranch = ({
               onToggle={onToggle}
               selectedFilename={selectedFilename}
               shot={shot}
+              showAccept={showAccept}
               storyName={story.story}
             />
           ))}
@@ -143,6 +161,7 @@ const StoryBranch = ({
 };
 
 interface ShotSizeBranchProps {
+  acceptShot: (filename: string) => Promise<void>;
   component: string;
   isOpen: (key: string, hasAttention: boolean) => boolean;
   onAccept: () => void;
@@ -150,10 +169,12 @@ interface ShotSizeBranchProps {
   onToggle: (key: string, hasAttention: boolean) => void;
   selectedFilename: string | null;
   shot: ShotSizeNode;
+  showAccept: boolean;
   storyName: string;
 }
 
 const ShotSizeBranch = ({
+  acceptShot,
   component,
   isOpen,
   onAccept,
@@ -161,6 +182,7 @@ const ShotSizeBranch = ({
   onToggle,
   selectedFilename,
   shot,
+  showAccept,
   storyName,
 }: ShotSizeBranchProps) => {
   const sizeKey = `z:${component}/${storyName}/${shot.label}`;
@@ -177,7 +199,7 @@ const ShotSizeBranch = ({
         tone="size"
       />
       {sizeOpen ? (
-        <ul className="mt-0.5 space-y-1 border-l border-zinc-800 pl-2">
+        <ul className="border-line mt-0.5 space-y-1 border-l pl-2">
           {shot.leaves.map((leaf) => (
             <li
               className="flex items-center gap-0.5"
@@ -191,7 +213,12 @@ const ShotSizeBranch = ({
                 onSelect={onSelect}
                 selected={leaf.entry.filename === selectedFilename}
               />
-              <AcceptButton entry={leaf.entry} onAccept={onAccept} />
+              <AcceptButton
+                acceptShot={acceptShot}
+                entry={leaf.entry}
+                onAccept={onAccept}
+                showAccept={showAccept}
+              />
             </li>
           ))}
         </ul>
@@ -210,10 +237,10 @@ interface TreeToggleProps {
 const TreeToggle = ({ label, onToggle, open, tone }: TreeToggleProps) => (
   <button
     className={cn(
-      "flex w-full items-center gap-1 rounded px-1 py-0.5 text-left hover:bg-zinc-800/80",
-      tone === "component" && "font-semibold text-zinc-200",
-      tone === "story" && "font-medium text-zinc-300",
-      tone === "size" && "text-zinc-400"
+      "hover:bg-pending/40 flex w-full items-center gap-1 rounded px-1 py-0.5 text-left",
+      tone === "component" && "text-ink font-semibold",
+      tone === "story" && "text-ink-soft font-medium",
+      tone === "size" && "text-ink-soft"
     )}
     onClick={onToggle}
     type="button"
@@ -221,7 +248,7 @@ const TreeToggle = ({ label, onToggle, open, tone }: TreeToggleProps) => (
     <LuChevronDown
       aria-hidden
       className={cn(
-        "size-3 shrink-0 text-zinc-500 transition-transform",
+        "text-ink-soft size-3 shrink-0 transition-transform",
         !open && "-rotate-90"
       )}
     />
@@ -245,9 +272,9 @@ const SnapshotLeafRow = ({
   return (
     <button
       className={cn(
-        "flex min-w-0 flex-1 flex-col items-start gap-1 rounded-md border px-2 py-1.5 text-left transition-colors",
-        "hover:border-zinc-600 hover:bg-zinc-800/80",
-        selected ? "border-zinc-500 bg-zinc-800" : "border-transparent"
+        "shot-cell flex min-w-0 flex-1 flex-col items-start justify-center gap-1 rounded-sm border px-2 py-1.5 text-left transition-colors",
+        "hover:border-ink hover:bg-pending/40",
+        selected ? "border-ink bg-paper-deep" : "border-transparent"
       )}
       onClick={() => {
         onSelect(entry.filename ?? null);
@@ -262,7 +289,7 @@ const SnapshotLeafRow = ({
       >
         {entry.status}
       </span>
-      <span className="text-[11px] leading-snug text-zinc-300 capitalize">
+      <span className="text-ink-soft text-[11px] leading-snug capitalize">
         {browser}
       </span>
     </button>
@@ -270,14 +297,22 @@ const SnapshotLeafRow = ({
 };
 
 interface AcceptButtonProps {
+  acceptShot: (filename: string) => Promise<void>;
   entry: ReportEntry;
   onAccept: () => void;
+  showAccept: boolean;
 }
 
-const AcceptButton = ({ entry, onAccept }: AcceptButtonProps) => {
+const AcceptButton = ({
+  acceptShot,
+  entry,
+  onAccept,
+  showAccept,
+}: AcceptButtonProps) => {
   const { filename } = entry;
 
   const canAccept =
+    showAccept &&
     filename !== undefined &&
     needsAttention(entry.status) &&
     entry.status !== "error";
@@ -289,7 +324,7 @@ const AcceptButton = ({ entry, onAccept }: AcceptButtonProps) => {
   return (
     <button
       aria-label="Accept"
-      className="shrink-0 rounded p-1 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+      className="text-ink-soft hover:bg-pending/40 hover:text-ink shrink-0 rounded p-1"
       onClick={() => {
         void (async () => {
           await acceptShot(filename);

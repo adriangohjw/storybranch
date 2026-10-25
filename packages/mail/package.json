@@ -1,0 +1,19 @@
+{
+  "name": "@storybranch/mail",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/mail.ts"
+  },
+  "scripts": {
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "test": "bun test",
+    "typecheck": "bun ../../scripts/bun-check.ts"
+  },
+  "devDependencies": {
+    "@storybranch/oxlint-config": "workspace:*",
+    "@storybranch/tsconfig": "workspace:*",
+    "@types/bun": "catalog:"
+  }
+}

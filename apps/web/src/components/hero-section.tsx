@@ -23,8 +23,9 @@ export function HeroSection() {
           </h1>
           <p className="animate-rise-delay-2 text-ink-muted mt-4 max-w-md text-base leading-relaxed sm:text-lg">
             Capture stories as PNGs in Chrome, Firefox, Edge, and Safari,
-            pixel-diff against baselines on disk, and accept changes in a review
-            UI — no cloud required.
+            pixel-diff against baselines on disk, and accept changes in a local
+            review UI. No cloud account. Team review is an optional app you host
+            yourself.
           </p>
           <div className="animate-rise-delay-3 mt-8 flex flex-wrap items-center gap-3">
             <a
