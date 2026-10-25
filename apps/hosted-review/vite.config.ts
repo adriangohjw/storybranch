@@ -14,7 +14,9 @@ export default defineConfig({
     tailwindcss(),
     tanstackStart({ srcDirectory: "src" }),
     viteReact(),
-    nitro(),
+    nitro({
+      serverAssets: [{ baseName: "demo", dir: "./demo" }],
+    }),
   ],
   resolve: {
     alias: {

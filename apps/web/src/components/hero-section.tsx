@@ -7,6 +7,8 @@ import { TerminalDemo } from "./terminal-demo.tsx";
 
 const github = "https://github.com/adriangohjw/storybranch";
 
+const hostedDemoUrl = import.meta.env.PUBLIC_STORYBRANCH_DEMO_URL;
+
 export function HeroSection() {
   return (
     <PackageManagerProvider>
@@ -37,6 +39,16 @@ export function HeroSection() {
             >
               See a review
             </a>
+            {typeof hostedDemoUrl === "string" && hostedDemoUrl.length > 0 ? (
+              <a
+                className="border-ink/15 bg-surface/80 text-ink hover:border-ink/30 rounded-md border px-4 py-2.5 text-sm font-semibold transition-colors"
+                href={hostedDemoUrl}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                See a live demo
+              </a>
+            ) : null}
             <a
               className="border-ink/15 bg-surface/80 text-ink hover:border-ink/30 rounded-md border px-4 py-2.5 text-sm font-semibold transition-colors"
               href={github}

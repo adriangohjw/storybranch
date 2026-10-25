@@ -11,15 +11,19 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthedRouteImport } from './routes/_authed'
+import { Route as DemoRouteImport } from './routes/demo'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedProjectsRouteImport } from './routes/_authed/projects'
+import { Route as DemoIndexRouteImport } from './routes/demo/index'
 import { Route as AuthedProjectsProjectIdRouteImport } from './routes/_authed/projects_.$projectId'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiCiBaselinesRouteImport } from './routes/api/ci/baselines'
 import { Route as ApiCiRunsRouteImport } from './routes/api/ci/runs'
+import { Route as DemoRunsRunIdRouteImport } from './routes/demo/runs.$runId'
 import { Route as ApiCiBaselinesFilenameRouteImport } from './routes/api/ci/baselines.$filename'
 import { Route as AuthedProjectsProjectIdRunsRunIdRouteImport } from './routes/_authed/projects_.$projectId_.runs.$runId'
 import { Route as ApiCiRunsRunIdFilesKindFilenameRouteImport } from './routes/api/ci/runs.$runId.files.$kind.$filename'
+import { Route as ApiDemoRunsRunIdImagesKindFilenameRouteImport } from './routes/api/demo/runs.$runId.images.$kind.$filename'
 import { Route as ApiProjectsProjectIdRunsRunIdImagesKindFilenameRouteImport } from './routes/api/projects.$projectId.runs.$runId.images.$kind.$filename'
 
 const IndexRoute = IndexRouteImport.update({
@@ -31,6 +35,11 @@ const AuthedRoute = AuthedRouteImport.update({
   id: '/_authed',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -40,6 +49,11 @@ const AuthedProjectsRoute = AuthedProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
   getParentRoute: () => AuthedRoute,
+} as any)
+const DemoIndexRoute = DemoIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DemoRoute,
 } as any)
 const AuthedProjectsProjectIdRoute = AuthedProjectsProjectIdRouteImport.update({
   id: '/projects_/$projectId',
@@ -61,6 +75,11 @@ const ApiCiRunsRoute = ApiCiRunsRouteImport.update({
   path: '/api/ci/runs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoRunsRunIdRoute = DemoRunsRunIdRouteImport.update({
+  id: '/runs/$runId',
+  path: '/runs/$runId',
+  getParentRoute: () => DemoRoute,
+} as any)
 const ApiCiBaselinesFilenameRoute = ApiCiBaselinesFilenameRouteImport.update({
   id: '/$filename',
   path: '/$filename',
@@ -78,6 +97,12 @@ const ApiCiRunsRunIdFilesKindFilenameRoute =
     path: '/$runId/files/$kind/$filename',
     getParentRoute: () => ApiCiRunsRoute,
   } as any)
+const ApiDemoRunsRunIdImagesKindFilenameRoute =
+  ApiDemoRunsRunIdImagesKindFilenameRouteImport.update({
+    id: '/api/demo/runs/$runId/images/$kind/$filename',
+    path: '/api/demo/runs/$runId/images/$kind/$filename',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiProjectsProjectIdRunsRunIdImagesKindFilenameRoute =
   ApiProjectsProjectIdRunsRunIdImagesKindFilenameRouteImport.update({
     id: '/api/projects/$projectId/runs/$runId/images/$kind/$filename',
@@ -87,95 +112,119 @@ const ApiProjectsProjectIdRunsRunIdImagesKindFilenameRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/demo': typeof DemoRouteWithChildren
   '/login': typeof LoginRoute
   '/projects': typeof AuthedProjectsRoute
+  '/demo/': typeof DemoIndexRoute
   '/projects/$projectId': typeof AuthedProjectsProjectIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/ci/baselines': typeof ApiCiBaselinesRouteWithChildren
   '/api/ci/runs': typeof ApiCiRunsRouteWithChildren
+  '/demo/runs/$runId': typeof DemoRunsRunIdRoute
   '/api/ci/baselines/$filename': typeof ApiCiBaselinesFilenameRoute
   '/projects/$projectId/runs/$runId': typeof AuthedProjectsProjectIdRunsRunIdRoute
   '/api/ci/runs/$runId/files/$kind/$filename': typeof ApiCiRunsRunIdFilesKindFilenameRoute
+  '/api/demo/runs/$runId/images/$kind/$filename': typeof ApiDemoRunsRunIdImagesKindFilenameRoute
   '/api/projects/$projectId/runs/$runId/images/$kind/$filename': typeof ApiProjectsProjectIdRunsRunIdImagesKindFilenameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/projects': typeof AuthedProjectsRoute
+  '/demo': typeof DemoIndexRoute
   '/projects/$projectId': typeof AuthedProjectsProjectIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/ci/baselines': typeof ApiCiBaselinesRouteWithChildren
   '/api/ci/runs': typeof ApiCiRunsRouteWithChildren
+  '/demo/runs/$runId': typeof DemoRunsRunIdRoute
   '/api/ci/baselines/$filename': typeof ApiCiBaselinesFilenameRoute
   '/projects/$projectId/runs/$runId': typeof AuthedProjectsProjectIdRunsRunIdRoute
   '/api/ci/runs/$runId/files/$kind/$filename': typeof ApiCiRunsRunIdFilesKindFilenameRoute
+  '/api/demo/runs/$runId/images/$kind/$filename': typeof ApiDemoRunsRunIdImagesKindFilenameRoute
   '/api/projects/$projectId/runs/$runId/images/$kind/$filename': typeof ApiProjectsProjectIdRunsRunIdImagesKindFilenameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authed': typeof AuthedRouteWithChildren
+  '/demo': typeof DemoRouteWithChildren
   '/login': typeof LoginRoute
   '/_authed/projects': typeof AuthedProjectsRoute
+  '/demo/': typeof DemoIndexRoute
   '/_authed/projects_/$projectId': typeof AuthedProjectsProjectIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/ci/baselines': typeof ApiCiBaselinesRouteWithChildren
   '/api/ci/runs': typeof ApiCiRunsRouteWithChildren
+  '/demo/runs/$runId': typeof DemoRunsRunIdRoute
   '/api/ci/baselines/$filename': typeof ApiCiBaselinesFilenameRoute
   '/_authed/projects_/$projectId_/runs/$runId': typeof AuthedProjectsProjectIdRunsRunIdRoute
   '/api/ci/runs/$runId/files/$kind/$filename': typeof ApiCiRunsRunIdFilesKindFilenameRoute
+  '/api/demo/runs/$runId/images/$kind/$filename': typeof ApiDemoRunsRunIdImagesKindFilenameRoute
   '/api/projects/$projectId/runs/$runId/images/$kind/$filename': typeof ApiProjectsProjectIdRunsRunIdImagesKindFilenameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/demo'
     | '/login'
     | '/projects'
+    | '/demo/'
     | '/projects/$projectId'
     | '/api/auth/$'
     | '/api/ci/baselines'
     | '/api/ci/runs'
+    | '/demo/runs/$runId'
     | '/api/ci/baselines/$filename'
     | '/projects/$projectId/runs/$runId'
     | '/api/ci/runs/$runId/files/$kind/$filename'
+    | '/api/demo/runs/$runId/images/$kind/$filename'
     | '/api/projects/$projectId/runs/$runId/images/$kind/$filename'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/projects'
+    | '/demo'
     | '/projects/$projectId'
     | '/api/auth/$'
     | '/api/ci/baselines'
     | '/api/ci/runs'
+    | '/demo/runs/$runId'
     | '/api/ci/baselines/$filename'
     | '/projects/$projectId/runs/$runId'
     | '/api/ci/runs/$runId/files/$kind/$filename'
+    | '/api/demo/runs/$runId/images/$kind/$filename'
     | '/api/projects/$projectId/runs/$runId/images/$kind/$filename'
   id:
     | '__root__'
     | '/'
     | '/_authed'
+    | '/demo'
     | '/login'
     | '/_authed/projects'
+    | '/demo/'
     | '/_authed/projects_/$projectId'
     | '/api/auth/$'
     | '/api/ci/baselines'
     | '/api/ci/runs'
+    | '/demo/runs/$runId'
     | '/api/ci/baselines/$filename'
     | '/_authed/projects_/$projectId_/runs/$runId'
     | '/api/ci/runs/$runId/files/$kind/$filename'
+    | '/api/demo/runs/$runId/images/$kind/$filename'
     | '/api/projects/$projectId/runs/$runId/images/$kind/$filename'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthedRoute: typeof AuthedRouteWithChildren
+  DemoRoute: typeof DemoRouteWithChildren
   LoginRoute: typeof LoginRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCiBaselinesRoute: typeof ApiCiBaselinesRouteWithChildren
   ApiCiRunsRoute: typeof ApiCiRunsRouteWithChildren
+  ApiDemoRunsRunIdImagesKindFilenameRoute: typeof ApiDemoRunsRunIdImagesKindFilenameRoute
   ApiProjectsProjectIdRunsRunIdImagesKindFilenameRoute: typeof ApiProjectsProjectIdRunsRunIdImagesKindFilenameRoute
 }
 
@@ -195,6 +244,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -208,6 +264,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/projects'
       preLoaderRoute: typeof AuthedProjectsRouteImport
       parentRoute: typeof AuthedRoute
+    }
+    '/demo/': {
+      id: '/demo/'
+      path: '/'
+      fullPath: '/demo/'
+      preLoaderRoute: typeof DemoIndexRouteImport
+      parentRoute: typeof DemoRoute
     }
     '/_authed/projects_/$projectId': {
       id: '/_authed/projects_/$projectId'
@@ -237,6 +300,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCiRunsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo/runs/$runId': {
+      id: '/demo/runs/$runId'
+      path: '/runs/$runId'
+      fullPath: '/demo/runs/$runId'
+      preLoaderRoute: typeof DemoRunsRunIdRouteImport
+      parentRoute: typeof DemoRoute
+    }
     '/api/ci/baselines/$filename': {
       id: '/api/ci/baselines/$filename'
       path: '/$filename'
@@ -257,6 +327,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/ci/runs/$runId/files/$kind/$filename'
       preLoaderRoute: typeof ApiCiRunsRunIdFilesKindFilenameRouteImport
       parentRoute: typeof ApiCiRunsRoute
+    }
+    '/api/demo/runs/$runId/images/$kind/$filename': {
+      id: '/api/demo/runs/$runId/images/$kind/$filename'
+      path: '/api/demo/runs/$runId/images/$kind/$filename'
+      fullPath: '/api/demo/runs/$runId/images/$kind/$filename'
+      preLoaderRoute: typeof ApiDemoRunsRunIdImagesKindFilenameRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/projects/$projectId/runs/$runId/images/$kind/$filename': {
       id: '/api/projects/$projectId/runs/$runId/images/$kind/$filename'
@@ -282,6 +359,18 @@ const AuthedRouteChildren: AuthedRouteChildren = {
 
 const AuthedRouteWithChildren =
   AuthedRoute._addFileChildren(AuthedRouteChildren)
+
+interface DemoRouteChildren {
+  DemoIndexRoute: typeof DemoIndexRoute
+  DemoRunsRunIdRoute: typeof DemoRunsRunIdRoute
+}
+
+const DemoRouteChildren: DemoRouteChildren = {
+  DemoIndexRoute: DemoIndexRoute,
+  DemoRunsRunIdRoute: DemoRunsRunIdRoute,
+}
+
+const DemoRouteWithChildren = DemoRoute._addFileChildren(DemoRouteChildren)
 
 interface ApiCiBaselinesRouteChildren {
   ApiCiBaselinesFilenameRoute: typeof ApiCiBaselinesFilenameRoute
@@ -310,10 +399,13 @@ const ApiCiRunsRouteWithChildren = ApiCiRunsRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthedRoute: AuthedRouteWithChildren,
+  DemoRoute: DemoRouteWithChildren,
   LoginRoute: LoginRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCiBaselinesRoute: ApiCiBaselinesRouteWithChildren,
   ApiCiRunsRoute: ApiCiRunsRouteWithChildren,
+  ApiDemoRunsRunIdImagesKindFilenameRoute:
+    ApiDemoRunsRunIdImagesKindFilenameRoute,
   ApiProjectsProjectIdRunsRunIdImagesKindFilenameRoute:
     ApiProjectsProjectIdRunsRunIdImagesKindFilenameRoute,
 }

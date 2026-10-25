@@ -15,6 +15,7 @@ const server = {
   STORYBRANCH_ADMIN_EMAIL: z.string().min(1).optional(),
   STORYBRANCH_APP_URL: z.url(),
   STORYBRANCH_DANGEROUS_EMAIL_LOG: z.enum(["1"]).optional(),
+  STORYBRANCH_DEMO_ENABLED: z.enum(["1"]).optional(),
 };
 
 export function createHostedReviewEnv(
@@ -61,6 +62,7 @@ export function createHostedReviewEnv(
       STORYBRANCH_APP_URL: runtimeEnv.STORYBRANCH_APP_URL,
       STORYBRANCH_DANGEROUS_EMAIL_LOG:
         runtimeEnv.STORYBRANCH_DANGEROUS_EMAIL_LOG,
+      STORYBRANCH_DEMO_ENABLED: runtimeEnv.STORYBRANCH_DEMO_ENABLED,
     },
     server,
   });

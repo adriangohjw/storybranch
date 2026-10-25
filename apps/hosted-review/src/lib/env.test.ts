@@ -35,6 +35,15 @@ describe("hosted-review env", () => {
     expect(env.S3_REGION).toBe("us-east-1");
   });
 
+  test("accepts optional demo flag", () => {
+    const env = createHostedReviewEnv({
+      ...valid,
+      STORYBRANCH_DEMO_ENABLED: "1",
+    });
+
+    expect(env.STORYBRANCH_DEMO_ENABLED).toBe("1");
+  });
+
   test("rejects short auth secret", () => {
     expect(() =>
       createHostedReviewEnv({

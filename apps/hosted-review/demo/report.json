@@ -1,0 +1,37 @@
+{
+  "actualDir": "actual",
+  "commit": "demo000000000000000000000000000000000000",
+  "createdAt": "2026-10-25T00:00:00.000Z",
+  "durationMs": 4200,
+  "entries": [
+    {
+      "actualPath": "actual",
+      "baselinePath": "baseline",
+      "browser": "chrome",
+      "diffPath": "diff",
+      "filename": "hero--modes__narrow__chrome.png",
+      "shotLabel": "narrow",
+      "status": "changed",
+      "storyId": "hero--modes"
+    },
+    {
+      "actualPath": "actual",
+      "baselinePath": "baseline",
+      "browser": "chrome",
+      "filename": "hero--default__1200x900__chrome.png",
+      "shotLabel": "1200x900",
+      "status": "unchanged",
+      "storyId": "hero--default"
+    },
+    {
+      "actualPath": "actual",
+      "browser": "chrome",
+      "filename": "hero--pinned__mobile1__chrome.png",
+      "shotLabel": "mobile1",
+      "status": "new",
+      "storyId": "hero--pinned"
+    }
+  ],
+  "root": "fixture",
+  "storyCount": 3
+}

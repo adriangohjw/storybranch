@@ -36,8 +36,24 @@ Setup copies [`.env.example`](./.env.example) → `.env` if needed and replaces 
 | `S3_FORCE_PATH_STYLE` | no | `true` for Floci and most self-hosted S3. |
 | `RESEND_API_KEY`, `RESEND_FROM` | prod | Resend sender for magic links. |
 | `STORYBRANCH_DANGEROUS_EMAIL_LOG` | dev | Set to `1` to **log** magic links instead of sending mail. Default in `.env.example`. **Unset in production.** |
+| `STORYBRANCH_DEMO_ENABLED` | no | Set to `1` to expose the public read-only demo at [`/demo`](http://127.0.0.1:3000/demo). Off by default (demo routes return 404). |
 
 Validation runs at app boot ([`src/lib/env.ts`](./src/lib/env.ts)): without `STORYBRANCH_DANGEROUS_EMAIL_LOG=1`, Resend vars are required.
+
+## Public demo (read-only)
+
+Fixture-aligned snapshots live under [`demo/`](./demo/) (report + PNGs). No database seed or S3 upload is required — the app serves bundled assets when demo mode is on.
+
+1. Set `STORYBRANCH_DEMO_ENABLED=1` in `.env` and restart the app.
+2. Open [`/demo`](http://127.0.0.1:3000/demo) (redirects to the stable demo run). Images are served from `/api/demo/runs/<runId>/images/...` without authentication.
+
+To refresh PNGs from the Storybook fixture baselines after fixture changes:
+
+```bash
+bun run --cwd apps/hosted-review demo:sync
+```
+
+Commit any updated files under `demo/images/`. Production builds bundle `demo/` via Nitro `serverAssets`.
 
 ## Docker Compose stack
 
@@ -80,5 +96,6 @@ With `GITHUB_TOKEN` and a PR number (`STORYBRANCH_PR_NUMBER` or `refs/pull/N/mer
 | `bun run dev`             | Apply migrations, then the Vite dev server   |
 | `bun run db:migrate`      | Apply Prisma migrations                      |
 | `bun run db:reset`        | Drop DB, reapply migrations (uses `.env`)    |
+| `bun run demo:sync`       | Copy fixture PNGs into `demo/images/`        |
 | `bun run db:generate`     | Regenerate Kysely types from `schema.prisma` |
 | `bun run build` / `start` | Production build                             |

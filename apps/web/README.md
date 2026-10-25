@@ -9,6 +9,8 @@ bun install
 bun run dev
 ```
 
+Optional: set `PUBLIC_STORYBRANCH_DEMO_URL` (e.g. `https://review.example/demo`) at build time to show a **See a live demo** link in the hero that points at the hosted-review public demo.
+
 ## Build
 
 ```bash
