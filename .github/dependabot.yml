@@ -26,9 +26,6 @@ updates:
         patterns:
           - pngjs
           - "@types/pngjs"
-      playwright:
-        patterns:
-          - playwright
       prisma:
         patterns:
           - prisma*
@@ -36,11 +33,8 @@ updates:
         patterns:
           - react
           - react-dom
-          - react-icons
-          - sonner
           - "@types/react"
           - "@types/react-dom"
-          - "@fontsource/*"
       storybook:
         patterns:
           - storybook

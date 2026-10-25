@@ -56,7 +56,7 @@
     "ora": "catalog:",
     "picocolors": "catalog:",
     "pixelmatch": "catalog:",
-    "playwright": "catalog:playwright",
+    "playwright": "catalog:",
     "pngjs": "catalog:png"
   },
   "devDependencies": {

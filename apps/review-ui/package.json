@@ -19,12 +19,12 @@
     "typecheck": "bun ../../scripts/bun-check.ts"
   },
   "dependencies": {
-    "@fontsource/archivo": "catalog:react",
+    "@fontsource/archivo": "catalog:",
     "@storybranch/brand": "workspace:*",
     "@storybranch/report": "workspace:*",
     "react": "catalog:react",
     "react-dom": "catalog:react",
-    "react-icons": "catalog:react",
+    "react-icons": "catalog:",
     "tailwind-merge": "catalog:tailwind"
   },
   "devDependencies": {

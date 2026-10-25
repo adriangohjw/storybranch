@@ -18,8 +18,8 @@
     "astro": "catalog:astro",
     "react": "catalog:react",
     "react-dom": "catalog:react",
-    "react-icons": "catalog:react",
-    "sonner": "catalog:react",
+    "react-icons": "catalog:",
+    "sonner": "catalog:",
     "tailwindcss": "catalog:tailwind"
   },
   "devDependencies": {
