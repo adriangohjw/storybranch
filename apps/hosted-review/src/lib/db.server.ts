@@ -4,6 +4,7 @@ import { Kysely, PostgresDialect } from "kysely";
 import { Pool } from "pg";
 
 import type { DB } from "~/generated/types";
+import { resolveDatabaseUrl } from "~/lib/database-url.server";
 import { env } from "~/lib/env";
 import { isRole } from "~/lib/roles";
 import type { Role } from "~/lib/roles";
@@ -15,7 +16,7 @@ let adminReady: Promise<void> | undefined;
 export type ReviewState = "pending" | "accepted" | "changes_requested";
 
 export function db(): Pool {
-  pool ??= new Pool({ connectionString: env.DATABASE_URL });
+  pool ??= new Pool({ connectionString: resolveDatabaseUrl() });
 
   return pool;
 }

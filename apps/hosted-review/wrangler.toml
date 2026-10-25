@@ -1,0 +1,27 @@
+# Hosted review on Cloudflare Workers (Nitro `cloudflare-module` preset).
+# After `bun run build:cloudflare`, deploy with:
+#   wrangler deploy --config .output/server/wrangler.json
+#
+# Nitro merges this file into the generated Worker config in `.output/server/`.
+
+name = "storybranch-hosted-review"
+compatibility_date = "2025-10-25"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+STORYBRANCH_OBJECT_STORAGE = "r2"
+STORYBRANCH_DATABASE = "hyperdrive"
+S3_REGION = "auto"
+
+# Replace with your Workers URL or custom domain (no trailing slash).
+# STORYBRANCH_APP_URL = "https://storybranch-hosted-review.<account>.workers.dev"
+
+[[r2_buckets]]
+binding = "OBJECTS"
+bucket_name = "storybranch-review"
+
+# Create Hyperdrive in the dashboard (Workers → Hyperdrive) pointing at your Postgres
+# (e.g. Neon). Paste the config id below.
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "replace-with-hyperdrive-id"

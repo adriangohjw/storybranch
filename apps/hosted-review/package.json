@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
+    "build:cloudflare": "CLOUDFLARE=1 vite build",
+    "deploy:cloudflare": "bun run build:cloudflare && wrangler deploy --config .output/server/wrangler.json",
     "db:generate": "prisma generate && bun fmt src/generated/types.ts",
     "db:migrate": "prisma migrate deploy",
     "db:reset": "prisma migrate reset --force",
@@ -51,6 +53,7 @@
     "prisma": "catalog:",
     "prisma-kysely": "catalog:",
     "tailwindcss": "catalog:",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "wrangler": "^4.42.0"
   }
 }

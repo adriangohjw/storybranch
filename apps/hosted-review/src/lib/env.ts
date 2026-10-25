@@ -1,20 +1,28 @@
 import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 
+/** Set in `wrangler.toml` `[vars]` when using the `OBJECTS` R2 binding. */
+export const STORYBRANCH_OBJECT_STORAGE_R2 = "r2";
+
+/** Set in `wrangler.toml` `[vars]` when using the `HYPERDRIVE` binding. */
+export const STORYBRANCH_DATABASE_HYPERDRIVE = "hyperdrive";
+
 const server = {
   BETTER_AUTH_SECRET: z.string().min(32),
-  DATABASE_URL: z.string().min(1),
+  DATABASE_URL: z.string().min(1).optional(),
   RESEND_API_KEY: z.string().min(1).optional(),
   RESEND_FROM: z.string().min(1).optional(),
-  S3_ACCESS_KEY: z.string().min(1),
-  S3_BUCKET: z.string().min(1),
+  S3_ACCESS_KEY: z.string().min(1).optional(),
+  S3_BUCKET: z.string().min(1).optional(),
   S3_ENDPOINT: z.url().optional(),
   S3_FORCE_PATH_STYLE: z.enum(["true", "false"]).optional(),
   S3_REGION: z.string().min(1).default("us-east-1"),
-  S3_SECRET_KEY: z.string().min(1),
+  S3_SECRET_KEY: z.string().min(1).optional(),
   STORYBRANCH_ADMIN_EMAIL: z.string().min(1).optional(),
   STORYBRANCH_APP_URL: z.url(),
   STORYBRANCH_DANGEROUS_EMAIL_LOG: z.enum(["1"]).optional(),
+  STORYBRANCH_DATABASE: z.literal(STORYBRANCH_DATABASE_HYPERDRIVE).optional(),
+  STORYBRANCH_OBJECT_STORAGE: z.literal(STORYBRANCH_OBJECT_STORAGE_R2).optional(),
 };
 
 export function createHostedReviewEnv(
@@ -23,6 +31,34 @@ export function createHostedReviewEnv(
   return createEnv({
     createFinalSchema: (serverFieldSchemas) =>
       z.object(serverFieldSchemas).superRefine((data, ctx) => {
+        if (
+          data.STORYBRANCH_DATABASE !== STORYBRANCH_DATABASE_HYPERDRIVE &&
+          data.DATABASE_URL === undefined
+        ) {
+          ctx.addIssue({
+            code: "custom",
+            message:
+              "DATABASE_URL is required unless STORYBRANCH_DATABASE=hyperdrive (Cloudflare Hyperdrive binding)",
+            path: ["DATABASE_URL"],
+          });
+        }
+
+        if (data.STORYBRANCH_OBJECT_STORAGE !== STORYBRANCH_OBJECT_STORAGE_R2) {
+          for (const key of [
+            "S3_ACCESS_KEY",
+            "S3_BUCKET",
+            "S3_SECRET_KEY",
+          ] as const) {
+            if (data[key] === undefined) {
+              ctx.addIssue({
+                code: "custom",
+                message: `${key} is required unless STORYBRANCH_OBJECT_STORAGE=r2 (Cloudflare R2 binding)`,
+                path: [key],
+              });
+            }
+          }
+        }
+
         if (data.STORYBRANCH_DANGEROUS_EMAIL_LOG === "1") {
           return;
         }
@@ -61,6 +97,8 @@ export function createHostedReviewEnv(
       STORYBRANCH_APP_URL: runtimeEnv.STORYBRANCH_APP_URL,
       STORYBRANCH_DANGEROUS_EMAIL_LOG:
         runtimeEnv.STORYBRANCH_DANGEROUS_EMAIL_LOG,
+      STORYBRANCH_DATABASE: runtimeEnv.STORYBRANCH_DATABASE,
+      STORYBRANCH_OBJECT_STORAGE: runtimeEnv.STORYBRANCH_OBJECT_STORAGE,
     },
     server,
   });

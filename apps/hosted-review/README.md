@@ -81,4 +81,86 @@ With `GITHUB_TOKEN` and a PR number (`STORYBRANCH_PR_NUMBER` or `refs/pull/N/mer
 | `bun run db:migrate`      | Apply Prisma migrations                      |
 | `bun run db:reset`        | Drop DB, reapply migrations (uses `.env`)    |
 | `bun run db:generate`     | Regenerate Kysely types from `schema.prisma` |
-| `bun run build` / `start` | Production build                             |
+| `bun run build` / `start` | Production build (Node)                      |
+| `bun run build:cloudflare` | Worker build (Nitro `cloudflare-module`)    |
+| `bun run deploy:cloudflare` | Build + `wrangler deploy` (see below)      |
+
+## Deploy on Cloudflare
+
+Hosted review can run on **Cloudflare Workers** with **R2** for PNG storage and **Hyperdrive** for Postgres (same Prisma schema and migrations as Docker Compose — run migrations against your origin database, not inside the Worker).
+
+### 1. Cloudflare account and Wrangler
+
+1. Create or open a [Cloudflare account](https://dash.cloudflare.com/).
+2. Install Wrangler (included as a dev dependency): `bun install` from the repo root.
+3. Log in: `bunx wrangler login` (from any directory).
+
+### 2. R2 bucket
+
+1. Dashboard → **R2** → **Create bucket** (e.g. `storybranch-review`).
+2. Or CLI: `bunx wrangler r2 bucket create storybranch-review`
+3. In [`wrangler.toml`](./wrangler.toml), set `bucket_name` under `[[r2_buckets]]` to match. The Worker binding name is **`OBJECTS`** (do not rename without code changes).
+
+### 3. Postgres + Hyperdrive
+
+1. Provision Postgres (e.g. [Neon](https://neon.tech), RDS, or the Compose Postgres URL for experiments only).
+2. Apply migrations from your machine (uses `DATABASE_URL` in `.env` pointing at the **origin** DB):
+
+   ```bash
+   bun run --cwd apps/hosted-review db:migrate
+   ```
+
+3. Dashboard → **Workers & Pages** → **Hyperdrive** → **Create configuration** → connect to that Postgres.
+4. Copy the Hyperdrive **configuration id** into `wrangler.toml` (`[[hyperdrive]]` → `id = "..."`). Binding name is **`HYPERDRIVE`**.
+
+### 4. Worker vars and secrets
+
+Edit [`wrangler.toml`](./wrangler.toml):
+
+- Set `[vars]` **`STORYBRANCH_APP_URL`** to your public URL (no trailing slash), e.g. `https://storybranch-hosted-review.<subdomain>.workers.dev` after the first deploy, or your custom domain.
+
+Set secrets (never commit these):
+
+```bash
+cd apps/hosted-review
+bunx wrangler secret put BETTER_AUTH_SECRET
+bunx wrangler secret put RESEND_API_KEY   # omit if using email log in dev only
+bunx wrangler secret put RESEND_FROM
+# Optional: STORYBRANCH_ADMIN_EMAIL as a secret or [vars] entry
+```
+
+For local-style magic links in a staging Worker, you can set `[vars]` `STORYBRANCH_DANGEROUS_EMAIL_LOG = "1"` and skip Resend secrets (not for production).
+
+`[vars]` already includes:
+
+| Var | Purpose |
+| --- | --- |
+| `STORYBRANCH_OBJECT_STORAGE=r2` | Use R2 binding instead of `S3_*` credentials |
+| `STORYBRANCH_DATABASE=hyperdrive` | Use Hyperdrive binding instead of `DATABASE_URL` |
+
+### 5. Build and deploy
+
+From `apps/hosted-review`:
+
+```bash
+bun run deploy:cloudflare
+```
+
+Equivalent manual steps:
+
+```bash
+bun run build:cloudflare
+bunx wrangler deploy --config .output/server/wrangler.json
+```
+
+Nitro merges this app’s [`wrangler.toml`](./wrangler.toml) into the generated `.output/server/wrangler.json`. The Worker serves the app; static assets use the `ASSETS` binding.
+
+### 6. Custom domain (optional)
+
+Dashboard → **Workers & Pages** → your worker → **Settings** → **Domains** → add a route or custom domain. Update `STORYBRANCH_APP_URL` and redeploy.
+
+### 7. CI / GitHub Actions
+
+Point `STORYBRANCH_API_URL` at the Worker URL (or custom domain). Use the same project token flow as self-hosted.
+
+**Docker Compose** (`docker compose -f apps/hosted-review/docker-compose.yml`) remains the local and self-hosted path; nothing in this section replaces it.

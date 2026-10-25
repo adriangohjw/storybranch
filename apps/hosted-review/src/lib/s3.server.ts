@@ -5,25 +5,48 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 
-import { env } from "~/lib/env";
+import { r2ObjectsBinding } from "~/lib/cloudflare.server";
+import {
+  STORYBRANCH_OBJECT_STORAGE_R2,
+  env,
+} from "~/lib/env";
 import type { ObjectStore } from "~/lib/keys";
+import { createR2Store } from "~/lib/r2.server";
 
 let store: ObjectStore | undefined;
 
 export function objects(): ObjectStore {
-  store ??= createS3Store();
+  store ??= createObjectStore();
 
   return store;
 }
 
+export function createObjectStore(): ObjectStore {
+  const r2 = r2ObjectsBinding();
+
+  if (r2 !== undefined) {
+    return createR2Store(r2);
+  }
+
+  if (env.STORYBRANCH_OBJECT_STORAGE === STORYBRANCH_OBJECT_STORAGE_R2) {
+    throw new Error(
+      "STORYBRANCH_OBJECT_STORAGE=r2 but no OBJECTS R2 binding is available"
+    );
+  }
+
+  return createS3Store();
+}
+
 export function createS3Store(): ObjectStore {
-  const bucket = env.S3_BUCKET;
+  const bucket = requireS3Env("S3_BUCKET", env.S3_BUCKET);
+  const accessKeyId = requireS3Env("S3_ACCESS_KEY", env.S3_ACCESS_KEY);
+  const secretAccessKey = requireS3Env("S3_SECRET_KEY", env.S3_SECRET_KEY);
   const endpoint = env.S3_ENDPOINT;
 
   const client = new S3Client({
     credentials: {
-      accessKeyId: env.S3_ACCESS_KEY,
-      secretAccessKey: env.S3_SECRET_KEY,
+      accessKeyId,
+      secretAccessKey,
     },
     endpoint,
     forcePathStyle:
@@ -70,6 +93,14 @@ export function createS3Store(): ObjectStore {
       );
     },
   };
+}
+
+function requireS3Env(name: string, value: string | undefined): string {
+  if (value === undefined) {
+    throw new Error(`${name} is required for S3 object storage`);
+  }
+
+  return value;
 }
 
 function isMissing(error: unknown): boolean {

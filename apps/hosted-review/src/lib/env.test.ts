@@ -35,6 +35,34 @@ describe("hosted-review env", () => {
     expect(env.S3_REGION).toBe("us-east-1");
   });
 
+  test("allows Cloudflare Hyperdrive without DATABASE_URL", () => {
+    const env = createHostedReviewEnv({
+      BETTER_AUTH_SECRET: valid.BETTER_AUTH_SECRET,
+      S3_ACCESS_KEY: valid.S3_ACCESS_KEY,
+      S3_BUCKET: valid.S3_BUCKET,
+      S3_SECRET_KEY: valid.S3_SECRET_KEY,
+      STORYBRANCH_APP_URL: valid.STORYBRANCH_APP_URL,
+      STORYBRANCH_DATABASE: "hyperdrive",
+      STORYBRANCH_DANGEROUS_EMAIL_LOG: "1",
+    });
+
+    expect(env.STORYBRANCH_DATABASE).toBe("hyperdrive");
+    expect(env.DATABASE_URL).toBeUndefined();
+  });
+
+  test("allows Cloudflare R2 binding without S3 credentials", () => {
+    const env = createHostedReviewEnv({
+      BETTER_AUTH_SECRET: valid.BETTER_AUTH_SECRET,
+      DATABASE_URL: valid.DATABASE_URL,
+      STORYBRANCH_APP_URL: valid.STORYBRANCH_APP_URL,
+      STORYBRANCH_DANGEROUS_EMAIL_LOG: "1",
+      STORYBRANCH_OBJECT_STORAGE: "r2",
+    });
+
+    expect(env.STORYBRANCH_OBJECT_STORAGE).toBe("r2");
+    expect(env.S3_ACCESS_KEY).toBeUndefined();
+  });
+
   test("rejects short auth secret", () => {
     expect(() =>
       createHostedReviewEnv({
