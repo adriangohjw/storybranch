@@ -8,7 +8,8 @@
 #   GITHUB_TOKEN            — posts commit status "storybranch / visual" + one PR comment
 #   STORYBRANCH_PR_NUMBER   — pull request number on pull_request events
 #
-# Skipped until STORYBRANCH_PROJECT_TOKEN is configured. See docs/ci.md and
+# Job skipped until repository variable STORYBRANCH_API_URL is set; capture also needs
+# secret STORYBRANCH_PROJECT_TOKEN. See docs/ci.md and
 # apps/hosted-review/README.md for server setup and first baseline upload.
 name: Hosted visual review
 
@@ -25,7 +26,7 @@ concurrency:
 
 jobs:
   visual:
-    if: ${{ secrets.STORYBRANCH_PROJECT_TOKEN != '' }}
+    if: ${{ vars.STORYBRANCH_API_URL != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
