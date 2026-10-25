@@ -55,7 +55,7 @@
     "log-update": "catalog:",
     "ora": "catalog:",
     "picocolors": "catalog:",
-    "pixelmatch": "catalog:png",
+    "pixelmatch": "catalog:",
     "playwright": "catalog:playwright",
     "pngjs": "catalog:png"
   },

@@ -18,9 +18,12 @@ updates:
       oxlint:
         patterns:
           - oxlint*
+      pg:
+        patterns:
+          - pg
+          - "@types/pg"
       png:
         patterns:
-          - pixelmatch
           - pngjs
           - "@types/pngjs"
       playwright:
@@ -29,10 +32,6 @@ updates:
       prisma:
         patterns:
           - prisma*
-          - kysely
-          - pg
-          - "@types/pg"
-          - dotenv
       react:
         patterns:
           - react
@@ -57,7 +56,6 @@ updates:
       tanstack:
         patterns:
           - "@tanstack/*"
-          - nitro
       vite:
         patterns:
           - vite
