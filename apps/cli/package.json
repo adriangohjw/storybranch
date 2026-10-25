@@ -52,19 +52,19 @@
     "typecheck": "bun ../../scripts/bun-check.ts"
   },
   "dependencies": {
-    "log-update": "catalog:",
-    "ora": "catalog:",
-    "picocolors": "catalog:",
-    "pixelmatch": "catalog:",
-    "playwright": "catalog:",
-    "pngjs": "catalog:"
+    "log-update": "catalog:cli",
+    "ora": "catalog:cli",
+    "picocolors": "catalog:cli",
+    "pixelmatch": "catalog:playwright",
+    "playwright": "catalog:playwright",
+    "pngjs": "catalog:playwright"
   },
   "devDependencies": {
     "@storybranch/core": "workspace:*",
     "@storybranch/oxlint-config": "workspace:*",
     "@storybranch/report": "workspace:*",
     "@storybranch/tsconfig": "workspace:*",
-    "@types/bun": "catalog:"
+    "@types/bun": "catalog:repo"
   },
   "engines": {
     "node": ">=22.18.0"
