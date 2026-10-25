@@ -3,6 +3,7 @@ import { expect, test } from "bun:test";
 import { publishedManifest } from "../scripts/published-manifest.mjs";
 
 interface RootManifest {
+  catalog?: Record<string, string>;
   catalogs: Record<string, Record<string, string>>;
 }
 
@@ -50,6 +51,11 @@ test("cli runtime dependencies use the root catalog", async () => {
   ).json()) as CliManifest;
 
   for (const [name, version] of Object.entries(cli.dependencies)) {
+    if (version === "catalog:") {
+      expect(root.catalog?.[name]).toBeDefined();
+      continue;
+    }
+
     const match = /^catalog:(?<family>.+)$/.exec(version);
     expect(match).not.toBeNull();
     const family = match?.groups?.family ?? "";
@@ -59,14 +65,14 @@ test("cli runtime dependencies use the root catalog", async () => {
 
 test("published manifest drops workspace dev dependencies and keeps chromium postinstall", () => {
   const manifest = publishedManifest({
-    dependencies: { picocolors: "catalog:cli" },
+    dependencies: { picocolors: "catalog:" },
     devDependencies: { "@storybranch/core": "workspace:*" },
     name: "@adriangohjw/storybranch",
     scripts: { prepack: "build" },
   });
 
   expect(manifest).toEqual({
-    dependencies: { picocolors: "catalog:cli" },
+    dependencies: { picocolors: "catalog:" },
     name: "@adriangohjw/storybranch",
     scripts: { postinstall: "playwright install chromium" },
   });

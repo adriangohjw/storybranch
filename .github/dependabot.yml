@@ -15,26 +15,17 @@ updates:
       aws:
         patterns:
           - "@aws-sdk/*"
-      cli:
-        patterns:
-          - log-update
-          - ora
-          - picocolors
-      hosted:
-        patterns:
-          - better-auth
-          - zod
-          - "@t3-oss/*"
-      oxc:
+      oxlint:
         patterns:
           - oxlint*
-          - ultracite
-      playwright:
+      png:
         patterns:
-          - playwright
           - pixelmatch
           - pngjs
           - "@types/pngjs"
+      playwright:
+        patterns:
+          - playwright
       prisma:
         patterns:
           - prisma*
@@ -51,15 +42,13 @@ updates:
           - "@types/react"
           - "@types/react-dom"
           - "@fontsource/*"
-      repo:
-        patterns:
-          - turbo
-          - lefthook
-          - "@types/bun"
       storybook:
         patterns:
           - storybook
           - "@storybook/*"
+      t3:
+        patterns:
+          - "@t3-oss/*"
       tailwind:
         patterns:
           - tailwindcss

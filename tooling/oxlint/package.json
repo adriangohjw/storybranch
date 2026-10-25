@@ -15,10 +15,10 @@
     "typecheck": "bun ../../scripts/bun-check.ts"
   },
   "dependencies": {
-    "ultracite": "catalog:oxc"
+    "ultracite": "catalog:"
   },
   "devDependencies": {
     "@storybranch/tsconfig": "workspace:*",
-    "oxlint": "catalog:oxc"
+    "oxlint": "catalog:oxlint"
   }
 }

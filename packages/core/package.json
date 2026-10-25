@@ -20,17 +20,17 @@
   },
   "dependencies": {
     "@storybranch/report": "workspace:*",
-    "log-update": "catalog:cli",
-    "ora": "catalog:cli",
-    "picocolors": "catalog:cli",
-    "pixelmatch": "catalog:playwright",
+    "log-update": "catalog:",
+    "ora": "catalog:",
+    "picocolors": "catalog:",
+    "pixelmatch": "catalog:png",
     "playwright": "catalog:playwright",
-    "pngjs": "catalog:playwright"
+    "pngjs": "catalog:png"
   },
   "devDependencies": {
     "@storybranch/oxlint-config": "workspace:*",
     "@storybranch/tsconfig": "workspace:*",
-    "@types/bun": "catalog:repo",
-    "@types/pngjs": "catalog:playwright"
+    "@types/bun": "catalog:",
+    "@types/pngjs": "catalog:png"
   }
 }
