@@ -1,3 +1,5 @@
+import { Mark } from "@storybranch/brand";
+
 import { PackageManagerProvider } from "@/context/package-manager-context.tsx";
 
 import { InstallCommandPanel } from "./install-command-panel.tsx";
@@ -11,7 +13,8 @@ export function HeroSection() {
       <section className="mx-auto grid w-full max-w-6xl min-w-0 gap-10 px-5 pt-6 pb-16 sm:px-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-center lg:gap-12 lg:pt-10 lg:pb-24">
         <div className="min-w-0">
           <div className="animate-rise flex flex-wrap items-center gap-3">
-            <p className="font-syne text-ink text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+            <p className="font-syne text-ink flex items-center gap-3 text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+              <Mark className="inline-flex gap-1 sm:gap-1.5 [&_span]:h-8 [&_span]:w-3 sm:[&_span]:h-10 sm:[&_span]:w-3.5 lg:[&_span]:h-12 lg:[&_span]:w-4" />
               storybranch
             </p>
             <span className="border-accent/25 bg-accent/10 text-accent rounded-full border px-2.5 py-0.5 text-xs font-semibold tracking-wide uppercase">

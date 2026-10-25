@@ -28,16 +28,6 @@ function Cell({ kind }: { kind: ProofKind }) {
   );
 }
 
-export function Mark() {
-  return (
-    <span aria-hidden className="inline-flex gap-0.5">
-      <Cell kind="open" />
-      <Cell kind="accepted" />
-      <Cell kind="changes" />
-    </span>
-  );
-}
-
 export function ProofKey() {
   return (
     <p className="text-muted-foreground mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs">

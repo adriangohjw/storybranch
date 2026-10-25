@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@source "../../../../packages/brand/src";
+
 @theme {
   --font-syne: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
