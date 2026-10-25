@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@astrojs/react": "catalog:astro",
+    "@storybranch/brand": "workspace:*",
     "@tailwindcss/vite": "catalog:tailwind",
     "astro": "catalog:astro",
     "react": "catalog:react",

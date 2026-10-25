@@ -1,3 +1,4 @@
+import { BrandLockup } from "@storybranch/brand";
 import type { Report, ReportEntry } from "@storybranch/report";
 import { useEffect, useMemo, useState } from "react";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
@@ -89,7 +90,7 @@ export const App = () => {
     <div className="min-h-full font-sans leading-normal">
       <header className="border-line border-b px-5 py-4">
         <h1 className="text-lg font-semibold tracking-tight">
-          storybranch review
+          <BrandLockup>storybranch review</BrandLockup>
         </h1>
         {report === null ? null : (
           <BuildSummary className="mt-2" report={report} />

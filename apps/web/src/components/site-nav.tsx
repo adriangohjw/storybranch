@@ -1,3 +1,4 @@
+import { BrandLockup } from "@storybranch/brand";
 import { useEffect, useId, useState } from "react";
 import { FaGithub } from "react-icons/fa6";
 import { LuMenu, LuX } from "react-icons/lu";
@@ -49,7 +50,7 @@ export function SiteNav({ github }: SiteNavProps) {
         className="font-syne text-ink text-lg font-bold tracking-tight sm:text-xl"
         href="/"
       >
-        storybranch
+        <BrandLockup>storybranch</BrandLockup>
       </a>
 
       <nav

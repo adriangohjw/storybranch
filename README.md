@@ -1,4 +1,14 @@
-# storybranch
+<h1>
+  <img
+    src="packages/brand/src/favicon.svg"
+    width="40"
+    height="40"
+    alt=""
+    aria-hidden="true"
+    valign="middle"
+  />
+  storybranch
+</h1>
 
 > **Alpha / WIP** — This project is in active development. APIs and behavior may change. **Use at your own risk.**
 

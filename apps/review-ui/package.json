@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@fontsource/archivo": "catalog:react",
+    "@storybranch/brand": "workspace:*",
     "@storybranch/report": "workspace:*",
     "react": "catalog:react",
     "react-dom": "catalog:react",
