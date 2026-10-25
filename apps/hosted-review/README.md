@@ -36,6 +36,8 @@ Setup copies [`.env.example`](./.env.example) → `.env` if needed and replaces 
 | `S3_FORCE_PATH_STYLE` | no | `true` for Floci and most self-hosted S3. |
 | `RESEND_API_KEY`, `RESEND_FROM` | prod | Resend sender for magic links. |
 | `STORYBRANCH_DANGEROUS_EMAIL_LOG` | dev | Set to `1` to **log** magic links instead of sending mail. Default in `.env.example`. **Unset in production.** |
+| `STORYBRANCH_OBJECT_STORAGE` | CF | Set to `r2` in Worker `[vars]` when using the `OBJECTS` R2 binding (no `S3_*` keys). |
+| `STORYBRANCH_DATABASE` | CF | Set to `hyperdrive` in Worker `[vars]` when using the `HYPERDRIVE` binding (no `DATABASE_URL`). |
 
 Validation runs at app boot ([`src/lib/env.ts`](./src/lib/env.ts)): without `STORYBRANCH_DANGEROUS_EMAIL_LOG=1`, Resend vars are required.
 
