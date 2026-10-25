@@ -1,6 +1,16 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
+import { Mark } from "~/components/proof-strip";
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+} from "~/components/ui/card";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
 import { authClient } from "~/lib/auth-client";
 import { getSessionUser } from "~/lib/auth.functions";
 
@@ -19,72 +29,75 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    document.body.dataset.review = "pending";
-
-    return () => {
-      delete document.body.dataset.review;
-    };
-  }, []);
+  const [pending, setPending] = useState(false);
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-lg flex-col justify-center px-6 py-16">
-      <div className="specimen px-8 pb-8">
-        <h1 className="text-4xl font-semibold tracking-tight text-balance">
-          storybranch
-        </h1>
-        <p className="text-ink-soft mt-3 max-w-[65ch] text-sm">
-          Invite-only magic link. Ask an admin if you do not have access.
-        </p>
-        {sent ? (
-          <p className="text-ink mt-6 text-sm">
-            If that email is invited, a sign-in link is on its way.
+    <main className="bg-background grid min-h-svh place-items-center p-4">
+      <Card className="w-full max-w-sm">
+        <CardHeader className="gap-3">
+          <p className="flex items-center gap-2 text-sm font-semibold">
+            <Mark />
+            storybranch
           </p>
-        ) : (
-          <form
-            className="mt-6 space-y-3"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void (async () => {
-                const { error: signError } = await authClient.signIn.magicLink({
-                  callbackURL: "/projects",
-                  email,
-                });
+          <h1 className="text-xl font-semibold tracking-tight">Sign in</h1>
+          <CardDescription>
+            Invite-only. Ask an admin if you do not have access.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {sent ? (
+            <p className="text-muted-foreground text-sm">
+              Check that inbox for the sign-in link.
+            </p>
+          ) : (
+            <form
+              className="grid gap-4"
+              onSubmit={(event) => {
+                event.preventDefault();
+                setPending(true);
+                void (async () => {
+                  const { error: signError } =
+                    await authClient.signIn.magicLink({
+                      callbackURL: "/projects",
+                      email,
+                    });
 
-                if (signError) {
-                  setError(signError.message ?? "Could not send link");
+                  setPending(false);
 
-                  return;
-                }
+                  if (signError) {
+                    setError(signError.message ?? "Could not send link");
 
-                setError(null);
-                setSent(true);
-              })();
-            }}
-          >
-            <label className="text-ink-soft block text-sm">
-              Email
-              <input
-                autoComplete="email"
-                className="border-line bg-sheet mt-1 w-full rounded-md border px-3 py-2 text-sm"
-                onChange={(event) => {
-                  setEmail(event.target.value);
-                }}
-                required
-                type="email"
-                value={email}
-              />
-            </label>
-            {error === null ? null : (
-              <p className="text-changes text-sm">{error}</p>
-            )}
-            <button className="chip-button" type="submit">
-              Email magic link
-            </button>
-          </form>
-        )}
-      </div>
+                    return;
+                  }
+
+                  setError(null);
+                  setSent(true);
+                })();
+              }}
+            >
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  autoComplete="email"
+                  id="email"
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                  }}
+                  required
+                  type="email"
+                  value={email}
+                />
+              </div>
+              {error === null ? null : (
+                <p className="text-destructive text-sm">{error}</p>
+              )}
+              <Button disabled={pending} type="submit">
+                {pending ? "Sending" : "Email magic link"}
+              </Button>
+            </form>
+          )}
+        </CardContent>
+      </Card>
     </main>
   );
 }

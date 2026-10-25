@@ -1,11 +1,7 @@
-import {
-  createFileRoute,
-  Link,
-  Outlet,
-  redirect,
-} from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
-import { authClient } from "~/lib/auth-client";
+import { Shell } from "~/components/shell";
+import { listProjects } from "~/lib/app.functions";
 import { getSessionUser } from "~/lib/auth.functions";
 
 export const Route = createFileRoute("/_authed")({
@@ -19,40 +15,18 @@ export const Route = createFileRoute("/_authed")({
     return { user };
   },
   component: AuthedLayout,
+  loader: async () => ({
+    projects: await listProjects(),
+  }),
 });
 
 function AuthedLayout() {
   const { user } = Route.useRouteContext();
+  const { projects } = Route.useLoaderData();
 
   return (
-    <div>
-      <div aria-hidden className="swatch-rail" />
-      <header className="app-header flex items-center justify-between px-5 py-3 pl-8 text-inherit">
-        <Link className="text-sm font-semibold" to="/projects">
-          storybranch
-        </Link>
-        <div className="flex items-center gap-3 text-sm">
-          <span>
-            {user.email} · {user.role}
-          </span>
-          <button
-            className="chip-button-quiet"
-            onClick={() => {
-              void authClient.signOut({
-                fetchOptions: {
-                  onSuccess: () => {
-                    window.location.href = "/login";
-                  },
-                },
-              });
-            }}
-            type="button"
-          >
-            Sign out
-          </button>
-        </div>
-      </header>
+    <Shell projects={projects} user={user}>
       <Outlet />
-    </div>
+    </Shell>
   );
 }

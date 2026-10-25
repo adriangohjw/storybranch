@@ -6,15 +6,28 @@ import { mintProjectToken } from "~/lib/ci.server";
 import { kysely, newId } from "~/lib/db.server";
 import type { ReviewState } from "~/lib/db.server";
 import { acceptActualAsBaseline, safeFilename } from "~/lib/keys";
+import { previewProof, summarizeProof } from "~/lib/proof";
+import type { ProofSummary } from "~/lib/proof";
 import { canAdmin, canReview, isRole } from "~/lib/roles";
 import type { Role } from "~/lib/roles";
 import { objects } from "~/lib/s3.server";
 import { requireUser } from "~/lib/session.server";
 
+export interface LatestRun {
+  branch: string | null;
+  commitSha: string;
+  createdAt: string;
+  id: string;
+  prNumber: number | null;
+  proof: ProofSummary | null;
+}
+
 export interface ProjectRow {
   createdAt: string;
   id: string;
+  latest: LatestRun | null;
   name: string;
+  runCount: number;
 }
 
 export interface RunRow {
@@ -23,6 +36,7 @@ export interface RunRow {
   createdAt: string;
   id: string;
   prNumber: number | null;
+  proof: ProofSummary | null;
 }
 
 export interface TokenRow {
@@ -37,6 +51,39 @@ function isReviewState(value: string): value is ReviewState {
   return (
     value === "pending" || value === "accepted" || value === "changes_requested"
   );
+}
+
+function proofFrom(
+  report: unknown,
+  review: Readonly<Record<string, string>>
+): ProofSummary | null {
+  if (!isReport(report)) {
+    return null;
+  }
+
+  return previewProof(summarizeProof(report.entries, review));
+}
+
+function reviewsByRun(
+  rows: readonly {
+    review_state: string;
+    run_id: string;
+    snapshot_id: string;
+  }[]
+): Map<string, Record<string, string>> {
+  const map = new Map<string, Record<string, string>>();
+
+  for (const row of rows) {
+    if (!isReviewState(row.review_state)) {
+      continue;
+    }
+
+    const review = map.get(row.run_id) ?? {};
+    review[row.snapshot_id] = row.review_state;
+    map.set(row.run_id, review);
+  }
+
+  return map;
 }
 
 export interface CommentRow {
@@ -56,11 +103,89 @@ export const listProjects = createServerFn({ method: "GET" }).handler(
       .orderBy("name")
       .execute();
 
-    return rows.map((row) => ({
-      createdAt: row.created_at.toISOString(),
-      id: row.id,
-      name: row.name,
-    }));
+    if (rows.length === 0) {
+      return [];
+    }
+
+    const ids = rows.map((row) => row.id);
+
+    const runMeta = await kysely()
+      .selectFrom("runs")
+      .select(["id", "project_id", "created_at"])
+      .where("project_id", "in", ids)
+      .execute();
+
+    const countByProject = new Map<string, number>();
+    const latestIdByProject = new Map<string, { at: number; id: string }>();
+
+    for (const run of runMeta) {
+      countByProject.set(
+        run.project_id,
+        (countByProject.get(run.project_id) ?? 0) + 1
+      );
+      const at = run.created_at.getTime();
+      const current = latestIdByProject.get(run.project_id);
+
+      if (current === undefined || at > current.at) {
+        latestIdByProject.set(run.project_id, { at, id: run.id });
+      }
+    }
+
+    const latestIds = [...latestIdByProject.values()].map((item) => item.id);
+
+    const latestRows =
+      latestIds.length === 0
+        ? []
+        : await kysely()
+            .selectFrom("runs")
+            .select([
+              "id",
+              "project_id",
+              "commit_sha",
+              "branch",
+              "pr_number",
+              "created_at",
+              "report",
+            ])
+            .where("id", "in", latestIds)
+            .execute();
+
+    const snapshots =
+      latestIds.length === 0
+        ? []
+        : await kysely()
+            .selectFrom("run_snapshots")
+            .select(["run_id", "snapshot_id", "review_state"])
+            .where("run_id", "in", latestIds)
+            .execute();
+
+    const reviews = reviewsByRun(snapshots);
+
+    const latestByProject = new Map(
+      latestRows.map((row) => [row.project_id, row])
+    );
+
+    return rows.map((row) => {
+      const latest = latestByProject.get(row.id);
+
+      return {
+        createdAt: row.created_at.toISOString(),
+        id: row.id,
+        latest:
+          latest === undefined
+            ? null
+            : {
+                branch: latest.branch,
+                commitSha: latest.commit_sha,
+                createdAt: latest.created_at.toISOString(),
+                id: latest.id,
+                prNumber: latest.pr_number,
+                proof: proofFrom(latest.report, reviews.get(latest.id) ?? {}),
+              },
+        name: row.name,
+        runCount: countByProject.get(row.id) ?? 0,
+      };
+    });
   }
 );
 
@@ -90,7 +215,9 @@ export const createProject = createServerFn({ method: "POST" })
     return {
       createdAt: row.created_at.toISOString(),
       id,
+      latest: null,
       name,
+      runCount: 0,
     };
   });
 
@@ -111,10 +238,30 @@ export const listRuns = createServerFn({ method: "GET" })
 
     const rows = await kysely()
       .selectFrom("runs")
-      .select(["id", "commit_sha", "branch", "pr_number", "created_at"])
+      .select([
+        "id",
+        "commit_sha",
+        "branch",
+        "pr_number",
+        "created_at",
+        "report",
+      ])
       .where("project_id", "=", data.projectId)
       .orderBy("created_at", "desc")
       .execute();
+
+    const runIds = rows.map((row) => row.id);
+
+    const snapshots =
+      runIds.length === 0
+        ? []
+        : await kysely()
+            .selectFrom("run_snapshots")
+            .select(["run_id", "snapshot_id", "review_state"])
+            .where("run_id", "in", runIds)
+            .execute();
+
+    const reviews = reviewsByRun(snapshots);
 
     return {
       name: project.name,
@@ -124,6 +271,7 @@ export const listRuns = createServerFn({ method: "GET" })
         createdAt: row.created_at.toISOString(),
         id: row.id,
         prNumber: row.pr_number,
+        proof: proofFrom(row.report, reviews.get(row.id) ?? {}),
       })),
     };
   });
@@ -137,21 +285,27 @@ export const loadRun = createServerFn({ method: "GET" })
       comments: Record<string, CommentRow[]>;
       report: Report;
       review: Record<string, ReviewState>;
+      run: {
+        branch: string | null;
+        commitSha: string;
+        createdAt: string;
+        prNumber: number | null;
+      };
     }> => {
       await requireUser();
 
       const row = await kysely()
         .selectFrom("runs")
-        .select("report")
+        .select(["report", "branch", "commit_sha", "pr_number", "created_at"])
         .where("id", "=", data.runId)
         .where("project_id", "=", data.projectId)
         .executeTakeFirst();
 
-      const report = row?.report;
-
-      if (!isReport(report)) {
+      if (row === undefined || !isReport(row.report)) {
         throw new Error("unknown run");
       }
+
+      const { report } = row;
 
       const snapshots = await kysely()
         .selectFrom("run_snapshots")
@@ -189,7 +343,17 @@ export const loadRun = createServerFn({ method: "GET" })
         byShot[comment.snapshot_id] = list;
       }
 
-      return { comments: byShot, report, review };
+      return {
+        comments: byShot,
+        report,
+        review,
+        run: {
+          branch: row.branch,
+          commitSha: row.commit_sha,
+          createdAt: row.created_at.toISOString(),
+          prNumber: row.pr_number,
+        },
+      };
     }
   );
 

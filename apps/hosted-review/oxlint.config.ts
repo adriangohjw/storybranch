@@ -12,6 +12,7 @@ export default defineConfig({
   ignorePatterns: [
     ...(base.ignorePatterns ?? []),
     "src/routeTree.gen.ts",
+    "src/components/ui/**",
     ".output/**",
   ],
   jsPlugins: reactStackJsPlugins,
