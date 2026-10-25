@@ -12,6 +12,7 @@
     "typecheck": "bun ../../scripts/bun-check.ts"
   },
   "dependencies": {
+    "@storybranch/brand": "workspace:*",
     "@astrojs/react": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "astro": "catalog:",

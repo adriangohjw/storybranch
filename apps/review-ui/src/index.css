@@ -1,4 +1,7 @@
 @import "tailwindcss";
+
+@source "../../../packages/brand/src";
+
 @import "@fontsource/archivo/400.css";
 @import "@fontsource/archivo/600.css";
 @import "@fontsource/archivo/700.css";

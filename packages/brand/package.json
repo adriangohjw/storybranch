@@ -1,0 +1,22 @@
+{
+  "name": "@storybranch/brand",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/mark.tsx",
+    "./favicon.svg": "./src/favicon.svg"
+  },
+  "scripts": {
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "typecheck": "bun ../../scripts/bun-check.ts"
+  },
+  "peerDependencies": {
+    "react": "catalog:"
+  },
+  "devDependencies": {
+    "@storybranch/oxlint-config": "workspace:*",
+    "@storybranch/tsconfig": "workspace:*",
+    "@types/react": "catalog:"
+  }
+}
