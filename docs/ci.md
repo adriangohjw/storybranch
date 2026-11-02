@@ -62,6 +62,8 @@ A shareable review server and a static HTML report are not part of the **git-bas
 
 `.github/workflows/ci.yml` runs the same capture against `packages/fixture` on the existing `push` workflow (Node runs the CLI; Bun still installs the workspace). That job captures Chrome, Firefox, Edge, and WebKit, one after another. Pushes that are not `main` pass `--only-changed`. `main` captures every story. The job is part of **✅ CI passed**.
 
+**Hosted dogfood:** [`.github/workflows/hosted-visual-review.yml`](../.github/workflows/hosted-visual-review.yml) runs the same `packages/fixture` Storybook against a self-deployed [`apps/hosted-review`](../apps/hosted-review/README.md) instance. The job is skipped until repository variable `STORYBRANCH_API_URL` is set; capture also needs secret `STORYBRANCH_PROJECT_TOKEN`. Chrome only; pull requests pass `--only-changed`. The job exits 0 after a successful upload even when pixels differ, and updates commit status `storybranch / visual` plus one PR comment when `GITHUB_TOKEN` and `STORYBRANCH_PR_NUMBER` are available.
+
 The sticky comment uses `gh pr list` for the branch, because this workflow does not also trigger on `pull_request` (that would run the other jobs twice). The example workflow above uses `pull_request` directly.
 
 Baselines belong in `packages/fixture/.storybranch/baseline/` and must be produced on `ubuntu-latest` (or another Linux amd64 Playwright host). macOS captures will not match this CI job. After `bun install`, a CLI build, `playwright install --with-deps chromium firefox msedge webkit`, and `storybook build` into `packages/fixture/storybook-static`:
