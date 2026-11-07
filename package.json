@@ -60,8 +60,8 @@
   },
   "catalogs": {
     "astro": {
-      "@astrojs/react": "^7.1.0",
-      "astro": "^7.4.0"
+      "@astrojs/react": "^7.1.2",
+      "astro": "^7.4.4"
     },
     "aws": {
       "@aws-sdk/client-s3": "^3.901.0"
