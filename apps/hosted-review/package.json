@@ -27,7 +27,7 @@
     "@tanstack/react-start": "catalog:tanstack",
     "better-auth": "catalog:",
     "class-variance-authority": "^0.7.1",
-    "cn": "^0.5.0",
+    "cn": "^0.5.1",
     "kysely": "catalog:",
     "lucide-react": "^1.61.0",
     "nitro": "catalog:",
