@@ -64,7 +64,7 @@
       "astro": "^7.4.4"
     },
     "aws": {
-      "@aws-sdk/client-s3": "^3.901.0"
+      "@aws-sdk/client-s3": "^3.1161.0"
     },
     "oxlint": {
       "oxlint": "^1.90.0",
