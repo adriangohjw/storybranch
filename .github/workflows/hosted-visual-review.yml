@@ -1,0 +1,64 @@
+# Dogfood hosted visual review for packages/fixture against apps/hosted-review.
+#
+# Configure in GitHub → Settings → Secrets and variables → Actions:
+#   Secret   STORYBRANCH_PROJECT_TOKEN — CI token from hosted-review (Projects → token)
+#   Variable STORYBRANCH_API_URL       — public hosted-review URL, no trailing slash
+#
+# Set automatically by this workflow (do not add as repo secrets):
+#   GITHUB_TOKEN            — posts commit status "storybranch / visual" + one PR comment
+#   STORYBRANCH_PR_NUMBER   — pull request number on pull_request events
+#
+# Job skipped until repository variable STORYBRANCH_API_URL is set; capture also needs
+# secret STORYBRANCH_PROJECT_TOKEN. See docs/ci.md and
+# apps/hosted-review/README.md for server setup and first baseline upload.
+name: Hosted visual review
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions: {}
+
+concurrency:
+  group: hosted-visual-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  visual:
+    if: ${{ vars.STORYBRANCH_API_URL != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Setup
+        uses: ./tooling/github/setup
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 22.18
+      - name: Install Playwright
+        run: bunx playwright install --with-deps chromium
+      - name: Build CLI
+        run: bunx turbo run build --filter=@adriangohjw/storybranch
+      - name: Build Storybook
+        run: bunx storybook build --config-dir packages/fixture/.storybook --output-dir packages/fixture/storybook-static
+      - name: Capture and upload to hosted review
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          STORYBRANCH_API_URL: ${{ vars.STORYBRANCH_API_URL }}
+          STORYBRANCH_PR_NUMBER: ${{ github.event.pull_request.number }}
+          STORYBRANCH_PROJECT_TOKEN: ${{ secrets.STORYBRANCH_PROJECT_TOKEN }}
+        run: |
+          set -euo pipefail
+          args=(test --build --cwd packages/fixture --browsers chrome --exit-once)
+          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            args+=(--only-changed)
+          fi
+          node apps/cli/bin/storybranch.js "${args[@]}"
